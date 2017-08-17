@@ -7,9 +7,11 @@ class Storage {
 			$gridTable: null,
 			$headLabels: null,
 			$paginationBox: null,
+			query: null,
 			scrollbarWidth: 0,
 			colModels: [],
-			data: []
+			data: [],
+			processedData: []
 		}, model)
 		this._subscribers = {};
 	}
@@ -89,6 +91,24 @@ class Storage {
 			this.notify('data', this);
 		}
 	};
+
+	get query() {
+		return this._model.query;
+	};
+	set query(data) {
+		this._model.query = data;
+		this.notify('query', this);
+	};
+
+	get processedData() {
+		return this._model.query;
+	};
+	set processedData(data) {
+		this._model.processedData = data;
+		this.notify('processedData', this);
+	};
+
+
 
 	on(name, subscriber) {
 		var storege = this._getStorage(name);

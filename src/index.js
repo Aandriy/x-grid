@@ -7,6 +7,7 @@ import FixedHeader from './FixedHeader.js';
 import Storage from './Storage.js'
 import Fill from './Fill.js';
 import Pagination from './Pagination.js';
+import tools from './Tools.js';
 
 
 (function ($) {
@@ -19,13 +20,47 @@ import Pagination from './Pagination.js';
 
 			}
 			this.options = $.extend({
-				paginationSelector:''
+				beforeRequest: [],
+				afterResponse: [],
+				paginationSelector: '',
+				ajaxType: 'POST',
+				url: ''
 			}, options);
 			this.Storage = new Storage({ $box: box })
 			this._exec();
+		};
 
+		ajaxFunction(queryObject, url) {
+			const options = this.options;
+			$.ajax({
+				url: url,
+				data: queryObject,
+				type: options.ajaxType,
+				dataType: 'json'
+			});
+		};
+		_response(responseObject) {
+			const options = this.options;
 
-		}
+			if (options.afterResponse) {
+				tools.execute(options.afterResponse, responseObject);
+			}
+		};
+
+		_request(queryObject = {}) {
+			const options = this.options,
+				d = $.Deferred();
+			if (options.beforeRequest) {
+				tools.execute(options.beforeRequest, queryObject);
+			}
+
+			this.ajaxFunction(queryObject, options.url).done(this._response.bind(this)).always(() => {
+				d.resolve();
+			});
+
+			return d;
+		};
+
 		_bind() {
 			const self = this,
 				properties = this.properties,
@@ -37,7 +72,7 @@ import Pagination from './Pagination.js';
 			});
 
 			this.Storage.on('data', () => {
-				this.Display.local();
+				this.Display.exec();
 			});
 
 			this.ViewModel.on('data', () => {
@@ -58,7 +93,14 @@ import Pagination from './Pagination.js';
 			this.ProcessSettings = new ProcessSettings(options, this.Storage);
 			this.BuildInfrastructure = new BuildInfrastructure(options, this.Storage);
 			this.Fill = new Fill(this.Storage, this.ViewModel);
-			this.Display = new Display(this.Storage, this.ViewModel);
+			this.Display = new Display({
+				storage: this.Storage,
+				viewModel: this.ViewModel,
+				ajax: ((queryObject) => {
+					return this._request(queryObject);
+				}),
+				isLocal: options.url ? false : true
+			});
 			this.FixedHeader = new FixedHeader(this.Storage);
 			this.Pagination = new Pagination(options, this.Storage, this.ViewModel);
 

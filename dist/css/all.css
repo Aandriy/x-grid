@@ -3,6 +3,16 @@
 	text-overflow: ellipsis;
 
 }
+.Xgrid-loading .Xgrid-wrapper:after{
+	content: '';
+	position: absolute;
+	background: #000;
+	left: 0;
+	right: 0;
+	top: 0;
+	bottom: 0;
+	opacity: 0.1;
+}
 
 .Xgrid {
 	width:100%;
@@ -17,8 +27,8 @@
 .Xgrid-wrapper {
 	width:100%;
 	float: left;
+	position: relative;
 }
-
 
 .Xgrid-thead-wrapper {
 	width:100%;

@@ -4,6 +4,20 @@ class Tools {
 		this.now = Date.now || (() => { return new Date().getTime(); });
 	}
 
+	execute(functions, args, context ) {
+		const apply = function (foo) {
+			if (typeof (foo) === 'function') {
+				foo.apply(context ? context : foo, args)
+			}
+		}
+
+		if ($.isArray(functions)) {
+			functions.forEach(apply);
+		} else {
+			apply(functions);
+		}
+	};
+
 	throttle(func, wait = 10) {
 		let context,
 			args,

@@ -88,21 +88,25 @@ var _Display = __webpack_require__(5);
 
 var _Display2 = _interopRequireDefault(_Display);
 
-var _FixedHeader = __webpack_require__(6);
+var _FixedHeader = __webpack_require__(7);
 
 var _FixedHeader2 = _interopRequireDefault(_FixedHeader);
 
-var _Storage = __webpack_require__(7);
+var _Storage = __webpack_require__(8);
 
 var _Storage2 = _interopRequireDefault(_Storage);
 
-var _Fill = __webpack_require__(8);
+var _Fill = __webpack_require__(9);
 
 var _Fill2 = _interopRequireDefault(_Fill);
 
-var _Pagination = __webpack_require__(9);
+var _Pagination = __webpack_require__(10);
 
 var _Pagination2 = _interopRequireDefault(_Pagination);
+
+var _Tools = __webpack_require__(6);
+
+var _Tools2 = _interopRequireDefault(_Tools);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -120,13 +124,54 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 			};
 			this.options = $.extend({
-				paginationSelector: ''
+				beforeRequest: [],
+				afterResponse: [],
+				paginationSelector: '',
+				ajaxType: 'POST',
+				url: ''
 			}, options);
 			this.Storage = new _Storage2.default({ $box: box });
 			this._exec();
 		}
 
 		_createClass(Xgrid, [{
+			key: 'ajaxFunction',
+			value: function ajaxFunction(queryObject, url) {
+				var options = this.options;
+				$.ajax({
+					url: url,
+					data: queryObject,
+					type: options.ajaxType,
+					dataType: 'json'
+				});
+			}
+		}, {
+			key: '_response',
+			value: function _response(responseObject) {
+				var options = this.options;
+
+				if (options.afterResponse) {
+					_Tools2.default.execute(options.afterResponse, responseObject);
+				}
+			}
+		}, {
+			key: '_request',
+			value: function _request() {
+				var queryObject = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+				var options = this.options,
+				    d = $.Deferred();
+				if (options.beforeRequest) {
+					_Tools2.default.execute(options.beforeRequest, queryObject);
+				}
+
+				this.ajaxFunction(queryObject, options.url).done(this._response.bind(this)).always(function () {
+					d.resolve();
+				});
+
+				return d;
+			}
+		}, {
 			key: '_bind',
 			value: function _bind() {
 				var _this = this;
@@ -141,7 +186,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				});
 
 				this.Storage.on('data', function () {
-					_this.Display.local();
+					_this.Display.exec();
 				});
 
 				this.ViewModel.on('data', function () {
@@ -156,6 +201,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 		}, {
 			key: '_exec',
 			value: function _exec() {
+				var _this2 = this;
+
 				var self = this,
 				    properties = this.properties,
 				    options = this.options;
@@ -164,7 +211,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this.ProcessSettings = new _ProcessSettings2.default(options, this.Storage);
 				this.BuildInfrastructure = new _BuildInfrastructure2.default(options, this.Storage);
 				this.Fill = new _Fill2.default(this.Storage, this.ViewModel);
-				this.Display = new _Display2.default(this.Storage, this.ViewModel);
+				this.Display = new _Display2.default({
+					storage: this.Storage,
+					viewModel: this.ViewModel,
+					ajax: function ajax(queryObject) {
+						return _this2._request(queryObject);
+					},
+					isLocal: options.url ? false : true
+				});
 				this.FixedHeader = new _FixedHeader2.default(this.Storage);
 				this.Pagination = new _Pagination2.default(options, this.Storage, this.ViewModel);
 
@@ -563,45 +617,133 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _Tools = __webpack_require__(10);
+var _Tools = __webpack_require__(6);
 
 var _Tools2 = _interopRequireDefault(_Tools);
+
+var _QueryModel = __webpack_require__(11);
+
+var _QueryModel2 = _interopRequireDefault(_QueryModel);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var Display = function () {
-	function Display(storage, viewModel) {
+	function Display(options) {
 		_classCallCheck(this, Display);
 
-		this.viewModel = viewModel;
-		this.storage = storage;
+		this.viewModel = options.viewModel;
+		this.storage = options.storage;
+		this.ajax = options.ajax;
+
+		if (options.isLocal) {
+			this.process = this._localProcess.bind(this);
+		} else {
+			this.process = this._serverProcess.bind(this);
+		}
+
 		this._subscribe();
 	}
 
 	_createClass(Display, [{
-		key: 'local',
-		value: function local() {
+		key: 'exec',
+		value: function exec() {
+			var _this = this;
+
 			var storage = this.storage,
 			    viewModel = this.viewModel,
-			    rowsCount = storage.data.length,
-			    begin = (viewModel.page - 1) * viewModel.rows,
-			    end = viewModel.page * viewModel.rows;
+			    query = new _QueryModel2.default({
+				filter: [],
+				sort: [],
+				rows: viewModel.rows,
+				page: viewModel.newPage
+			});
 
-			viewModel.totalPages = Math.ceil(rowsCount / viewModel.rows);
-			viewModel.totalRows = rowsCount;
-			viewModel.data = storage.data.slice(begin, end);
+			storage.query = query;
+			storage.$box.addClass('Xgrid-loading');
+			setTimeout(function () {
+				_this.process().done(function (data) {
+					_this._filler(data);
+					_this.storage.$box.removeClass('Xgrid-loading');
+				});
+			}, 0);
+		}
+	}, {
+		key: '_filler',
+		value: function _filler(data) {
+			var viewModel = this.viewModel;
+
+			viewModel.totalPages = data.totalPages;
+			viewModel.totalRows = data.totalRows;
+			viewModel.data = data.data;
+			viewModel.page = data.page;
+		}
+	}, {
+		key: '_localFilter',
+		value: function _localFilter(data) {
+			var deferred = $.Deferred();
+			setTimeout(function () {
+				deferred.resolve(data);
+			}, 0);
+			return deferred;
+		}
+	}, {
+		key: '_localSort',
+		value: function _localSort(data) {
+			var deferred = $.Deferred();
+			setTimeout(function () {
+				deferred.resolve(data);
+			}, 0);
+			return deferred;
+		}
+	}, {
+		key: '_getLocalData',
+		value: function _getLocalData(data, query) {
+			var storage = this.storage,
+			    viewModel = this.viewModel,
+			    result = {
+				totalRows: data.length,
+				page: query.page,
+				totalPages: Math.ceil(data.length / viewModel.rows) || 1
+			},
+			    begin = (result.page - 1) * viewModel.rows,
+			    end = result.page * viewModel.rows;
+
+			result.data = data.slice(begin, end);
+			return result;
+		}
+	}, {
+		key: '_localProcess',
+		value: function _localProcess() {
+			var _this2 = this;
+
+			var storage = this.storage,
+			    deferred = $.Deferred(),
+			    query = storage.query;
+
+			this._localFilter(storage.data, query.filter).done(function (filteredData) {
+				_this2._localSort(filteredData, query.sort).done(function (sortedData) {
+					deferred.resolve(_this2._getLocalData(sortedData, query));
+				});
+			});
+			return deferred;
+		}
+	}, {
+		key: '_serverProcess',
+		value: function _serverProcess() {
+			var deferred = this.ajax(this.storage.query);
+			return deferred;
 		}
 	}, {
 		key: '_subscribe',
 		value: function _subscribe() {
-			var _this = this;
+			var _this3 = this;
 
 			var viewModel = this.viewModel,
 			    action = _Tools2.default.throttle(function (x) {
 				viewModel.page = viewModel.newPage;
-				_this.local();
+				_this3.exec();
 			}, 100);
 			viewModel.on('newPage', action);
 		}
@@ -614,6 +756,82 @@ exports.default = Display;
 
 /***/ }),
 /* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Tools = function () {
+	function Tools() {
+		_classCallCheck(this, Tools);
+
+		this.now = Date.now || function () {
+			return new Date().getTime();
+		};
+	}
+
+	_createClass(Tools, [{
+		key: 'execute',
+		value: function execute(functions, args, context) {
+			var apply = function apply(foo) {
+				if (typeof foo === 'function') {
+					foo.apply(context ? context : foo, args);
+				}
+			};
+
+			if ($.isArray(functions)) {
+				functions.forEach(apply);
+			} else {
+				apply(functions);
+			}
+		}
+	}, {
+		key: 'throttle',
+		value: function throttle(func) {
+			var wait = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 10;
+
+			var context = void 0,
+			    args = void 0,
+			    timeout = null;
+			return function () {
+				context = this;
+
+				for (var _len = arguments.length, props = Array(_len), _key = 0; _key < _len; _key++) {
+					props[_key] = arguments[_key];
+				}
+
+				args = props;
+				if (!context) {
+					context = func;
+				} else if (context === window) {
+					context = func;
+				}
+				if (!timeout) {
+					timeout = setTimeout(function () {
+						clearTimeout(timeout);
+						timeout = null;
+						func.apply(context, args);
+					}, wait);
+				}
+			};
+		}
+	}]);
+
+	return Tools;
+}();
+
+exports.default = new Tools();
+
+/***/ }),
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -704,7 +922,7 @@ var FixedHeader = function () {
 exports.default = FixedHeader;
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -728,9 +946,11 @@ var Storage = function () {
 			$gridTable: null,
 			$headLabels: null,
 			$paginationBox: null,
+			query: null,
 			scrollbarWidth: 0,
 			colModels: [],
-			data: []
+			data: [],
+			processedData: []
 		}, model);
 		this._subscribers = {};
 	}
@@ -842,6 +1062,24 @@ var Storage = function () {
 				this.notify('data', this);
 			}
 		}
+	}, {
+		key: 'query',
+		get: function get() {
+			return this._model.query;
+		},
+		set: function set(data) {
+			this._model.query = data;
+			this.notify('query', this);
+		}
+	}, {
+		key: 'processedData',
+		get: function get() {
+			return this._model.query;
+		},
+		set: function set(data) {
+			this._model.processedData = data;
+			this.notify('processedData', this);
+		}
 	}]);
 
 	return Storage;
@@ -850,7 +1088,7 @@ var Storage = function () {
 exports.default = Storage;
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1000,7 +1238,7 @@ var Fill = function () {
 exports.default = Fill;
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1054,11 +1292,11 @@ var Pagination = function () {
 		key: '_bind',
 		value: function _bind() {
 			var storage = this.storage;
-			storage.$paginationBox.on('click', '.Xgrid-first', this._handlerFirst.bind(this));
-			storage.$paginationBox.on('click', '.Xgrid-prev', this._handlerPrev.bind(this));
-			storage.$paginationBox.on('click', '.Xgrid-next', this._handlerNext.bind(this));
-			storage.$paginationBox.on('click', '.Xgrid-last', this._handlerLast.bind(this));
-			storage.$paginationBox.on('keypress', '.Xgrid-current-page', this._handlerGoTo.bind(this));
+			storage.$paginationBox.on('click.xgrid', '.Xgrid-first', this._handlerFirst.bind(this));
+			storage.$paginationBox.on('click.xgrid', '.Xgrid-prev', this._handlerPrev.bind(this));
+			storage.$paginationBox.on('click.xgrid', '.Xgrid-next', this._handlerNext.bind(this));
+			storage.$paginationBox.on('click.xgrid', '.Xgrid-last', this._handlerLast.bind(this));
+			storage.$paginationBox.on('keypress.xgrid', '.Xgrid-current-page', this._handlerGoTo.bind(this));
 		}
 	}, {
 		key: '_handlerFirst',
@@ -1090,9 +1328,7 @@ var Pagination = function () {
 		value: function _handlerPrev(e) {
 			e.preventDefault();
 			var page = this.viewModel.page - 1;
-			if (function (page) {
-				return 1;
-			}) {
+			if (page > 0) {
 				this.viewModel.newPage = page;
 			}
 		}
@@ -1124,7 +1360,7 @@ var Pagination = function () {
 exports.default = Pagination;
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1134,55 +1370,19 @@ Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var Tools = function () {
-	function Tools() {
-		_classCallCheck(this, Tools);
+var QueryModel = function QueryModel(data) {
+	_classCallCheck(this, QueryModel);
 
-		this.now = Date.now || function () {
-			return new Date().getTime();
-		};
-	}
+	this.filter = [];
+	this.sort = [];
+	this.rows = 0;
+	this.page = 1;
+	$.extend(this, data);
+};
 
-	_createClass(Tools, [{
-		key: 'throttle',
-		value: function throttle(func) {
-			var wait = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 10;
-
-			var context = void 0,
-			    args = void 0,
-			    timeout = null;
-			return function () {
-				context = this;
-
-				for (var _len = arguments.length, props = Array(_len), _key = 0; _key < _len; _key++) {
-					props[_key] = arguments[_key];
-				}
-
-				args = props;
-				if (!context) {
-					context = func;
-				} else if (context === window) {
-					context = func;
-				}
-				if (!timeout) {
-					timeout = setTimeout(function () {
-						clearTimeout(timeout);
-						timeout = null;
-						func.apply(context, args);
-					}, wait);
-				}
-			};
-		}
-	}]);
-
-	return Tools;
-}();
-
-exports.default = new Tools();
+exports.default = QueryModel;
 
 /***/ })
 /******/ ]);

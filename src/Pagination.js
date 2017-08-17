@@ -12,7 +12,6 @@ class Pagination {
 	};
 	exec() {
 		this._bind();
-
 	};
 
 	page() {
@@ -27,17 +26,15 @@ class Pagination {
 		const viewModel = this.viewModel;
 		viewModel.on('page', this.page.bind(this));
 		viewModel.on('totalPages', this.totalPages.bind(this));
-
 	};
-
 
 	_bind() {
 		const storage = this.storage;
-		storage.$paginationBox.on('click', '.Xgrid-first', this._handlerFirst.bind(this));
-		storage.$paginationBox.on('click', '.Xgrid-prev', this._handlerPrev.bind(this));
-		storage.$paginationBox.on('click', '.Xgrid-next', this._handlerNext.bind(this));
-		storage.$paginationBox.on('click', '.Xgrid-last', this._handlerLast.bind(this));
-		storage.$paginationBox.on('keypress', '.Xgrid-current-page', this._handlerGoTo.bind(this));
+		storage.$paginationBox.on('click.xgrid', '.Xgrid-first', this._handlerFirst.bind(this));
+		storage.$paginationBox.on('click.xgrid', '.Xgrid-prev', this._handlerPrev.bind(this));
+		storage.$paginationBox.on('click.xgrid', '.Xgrid-next', this._handlerNext.bind(this));
+		storage.$paginationBox.on('click.xgrid', '.Xgrid-last', this._handlerLast.bind(this));
+		storage.$paginationBox.on('keypress.xgrid', '.Xgrid-current-page', this._handlerGoTo.bind(this));
 	};
 
 	_handlerFirst(e) {
@@ -62,7 +59,7 @@ class Pagination {
 	_handlerPrev(e) {
 		e.preventDefault();
 		const page = this.viewModel.page - 1;
-		if (page => 1) {
+		if (page > 0) {
 			this.viewModel.newPage = page;
 		}
 	};
