@@ -36,7 +36,7 @@ class ProcessSettings {
 			colModelsDictionary = {};
 
 		$.each(options.colModels, (i, model) => {
-			const colModel = new ColModel(model, i, this.storage),
+			const colModel = new ColModel(model, i, this.storage);
 
 			if (!aliases[colModel.alias]) {
 				aliases[colModel.alias] = 1;

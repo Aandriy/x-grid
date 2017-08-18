@@ -8,9 +8,9 @@ class ColModel {
 		$.extend(this, model);
 
 		if (typeof(this.alias) === 'undefined') {
-			this.alias = this.id;
+			this.alias = this.key;
 		}
-		if (typeof(this.id) === 'undefined') {
+		if (typeof(this.key) === 'undefined') {
 			this.alias = this.alias;
 		}
 	}

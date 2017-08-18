@@ -23,7 +23,7 @@ class Fill {
 			}
 
 			$th.html($wrapper);
-			$th.attr('data-name', colModel.id);
+			$th.attr('data-alias', colModel.alias);
 			$.each(classRules, function (i, mark) {
 				if (colModel[mark]) {
 					$th.addClass(mark);
@@ -103,7 +103,7 @@ class Fill {
 		$tr.data('Xgrid.data', rowData);
 
 		$.each(colModels, function (i, colModel) {
-			let value = rowData[colModel.id],
+			let value = rowData[colModel.key],
 				$td = $tds.eq(i),
 				data = colModel.cellFormatter($td, value, rowData, data),
 				$dependentCell = dependentCells[i];

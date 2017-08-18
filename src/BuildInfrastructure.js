@@ -1,12 +1,22 @@
+import tools from './Tools.js';
+
 class BuildInfrastructure {
 	constructor(options, storage) {
 		this.options = $.extend({
 			theadClass: 'table table-bordered table-striped',
 			tbodyClass: 'table table-bordered table-striped',
-			firstBtnTemplate: '<span class="btn btn-default Xgrid-first"><i class="glyphicon glyphicon-step-backward"></i></span>',
-			lastBtnTemplate: '<span class="btn btn-default Xgrid-last"><i class="glyphicon glyphicon-step-forward"></i></span>',
-			prevBtnTemplate: '<span class="btn btn-default Xgrid-prev"><i class="glyphicon glyphicon-chevron-left"></i></span>',
-			nextBtnTemplate: '<span class="btn btn-default Xgrid-next"><i class="glyphicon glyphicon-chevron-right"></i></span>',
+			firstBtnTemplate: '<span class="btn btn-default"><i class="glyphicon glyphicon-step-backward"></i></span>',
+			lastBtnTemplate: '<span class="btn btn-default"><i class="glyphicon glyphicon-step-forward"></i></span>',
+			prevBtnTemplate: '<span class="btn btn-default"><i class="glyphicon glyphicon-chevron-left"></i></span>',
+			nextBtnTemplate: '<span class="btn btn-default"><i class="glyphicon glyphicon-chevron-right"></i></span>',
+			currentPageTemplate: '<input type="text" class="form-control" />',
+			paginationTemplate: `<div class="Xgrid-paggination input-group input-group-sm">
+			<div class="input-group-btn" >{firstBtnTemplate}{prevBtnTemplate}</div>
+				<span class="input-group-addon"> Page </span>
+				{currentPageTemplate}
+				<span class="input-group-addon"> of <span class="Xgrid-total-pages"></span></span>
+				<div class="input-group-btn" >{nextBtnTemplate}{lastBtnTemplate}</div>
+			</div>`
 		}, options);
 
 		this.storage = storage;
@@ -19,6 +29,7 @@ class BuildInfrastructure {
 		this._buildTBody();
 		this._buildPagination();
 	};
+	
 	_buildThead() {
 		const storage = this.storage;
 		let widthHelper = '<tbody class="Xgrid-thead-w"><tr>' + new Array(storage.colModels.length + 1).join('<td><div class="Xgrid-WidthListener-wrapper"><iframe data-col="0" class="Xgrid-WidthListener"></iframe></div></td>') + '</tr></tbody>';
@@ -36,8 +47,15 @@ class BuildInfrastructure {
 	_buildPagination() {
 		const storage = this.storage,
 			options = this.options,
-			{ firstBtnTemplate, lastBtnTemplate, prevBtnTemplate, nextBtnTemplate } = options;
+			$pagination = $(options.paginationTemplate),
+			{ firstBtnTemplate, lastBtnTemplate, prevBtnTemplate, nextBtnTemplate, currentPageTemplate } = options;
 		let $paginationBox;
+
+		tools.insertElement($pagination, '{firstBtnTemplate}', firstBtnTemplate?$(firstBtnTemplate).addClass('Xgrid-first'):'');
+		tools.insertElement($pagination, '{prevBtnTemplate}', $(prevBtnTemplate).addClass('Xgrid-prev'));
+		tools.insertElement($pagination, '{nextBtnTemplate}', $(nextBtnTemplate).addClass('Xgrid-next'));
+		tools.insertElement($pagination, '{lastBtnTemplate}', $(lastBtnTemplate).addClass('Xgrid-last'));
+		tools.insertElement($pagination, '{currentPageTemplate}', $(currentPageTemplate).addClass('Xgrid-current-page'));
 
 		if (options.paginationSelector) {
 			$paginationBox = $(options.paginationSelector);
@@ -45,13 +63,7 @@ class BuildInfrastructure {
 			$paginationBox = storage.$box.find('.Xgrid-paggination-wrapper');
 		}
 
-		$paginationBox.html(`<div class="Xgrid-paggination input-group input-group-sm">
-			<div class="input-group-btn" >${firstBtnTemplate}${prevBtnTemplate}</div>
-				<span class="input-group-addon"> Page </span>
-				<input type="text" class="form-control Xgrid-current-page" />
-				<span class="input-group-addon"> of <span class="Xgrid-total-pages"></span></span>
-				<div class="input-group-btn" >${nextBtnTemplate}${lastBtnTemplate}</div>
-			</div>`);
+		$paginationBox.html($pagination);
 		storage.$paginationBox = $paginationBox;
 	};
 

@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ 	return __webpack_require__(__webpack_require__.s = 1);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -70,41 +70,151 @@
 "use strict";
 
 
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _ViewModel = __webpack_require__(1);
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Tools = function () {
+	function Tools() {
+		_classCallCheck(this, Tools);
+
+		this.now = Date.now || function () {
+			return new Date().getTime();
+		};
+	}
+
+	_createClass(Tools, [{
+		key: 'execute',
+		value: function execute(functions, args, context) {
+			var apply = function apply(foo) {
+				if (typeof foo === 'function') {
+					foo.apply(context ? context : foo, args);
+				}
+			};
+
+			if ($.isArray(functions)) {
+				functions.forEach(apply);
+			} else {
+				apply(functions);
+			}
+		}
+	}, {
+		key: 'insertElement',
+		value: function insertElement($container, searchStr, replacement) {
+			var $replacement = $(replacement);
+
+			if (!$replacement.length) {
+				replacement = String(replacement);
+			}
+			$container.find(":not(iframe)").addBack().contents().filter(function () {
+				return this.nodeType === 3;
+			}).each(function () {
+				if (this.data.indexOf(searchStr) !== -1) {
+					if ($replacement.length) {
+						$(this).after($replacement);
+						var str = this.data,
+						    part1 = str.substr(0, str.indexOf(searchStr)),
+						    part2 = str.substr(part1.length + searchStr.length, str.length);
+						if (!part1.length) {
+							$(this).remove();
+						}
+						if (part2.length) {
+							if (part1.length) {
+								this.data = part1;
+							}
+							$replacement.after(part2);
+						} else if (part1.length) {
+							this.data = part1;
+						}
+					} else {
+						this.data = this.data.replace(searchStr, replacement);
+					}
+				}
+			});
+		}
+	}, {
+		key: 'throttle',
+		value: function throttle(func) {
+			var wait = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 10;
+
+			var context = void 0,
+			    args = void 0,
+			    timeout = null;
+			return function () {
+				context = this;
+
+				for (var _len = arguments.length, props = Array(_len), _key = 0; _key < _len; _key++) {
+					props[_key] = arguments[_key];
+				}
+
+				args = props;
+				if (!context) {
+					context = func;
+				} else if (context === window) {
+					context = func;
+				}
+				if (!timeout) {
+					timeout = setTimeout(function () {
+						clearTimeout(timeout);
+						timeout = null;
+						func.apply(context, args);
+					}, wait);
+				}
+			};
+		}
+	}]);
+
+	return Tools;
+}();
+
+exports.default = new Tools();
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _ViewModel = __webpack_require__(2);
 
 var _ViewModel2 = _interopRequireDefault(_ViewModel);
 
-var _ProcessSettings = __webpack_require__(2);
+var _ProcessSettings = __webpack_require__(3);
 
 var _ProcessSettings2 = _interopRequireDefault(_ProcessSettings);
 
-var _BuildInfrastructure = __webpack_require__(4);
+var _BuildInfrastructure = __webpack_require__(5);
 
 var _BuildInfrastructure2 = _interopRequireDefault(_BuildInfrastructure);
 
-var _Display = __webpack_require__(5);
+var _Display = __webpack_require__(6);
 
 var _Display2 = _interopRequireDefault(_Display);
 
-var _FixedHeader = __webpack_require__(7);
+var _FixedHeader = __webpack_require__(8);
 
 var _FixedHeader2 = _interopRequireDefault(_FixedHeader);
 
-var _Storage = __webpack_require__(8);
+var _Storage = __webpack_require__(9);
 
 var _Storage2 = _interopRequireDefault(_Storage);
 
-var _Fill = __webpack_require__(9);
+var _Fill = __webpack_require__(10);
 
 var _Fill2 = _interopRequireDefault(_Fill);
 
-var _Pagination = __webpack_require__(10);
+var _Pagination = __webpack_require__(11);
 
 var _Pagination2 = _interopRequireDefault(_Pagination);
 
-var _Tools = __webpack_require__(6);
+var _Tools = __webpack_require__(0);
 
 var _Tools2 = _interopRequireDefault(_Tools);
 
@@ -253,7 +363,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 })(jQuery);
 
 /***/ }),
-/* 1 */
+/* 2 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -383,14 +493,107 @@ var ViewModel = function () {
 exports.default = ViewModel;
 
 /***/ }),
-/* 2 */
-/***/ (function(module, exports) {
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-throw new Error("Module build failed: SyntaxError: D:/GIT/x-grid/src/ProcessSettings.js: Unexpected token (41:3)\n\n\u001b[0m \u001b[90m 39 | \u001b[39m\t\t\t\u001b[36mconst\u001b[39m colModel \u001b[33m=\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mColModel\u001b[39m(model\u001b[33m,\u001b[39m i\u001b[33m,\u001b[39m \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mstorage)\u001b[33m,\u001b[39m\n \u001b[90m 40 | \u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 41 | \u001b[39m\t\t\t\u001b[36mif\u001b[39m (\u001b[33m!\u001b[39maliases[colModel\u001b[33m.\u001b[39malias]) {\n \u001b[90m    | \u001b[39m\t\t\t\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 42 | \u001b[39m\t\t\t\taliases[colModel\u001b[33m.\u001b[39malias] \u001b[33m=\u001b[39m \u001b[35m1\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m 43 | \u001b[39m\t\t\t} \u001b[36melse\u001b[39m {\n \u001b[90m 44 | \u001b[39m\t\t\t\t\u001b[36mthrow\u001b[39m {\u001b[0m\n");
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _ColModel = __webpack_require__(4);
+
+var _ColModel2 = _interopRequireDefault(_ColModel);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var ProcessSettings = function () {
+	function ProcessSettings(options, storage) {
+		_classCallCheck(this, ProcessSettings);
+
+		this.options = $.extend({
+			colModels: []
+		}, options);
+
+		this.properties = {
+			scrollbarWidth: null
+		};
+		this.storage = storage;
+		this._exec();
+	}
+
+	_createClass(ProcessSettings, [{
+		key: '_getScrollbarWidth',
+		value: function _getScrollbarWidth() {
+			var div = void 0,
+			    width = void 0;
+			if (this.properties.ScrollbarWidth) {
+				return this.properties.ScrollbarWidth;
+			}
+
+			div = document.createElement('div');
+			div.innerHTML = '<div style="width:50px;height:50px;position:absolute;left:-50px;top:-50px;overflow:auto;"><div style="width:1px;height:100px;"></div></div>';
+			div = div.firstChild;
+			document.body.appendChild(div);
+			width = div.offsetWidth - div.clientWidth;
+			document.body.removeChild(div);
+			this.properties.ScrollbarWidth = width;
+			return width;
+		}
+	}, {
+		key: '_columnModel',
+		value: function _columnModel() {
+			var _this = this;
+
+			var storage = this.storage,
+			    options = this.options,
+			    colModels = [],
+			    aliases = {},
+			    colModelsDictionary = {};
+
+			$.each(options.colModels, function (i, model) {
+				var colModel = new _ColModel2.default(model, i, _this.storage);
+
+				if (!aliases[colModel.alias]) {
+					aliases[colModel.alias] = 1;
+				} else {
+					throw {
+						value: {
+							i: i,
+							data: JSON.stringify(model)
+						},
+						message: 'alias is not unique',
+						name: 'Error: colModel'
+					};
+				}
+				colModelsDictionary[colModel.alias] = colModel;
+				colModels.push(colModel);
+			});
+
+			storage.colModels = colModels;
+			storage.colModelsDictionary = colModelsDictionary;
+		}
+	}, {
+		key: '_exec',
+		value: function _exec() {
+			var storage = this.storage;
+			this._columnModel();
+			storage.scrollbarWidth = this._getScrollbarWidth();
+		}
+	}]);
+
+	return ProcessSettings;
+}();
+
+exports.default = ProcessSettings;
 
 /***/ }),
-/* 3 */,
 /* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -405,6 +608,75 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
+var ColModel = function () {
+	function ColModel(model, order) {
+		_classCallCheck(this, ColModel);
+
+		this.label = '';
+		this.hidden = false;
+		this.resizable = false;
+		this.sortable = false;
+		this.order = order;
+		$.extend(this, model);
+
+		if (typeof this.alias === 'undefined') {
+			this.alias = this.key;
+		}
+		if (typeof this.key === 'undefined') {
+			this.alias = this.alias;
+		}
+	}
+
+	_createClass(ColModel, [{
+		key: 'labelFormatter',
+		value: function labelFormatter() {
+			return this.label;
+		}
+	}, {
+		key: 'cellFormatter',
+		value: function cellFormatter($td, value, rowData, data) {
+			return '<div class="ellipsis">' + value + '</div>';
+		}
+	}, {
+		key: 'filterFormatter',
+		value: function filterFormatter(value, rowData, data) {
+			return value;
+		}
+	}, {
+		key: 'sortFormatter',
+		value: function sortFormatter(value, rowData, data) {
+			return value;
+		}
+	}]);
+
+	return ColModel;
+}();
+
+;
+
+exports.default = ColModel;
+
+/***/ }),
+/* 5 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _Tools = __webpack_require__(0);
+
+var _Tools2 = _interopRequireDefault(_Tools);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 var BuildInfrastructure = function () {
 	function BuildInfrastructure(options, storage) {
 		_classCallCheck(this, BuildInfrastructure);
@@ -412,10 +684,12 @@ var BuildInfrastructure = function () {
 		this.options = $.extend({
 			theadClass: 'table table-bordered table-striped',
 			tbodyClass: 'table table-bordered table-striped',
-			firstBtnTemplate: '<span class="btn btn-default Xgrid-first"><i class="glyphicon glyphicon-step-backward"></i></span>',
-			lastBtnTemplate: '<span class="btn btn-default Xgrid-last"><i class="glyphicon glyphicon-step-forward"></i></span>',
-			prevBtnTemplate: '<span class="btn btn-default Xgrid-prev"><i class="glyphicon glyphicon-chevron-left"></i></span>',
-			nextBtnTemplate: '<span class="btn btn-default Xgrid-next"><i class="glyphicon glyphicon-chevron-right"></i></span>'
+			firstBtnTemplate: '<span class="btn btn-default"><i class="glyphicon glyphicon-step-backward"></i></span>',
+			lastBtnTemplate: '<span class="btn btn-default"><i class="glyphicon glyphicon-step-forward"></i></span>',
+			prevBtnTemplate: '<span class="btn btn-default"><i class="glyphicon glyphicon-chevron-left"></i></span>',
+			nextBtnTemplate: '<span class="btn btn-default"><i class="glyphicon glyphicon-chevron-right"></i></span>',
+			currentPageTemplate: '<input type="text" class="form-control" />',
+			paginationTemplate: '<div class="Xgrid-paggination input-group input-group-sm">\n\t\t\t<div class="input-group-btn" >{firstBtnTemplate}{prevBtnTemplate}</div>\n\t\t\t\t<span class="input-group-addon"> Page </span>\n\t\t\t\t{currentPageTemplate}\n\t\t\t\t<span class="input-group-addon"> of <span class="Xgrid-total-pages"></span></span>\n\t\t\t\t<div class="input-group-btn" >{nextBtnTemplate}{lastBtnTemplate}</div>\n\t\t\t</div>'
 		}, options);
 
 		this.storage = storage;
@@ -451,12 +725,20 @@ var BuildInfrastructure = function () {
 		value: function _buildPagination() {
 			var storage = this.storage,
 			    options = this.options,
+			    $pagination = $(options.paginationTemplate),
 			    firstBtnTemplate = options.firstBtnTemplate,
 			    lastBtnTemplate = options.lastBtnTemplate,
 			    prevBtnTemplate = options.prevBtnTemplate,
-			    nextBtnTemplate = options.nextBtnTemplate;
+			    nextBtnTemplate = options.nextBtnTemplate,
+			    currentPageTemplate = options.currentPageTemplate;
 
 			var $paginationBox = void 0;
+
+			_Tools2.default.insertElement($pagination, '{firstBtnTemplate}', firstBtnTemplate ? $(firstBtnTemplate).addClass('Xgrid-first') : '');
+			_Tools2.default.insertElement($pagination, '{prevBtnTemplate}', $(prevBtnTemplate).addClass('Xgrid-prev'));
+			_Tools2.default.insertElement($pagination, '{nextBtnTemplate}', $(nextBtnTemplate).addClass('Xgrid-next'));
+			_Tools2.default.insertElement($pagination, '{lastBtnTemplate}', $(lastBtnTemplate).addClass('Xgrid-last'));
+			_Tools2.default.insertElement($pagination, '{currentPageTemplate}', $(currentPageTemplate).addClass('Xgrid-current-page'));
 
 			if (options.paginationSelector) {
 				$paginationBox = $(options.paginationSelector);
@@ -464,7 +746,7 @@ var BuildInfrastructure = function () {
 				$paginationBox = storage.$box.find('.Xgrid-paggination-wrapper');
 			}
 
-			$paginationBox.html('<div class="Xgrid-paggination input-group input-group-sm">\n\t\t\t<div class="input-group-btn" >' + firstBtnTemplate + prevBtnTemplate + '</div>\n\t\t\t\t<span class="input-group-addon"> Page </span>\n\t\t\t\t<input type="text" class="form-control Xgrid-current-page" />\n\t\t\t\t<span class="input-group-addon"> of <span class="Xgrid-total-pages"></span></span>\n\t\t\t\t<div class="input-group-btn" >' + nextBtnTemplate + lastBtnTemplate + '</div>\n\t\t\t</div>');
+			$paginationBox.html($pagination);
 			storage.$paginationBox = $paginationBox;
 		}
 	}, {
@@ -485,7 +767,7 @@ var BuildInfrastructure = function () {
 exports.default = BuildInfrastructure;
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -497,11 +779,11 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _Tools = __webpack_require__(6);
+var _Tools = __webpack_require__(0);
 
 var _Tools2 = _interopRequireDefault(_Tools);
 
-var _QueryModel = __webpack_require__(11);
+var _QueryModel = __webpack_require__(7);
 
 var _QueryModel2 = _interopRequireDefault(_QueryModel);
 
@@ -635,7 +917,7 @@ var Display = function () {
 exports.default = Display;
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -645,73 +927,22 @@ Object.defineProperty(exports, "__esModule", {
 	value: true
 });
 
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var Tools = function () {
-	function Tools() {
-		_classCallCheck(this, Tools);
+var QueryModel = function QueryModel(data) {
+	_classCallCheck(this, QueryModel);
 
-		this.now = Date.now || function () {
-			return new Date().getTime();
-		};
-	}
+	this.filter = [];
+	this.sort = [];
+	this.rows = 0;
+	this.page = 1;
+	$.extend(this, data);
+};
 
-	_createClass(Tools, [{
-		key: 'execute',
-		value: function execute(functions, args, context) {
-			var apply = function apply(foo) {
-				if (typeof foo === 'function') {
-					foo.apply(context ? context : foo, args);
-				}
-			};
-
-			if ($.isArray(functions)) {
-				functions.forEach(apply);
-			} else {
-				apply(functions);
-			}
-		}
-	}, {
-		key: 'throttle',
-		value: function throttle(func) {
-			var wait = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 10;
-
-			var context = void 0,
-			    args = void 0,
-			    timeout = null;
-			return function () {
-				context = this;
-
-				for (var _len = arguments.length, props = Array(_len), _key = 0; _key < _len; _key++) {
-					props[_key] = arguments[_key];
-				}
-
-				args = props;
-				if (!context) {
-					context = func;
-				} else if (context === window) {
-					context = func;
-				}
-				if (!timeout) {
-					timeout = setTimeout(function () {
-						clearTimeout(timeout);
-						timeout = null;
-						func.apply(context, args);
-					}, wait);
-				}
-			};
-		}
-	}]);
-
-	return Tools;
-}();
-
-exports.default = new Tools();
+exports.default = QueryModel;
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -802,7 +1033,7 @@ var FixedHeader = function () {
 exports.default = FixedHeader;
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -978,7 +1209,7 @@ var Storage = function () {
 exports.default = Storage;
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1020,7 +1251,7 @@ var Fill = function () {
 				}
 
 				$th.html($wrapper);
-				$th.attr('data-name', colModel.id);
+				$th.attr('data-alias', colModel.alias);
 				$.each(classRules, function (i, mark) {
 					if (colModel[mark]) {
 						$th.addClass(mark);
@@ -1103,7 +1334,7 @@ var Fill = function () {
 			$tr.data('Xgrid.data', rowData);
 
 			$.each(colModels, function (i, colModel) {
-				var value = rowData[colModel.id],
+				var value = rowData[colModel.key],
 				    $td = $tds.eq(i),
 				    data = colModel.cellFormatter($td, value, rowData, data),
 				    $dependentCell = dependentCells[i];
@@ -1128,7 +1359,7 @@ var Fill = function () {
 exports.default = Fill;
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1248,31 +1479,6 @@ var Pagination = function () {
 ;
 
 exports.default = Pagination;
-
-/***/ }),
-/* 11 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var QueryModel = function QueryModel(data) {
-	_classCallCheck(this, QueryModel);
-
-	this.filter = [];
-	this.sort = [];
-	this.rows = 0;
-	this.page = 1;
-	$.extend(this, data);
-};
-
-exports.default = QueryModel;
 
 /***/ })
 /******/ ]);
