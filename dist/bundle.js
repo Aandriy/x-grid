@@ -384,133 +384,13 @@ exports.default = ViewModel;
 
 /***/ }),
 /* 2 */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, exports) {
 
 "use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-var _ColModel = __webpack_require__(3);
-
-var _ColModel2 = _interopRequireDefault(_ColModel);
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var ProcessSettings = function () {
-	function ProcessSettings(options, storage) {
-		_classCallCheck(this, ProcessSettings);
-
-		this.options = $.extend({
-			colModels: []
-		}, options);
-
-		this.properties = {
-			scrollbarWidth: null
-		};
-		this.storage = storage;
-		this._exec();
-	}
-
-	_createClass(ProcessSettings, [{
-		key: '_getScrollbarWidth',
-		value: function _getScrollbarWidth() {
-			var div = void 0,
-			    width = void 0;
-			if (this.properties.ScrollbarWidth) {
-				return this.properties.ScrollbarWidth;
-			}
-
-			div = document.createElement('div');
-			div.innerHTML = '<div style="width:50px;height:50px;position:absolute;left:-50px;top:-50px;overflow:auto;"><div style="width:1px;height:100px;"></div></div>';
-			div = div.firstChild;
-			document.body.appendChild(div);
-			width = div.offsetWidth - div.clientWidth;
-			document.body.removeChild(div);
-			this.properties.ScrollbarWidth = width;
-			return width;
-		}
-	}, {
-		key: '_columnModel',
-		value: function _columnModel() {
-			var _this = this;
-
-			var self = this,
-			    options = this.options,
-			    colModels = [];
-
-			$.each(options.colModels, function (i, model) {
-				colModels.push(new _ColModel2.default(model, i, _this.storage));
-			});
-			return colModels;
-		}
-	}, {
-		key: '_exec',
-		value: function _exec() {
-			var storage = this.storage;
-			storage.colModels = this._columnModel();
-			storage.scrollbarWidth = this._getScrollbarWidth();
-		}
-	}]);
-
-	return ProcessSettings;
-}();
-
-exports.default = ProcessSettings;
+throw new Error("Module build failed: SyntaxError: D:/GIT/x-grid/src/ProcessSettings.js: Unexpected token (41:3)\n\n\u001b[0m \u001b[90m 39 | \u001b[39m\t\t\t\u001b[36mconst\u001b[39m colModel \u001b[33m=\u001b[39m \u001b[36mnew\u001b[39m \u001b[33mColModel\u001b[39m(model\u001b[33m,\u001b[39m i\u001b[33m,\u001b[39m \u001b[36mthis\u001b[39m\u001b[33m.\u001b[39mstorage)\u001b[33m,\u001b[39m\n \u001b[90m 40 | \u001b[39m\n\u001b[31m\u001b[1m>\u001b[22m\u001b[39m\u001b[90m 41 | \u001b[39m\t\t\t\u001b[36mif\u001b[39m (\u001b[33m!\u001b[39maliases[colModel\u001b[33m.\u001b[39malias]) {\n \u001b[90m    | \u001b[39m\t\t\t\u001b[31m\u001b[1m^\u001b[22m\u001b[39m\n \u001b[90m 42 | \u001b[39m\t\t\t\taliases[colModel\u001b[33m.\u001b[39malias] \u001b[33m=\u001b[39m \u001b[35m1\u001b[39m\u001b[33m;\u001b[39m\n \u001b[90m 43 | \u001b[39m\t\t\t} \u001b[36melse\u001b[39m {\n \u001b[90m 44 | \u001b[39m\t\t\t\t\u001b[36mthrow\u001b[39m {\u001b[0m\n");
 
 /***/ }),
-/* 3 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var ColModel = function () {
-    function ColModel(model, order) {
-        _classCallCheck(this, ColModel);
-
-        this.label = '';
-        this.hidden = false;
-        this.resizable = false;
-        this.sortable = false;
-        this.order = order;
-        $.extend(this, model);
-    }
-
-    _createClass(ColModel, [{
-        key: 'labelFormatter',
-        value: function labelFormatter() {
-            return this.label;
-        }
-    }, {
-        key: 'cellFormatter',
-        value: function cellFormatter($td, value, rowData, data) {
-            return '<div class="ellipsis">' + value + '</div>';
-        }
-    }]);
-
-    return ColModel;
-}();
-
-;
-
-exports.default = ColModel;
-
-/***/ }),
+/* 3 */,
 /* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -949,6 +829,7 @@ var Storage = function () {
 			query: null,
 			scrollbarWidth: 0,
 			colModels: [],
+			colModelsDictionary: {},
 			data: [],
 			processedData: []
 		}, model);
@@ -1050,6 +931,15 @@ var Storage = function () {
 				this._model.colModels = value;
 				this.notify('colModels', this);
 			}
+		}
+	}, {
+		key: 'colModelsDictionary',
+		get: function get() {
+			return this._model.colModelsDictionary;
+		},
+		set: function set(value) {
+			this._model.colModelsDictionary = value;
+			this.notify('colModelsDictionary', this);
 		}
 	}, {
 		key: 'data',

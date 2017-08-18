@@ -1,19 +1,35 @@
 class ColModel {
-    constructor(model, order) {
-        this.label = '';
-        this.hidden = false;
-        this.resizable = false;
-        this.sortable = false;
-        this.order = order;
-        $.extend(this, model);
-    }
+	constructor(model, order) {
+		this.label = '';
+		this.hidden = false;
+		this.resizable = false;
+		this.sortable = false;
+		this.order = order;
+		$.extend(this, model);
 
-    labelFormatter() {
-        return this.label;
-    };
-    cellFormatter($td, value, rowData, data) {
-        return '<div class="ellipsis">' + value + '</div>';
-    }
+		if (typeof(this.alias) === 'undefined') {
+			this.alias = this.id;
+		}
+		if (typeof(this.id) === 'undefined') {
+			this.alias = this.alias;
+		}
+	}
+
+	labelFormatter() {
+		return this.label;
+	};
+
+	cellFormatter($td, value, rowData, data) {
+		return '<div class="ellipsis">' + value + '</div>';
+	}
+
+	filterFormatter(value, rowData, data) {
+		return value;
+	}
+
+	sortFormatter(value, rowData, data) {
+		return value;
+	}
 };
 
 export default ColModel;

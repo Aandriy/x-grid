@@ -29,18 +29,37 @@ class ProcessSettings {
 		return width;
 	};
 	_columnModel() {
-		var self = this,
+		const storage = this.storage,
 			options = this.options,
-			colModels = [];
+			colModels = [],
+			aliases = {},
+			colModelsDictionary = {};
 
-		$.each(options.colModels,  (i, model) => {
-			colModels.push(new ColModel(model, i,this.storage ));
+		$.each(options.colModels, (i, model) => {
+			const colModel = new ColModel(model, i, this.storage),
+
+			if (!aliases[colModel.alias]) {
+				aliases[colModel.alias] = 1;
+			} else {
+				throw {
+					value: {
+						i: i,
+						data: JSON.stringify(model)
+					},
+					message: 'alias is not unique',
+					name: 'Error: colModel'
+				}
+			}
+			colModelsDictionary[colModel.alias] = colModel;
+			colModels.push(colModel);
 		});
-		return colModels;
+
+		storage.colModels = colModels;
+		storage.colModelsDictionary = colModelsDictionary;
 	};
 	_exec() {
 		const storage = this.storage;
-		storage.colModels = this._columnModel();
+		this._columnModel();
 		storage.scrollbarWidth = this._getScrollbarWidth();
 
 	};

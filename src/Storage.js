@@ -10,6 +10,7 @@ class Storage {
 			query: null,
 			scrollbarWidth: 0,
 			colModels: [],
+			colModelsDictionary: {},
 			data: [],
 			processedData: []
 		}, model)
@@ -80,6 +81,14 @@ class Storage {
 			this._model.colModels = value;
 			this.notify('colModels', this);
 		}
+	};
+
+	get colModelsDictionary() {
+		return this._model.colModelsDictionary;
+	};
+	set colModelsDictionary(value) {
+		this._model.colModelsDictionary = value;
+		this.notify('colModelsDictionary', this);
 	};
 
 	get data() {
