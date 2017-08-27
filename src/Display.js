@@ -1,5 +1,8 @@
 import tools from './Tools.js';
 import QueryModel from './QueryModel.js';
+import sort from './Sort.js';
+import sortFormatters from './SortFormatters.js';
+
 class Display {
 	constructor(options) {
 		this.viewModel = options.viewModel;
@@ -12,7 +15,9 @@ class Display {
 			this.process = this._serverProcess.bind(this);
 		}
 
-		this._subscribe();
+		setTimeout(() => {
+			this._subscribe();
+		}, 50);
 	};
 
 	exec() {
@@ -20,7 +25,7 @@ class Display {
 			viewModel = this.viewModel,
 			query = new QueryModel({
 				filter: [],
-				sort: [],
+				sort: viewModel.sortBy,
 				rows: viewModel.rows,
 				page: viewModel.newPage,
 			});
@@ -52,11 +57,33 @@ class Display {
 		return deferred;
 	};
 
-	_localSort(data) {
-		const deferred = $.Deferred();
-		setTimeout(() => {
+	_localSort(data, sortRules) {
+		const deferred = $.Deferred(),
+			storage = this.storage;
+		if (sortRules.length) {
+			sortRules = sortRules.map((rule) => {
+				const colModel = storage.colModelsDictionary[rule.by];
+				let result = {
+					order: rule.order
+				};
+
+				if (colModel) {
+					result['by'] = colModel.key;
+					result['get'] = colModel.sortFormatter;
+				} else {
+					result['by'] = rule.by;
+					result['get'] = sortFormatters['text'];
+				}
+				return result;
+			});
+			data = sort.exec(data, sortRules);
+			setTimeout(() => {
+				deferred.resolve(data);
+
+			}, 0);
+		} else {
 			deferred.resolve(data);
-		}, 0);
+		}
 		return deferred;
 	};
 
@@ -99,6 +126,7 @@ class Display {
 				this.exec();
 			}, 100);
 		viewModel.on('newPage', action);
+		viewModel.on('sortBy', action);
 	};
 
 }

@@ -2,6 +2,7 @@
 import ViewModel from './ViewModel.js';
 import ProcessSettings from './ProcessSettings.js';
 import BuildInfrastructure from './BuildInfrastructure.js';
+import Sorting from './Sorting.js';
 import Display from './Display.js';
 import FixedHeader from './FixedHeader.js';
 import Storage from './Storage.js'
@@ -17,15 +18,17 @@ import tools from './Tools.js';
 			this.properties = {
 				$box: box,
 				data: []
-
 			}
 			this.options = $.extend({
 				beforeRequest: [],
 				afterResponse: [],
+				sortBy: [],
 				paginationSelector: '',
 				ajaxType: 'POST',
-				url: ''
+				url: '',
+				multiSorting: false
 			}, options);
+
 			this.Storage = new Storage({ $box: box })
 			this._exec();
 		};
@@ -83,6 +86,10 @@ import tools from './Tools.js';
 			this.Storage.on('$paginationBox', () => {
 				this.Pagination.exec();
 			});
+
+			this.Storage.on('$headTable', () => {
+				this.Sorting.bind();
+			});
 		};
 		_exec() {
 			const self = this,
@@ -90,8 +97,9 @@ import tools from './Tools.js';
 				options = this.options;
 
 			this.ViewModel = new ViewModel();
-			this.ProcessSettings = new ProcessSettings(options, this.Storage);
+			this.ProcessSettings = new ProcessSettings(options, this.Storage, this.ViewModel);
 			this.BuildInfrastructure = new BuildInfrastructure(options, this.Storage);
+			this.Sorting = new Sorting(this.Storage, this.ViewModel, options);
 			this.Fill = new Fill(this.Storage, this.ViewModel);
 			this.Display = new Display({
 				storage: this.Storage,

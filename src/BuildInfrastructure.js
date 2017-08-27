@@ -29,7 +29,7 @@ class BuildInfrastructure {
 		this._buildTBody();
 		this._buildPagination();
 	};
-	
+
 	_buildThead() {
 		const storage = this.storage;
 		let widthHelper = '<tbody class="Xgrid-thead-w"><tr>' + new Array(storage.colModels.length + 1).join('<td><div class="Xgrid-WidthListener-wrapper"><iframe data-col="0" class="Xgrid-WidthListener"></iframe></div></td>') + '</tr></tbody>';
@@ -51,7 +51,7 @@ class BuildInfrastructure {
 			{ firstBtnTemplate, lastBtnTemplate, prevBtnTemplate, nextBtnTemplate, currentPageTemplate } = options;
 		let $paginationBox;
 
-		tools.insertElement($pagination, '{firstBtnTemplate}', firstBtnTemplate?$(firstBtnTemplate).addClass('Xgrid-first'):'');
+		tools.insertElement($pagination, '{firstBtnTemplate}', firstBtnTemplate ? $(firstBtnTemplate).addClass('Xgrid-first') : '');
 		tools.insertElement($pagination, '{prevBtnTemplate}', $(prevBtnTemplate).addClass('Xgrid-prev'));
 		tools.insertElement($pagination, '{nextBtnTemplate}', $(nextBtnTemplate).addClass('Xgrid-next'));
 		tools.insertElement($pagination, '{lastBtnTemplate}', $(lastBtnTemplate).addClass('Xgrid-last'));

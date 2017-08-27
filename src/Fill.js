@@ -45,15 +45,15 @@ class Fill {
 			$gridWrap = storage.$gridTable.parent(),
 			data = storage.data,
 			$tfootCells = storage.$gridTable.find('.Xgrid-tbody-w td'),
-			$theadCells =  storage.$headTable.find('tr'),
+			$theadCells = storage.$headTable.find('tr'),
 			dependentCells = [];
 		let tbody;
 		colModels.forEach(function (model, i) {
 			let cells = [];
 
 			cells.push($tfootCells.get(i));
-			$theadCells.each(function(){
-				cells.push($(this).find('>*:eq('+i+')').get(0));
+			$theadCells.each(function () {
+				cells.push($(this).find('>*:eq(' + i + ')').get(0));
 			});
 			dependentCells.push($(cells));
 		});
@@ -71,6 +71,7 @@ class Fill {
 		if ($gridWrap.get(0).offsetWidth - $gridWrap.get(0).clientWidth) {
 			$headWrap.css({ 'padding-right': storage.scrollbarWidth + 'px' });
 		}
+		this._updateHead();
 	};
 
 	_createShadowBody(fragment, amount) {
@@ -111,10 +112,33 @@ class Fill {
 			if (colModel.hidden) {
 				$td.addClass('hidden');
 			}
-			$dependentCell[colModel.hidden?'addClass':'removeClass']('hidden')
+			$dependentCell[colModel.hidden ? 'addClass' : 'removeClass']('hidden')
 
 			if (typeof (data) !== 'undefined') {
 				$td.html(data);
+			}
+		});
+	};
+
+	_updateHead() {
+		const self = this,
+			storage = this.storage,
+			colModels = storage.colModels,
+			viewModel = this.viewModel,
+			$headLabels = storage.$headLabels,
+			sortBy = {};
+
+		viewModel.sortBy.forEach(function (sortRule) {
+			sortBy[sortRule.by] = sortRule.order;
+		});
+
+		colModels.forEach(function (colModel, i) {
+			const $label = $headLabels.eq(i),
+				order = sortBy[colModel.alias];
+			if (order) {
+				$label.attr('data-sort', order);
+			} else {
+				$label.removeAttr('data-sort');
 			}
 		});
 	};

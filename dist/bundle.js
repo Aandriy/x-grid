@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 1);
+/******/ 	return __webpack_require__(__webpack_require__.s = 2);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -180,37 +180,97 @@ exports.default = new Tools();
 "use strict";
 
 
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _ViewModel = __webpack_require__(2);
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var SortFormatters = function () {
+	function SortFormatters() {
+		_classCallCheck(this, SortFormatters);
+
+		this.float = this.number;
+		this.currency = this.number;
+		this.numeric = this.number;
+		this.int = this.number;
+		this.integer = this.number;
+		this.text = this.insensitivetext;
+	}
+
+	_createClass(SortFormatters, [{
+		key: "number",
+		value: function number(value) {
+			var result = void 0;
+			if (isNaN(value)) {
+				result = parseFloat(String(value).replace(/[\$,%]/g, ''));
+				result = isNaN(result) ? Number.NEGATIVE_INFINITY : result;
+			} else {
+				result = +value;
+			}
+			return result;
+		}
+	}, {
+		key: "insensitivetext",
+		value: function insensitivetext(value) {
+			return value ? $.trim(String(value)) : "";
+		}
+	}, {
+		key: "sensitivetext",
+		value: function sensitivetext(value) {
+			return (value ? $.trim(String(value)) : "").toLowerCase();
+		}
+	}]);
+
+	return SortFormatters;
+}();
+
+exports.default = new SortFormatters();
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _ViewModel = __webpack_require__(3);
 
 var _ViewModel2 = _interopRequireDefault(_ViewModel);
 
-var _ProcessSettings = __webpack_require__(3);
+var _ProcessSettings = __webpack_require__(4);
 
 var _ProcessSettings2 = _interopRequireDefault(_ProcessSettings);
 
-var _BuildInfrastructure = __webpack_require__(5);
+var _BuildInfrastructure = __webpack_require__(6);
 
 var _BuildInfrastructure2 = _interopRequireDefault(_BuildInfrastructure);
 
-var _Display = __webpack_require__(6);
+var _Sorting = __webpack_require__(7);
+
+var _Sorting2 = _interopRequireDefault(_Sorting);
+
+var _Display = __webpack_require__(8);
 
 var _Display2 = _interopRequireDefault(_Display);
 
-var _FixedHeader = __webpack_require__(8);
+var _FixedHeader = __webpack_require__(11);
 
 var _FixedHeader2 = _interopRequireDefault(_FixedHeader);
 
-var _Storage = __webpack_require__(9);
+var _Storage = __webpack_require__(12);
 
 var _Storage2 = _interopRequireDefault(_Storage);
 
-var _Fill = __webpack_require__(10);
+var _Fill = __webpack_require__(13);
 
 var _Fill2 = _interopRequireDefault(_Fill);
 
-var _Pagination = __webpack_require__(11);
+var _Pagination = __webpack_require__(14);
 
 var _Pagination2 = _interopRequireDefault(_Pagination);
 
@@ -231,15 +291,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			this.properties = {
 				$box: box,
 				data: []
-
 			};
 			this.options = $.extend({
 				beforeRequest: [],
 				afterResponse: [],
+				sortBy: [],
 				paginationSelector: '',
 				ajaxType: 'POST',
-				url: ''
+				url: '',
+				multiSorting: false
 			}, options);
+
 			this.Storage = new _Storage2.default({ $box: box });
 			this._exec();
 		}
@@ -307,6 +369,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				this.Storage.on('$paginationBox', function () {
 					_this.Pagination.exec();
 				});
+
+				this.Storage.on('$headTable', function () {
+					_this.Sorting.bind();
+				});
 			}
 		}, {
 			key: '_exec',
@@ -318,8 +384,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				    options = this.options;
 
 				this.ViewModel = new _ViewModel2.default();
-				this.ProcessSettings = new _ProcessSettings2.default(options, this.Storage);
+				this.ProcessSettings = new _ProcessSettings2.default(options, this.Storage, this.ViewModel);
 				this.BuildInfrastructure = new _BuildInfrastructure2.default(options, this.Storage);
+				this.Sorting = new _Sorting2.default(this.Storage, this.ViewModel, options);
 				this.Fill = new _Fill2.default(this.Storage, this.ViewModel);
 				this.Display = new _Display2.default({
 					storage: this.Storage,
@@ -363,7 +430,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 })(jQuery);
 
 /***/ }),
-/* 2 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -386,8 +453,9 @@ var ViewModel = function () {
 			totalRows: 0,
 			page: 1,
 			totalPages: 0,
+			newPage: 1,
 			data: [],
-			newPage: 1
+			sortBy: []
 		};
 		this.subscribers = {};
 	}
@@ -428,6 +496,17 @@ var ViewModel = function () {
 			if ($.isArray(data)) {
 				this.model.data = data;
 				this.notify('data', this);
+			}
+		}
+	}, {
+		key: 'sortBy',
+		get: function get() {
+			return this.model.sortBy;
+		},
+		set: function set(data) {
+			if ($.isArray(data)) {
+				this.model.sortBy = data;
+				this.notify('sortBy', this);
 			}
 		}
 	}, {
@@ -493,7 +572,7 @@ var ViewModel = function () {
 exports.default = ViewModel;
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -505,16 +584,20 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _ColModel = __webpack_require__(4);
+var _ColModel = __webpack_require__(5);
 
 var _ColModel2 = _interopRequireDefault(_ColModel);
+
+var _SortRule = __webpack_require__(15);
+
+var _SortRule2 = _interopRequireDefault(_SortRule);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var ProcessSettings = function () {
-	function ProcessSettings(options, storage) {
+	function ProcessSettings(options, storage, viewModel) {
 		_classCallCheck(this, ProcessSettings);
 
 		this.options = $.extend({
@@ -524,6 +607,8 @@ var ProcessSettings = function () {
 		this.properties = {
 			scrollbarWidth: null
 		};
+
+		this.viewModel = viewModel;
 		this.storage = storage;
 		this._exec();
 	}
@@ -585,6 +670,53 @@ var ProcessSettings = function () {
 			var storage = this.storage;
 			this._columnModel();
 			storage.scrollbarWidth = this._getScrollbarWidth();
+			this._processSorting();
+		}
+	}, {
+		key: '_processSorting',
+		value: function _processSorting() {
+			var viewModel = this.viewModel,
+			    options = this.options;
+			var sortBy = options.sortBy,
+			    data = [];
+			if (sortBy && typeof sortBy === 'string') {
+				sortBy = sortBy.replace(/\s+/g, ' ').trim().split(',');
+				if (sortBy.length) {
+					sortBy.forEach(function (item, i) {
+						var sortRule = item.trim().split(' '),
+						    by = sortRule[0];
+						if (typeof by !== 'undefined') {
+							var rule = void 0;
+
+							if (String(sortRule[1]).toUpperCase() === 'DESC') {
+								rule = new _SortRule2.default(by, 'DESC');
+							} else {
+								rule = new _SortRule2.default(by);
+							}
+							data.push(rule);
+						}
+					});
+				}
+			} else if ($.isArray(sortBy) && sortBy.length) {
+				sortBy.forEach(function (item) {
+					var rule = void 0,
+					    by = item.by,
+					    order = item.order;
+
+
+					if (by) {
+						if (String(order).toUpperCase() !== 'DESC') {
+							rule = new _SortRule2.default(by);
+						} else {
+							rule = new _SortRule2.default(by, 'DESC');
+						}
+						data.push(rule);
+					}
+				});
+			}
+			if (data.length) {
+				viewModel.sortBy = data;
+			}
 		}
 	}]);
 
@@ -594,7 +726,7 @@ var ProcessSettings = function () {
 exports.default = ProcessSettings;
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -605,6 +737,12 @@ Object.defineProperty(exports, "__esModule", {
 });
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _SortFormatters = __webpack_require__(1);
+
+var _SortFormatters2 = _interopRequireDefault(_SortFormatters);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -625,6 +763,17 @@ var ColModel = function () {
 		if (typeof this.key === 'undefined') {
 			this.alias = this.alias;
 		}
+		if (model.sorttype) {
+			if (typeof model.sorttype === 'function') {
+				this.sortFormatter = model.sorttype;
+			} else if (_SortFormatters2.default[model.sorttype]) {
+				this.sortFormatter = _SortFormatters2.default[model.sorttype];
+			} else {
+				this.sortFormatter = _SortFormatters2.default['text'];
+			}
+		} else {
+			this.sortFormatter = _SortFormatters2.default['text'];
+		}
 	}
 
 	_createClass(ColModel, [{
@@ -642,11 +791,6 @@ var ColModel = function () {
 		value: function filterFormatter(value, rowData, data) {
 			return value;
 		}
-	}, {
-		key: 'sortFormatter',
-		value: function sortFormatter(value, rowData, data) {
-			return value;
-		}
 	}]);
 
 	return ColModel;
@@ -657,7 +801,7 @@ var ColModel = function () {
 exports.default = ColModel;
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -767,7 +911,104 @@ var BuildInfrastructure = function () {
 exports.default = BuildInfrastructure;
 
 /***/ }),
-/* 6 */
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _SortRule = __webpack_require__(15);
+
+var _SortRule2 = _interopRequireDefault(_SortRule);
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Sorting = function () {
+	function Sorting(storage, viewModel, options) {
+		_classCallCheck(this, Sorting);
+
+		this.storage = storage;
+		this.viewModel = viewModel;
+		this.options = options;
+		this.bind();
+	}
+
+	_createClass(Sorting, [{
+		key: 'sortByAlias',
+		value: function sortByAlias(alias) {
+			var storage = this.storage,
+			    viewModel = this.viewModel,
+			    colModel = storage.colModelsDictionary[alias];
+			var sortBy = void 0;
+			if (colModel) {
+				sortBy = viewModel.sortBy;
+				var i = sortBy.length,
+				    sortRule = void 0;
+
+				while (i--) {
+					if (sortBy[i].by === alias) {
+						sortRule = sortBy.splice(i, 1)[0];
+						break;
+					}
+				}
+
+				if (!sortRule) {
+					sortRule = new _SortRule2.default(alias);
+				} else {
+					sortRule.triggerOrder();
+				}
+
+				if (this.options.multiSorting) {
+					sortBy.unshift(sortRule);
+				} else {
+					sortBy = [sortRule];
+				}
+				viewModel.sortBy = sortBy;
+			}
+		}
+	}, {
+		key: 'bind',
+		value: function bind() {
+			var $headTable = this.storage.$headTable;
+			this._off();
+			$headTable.on('click.Xgrid', '.Xgrid-thead-label.sortable', this._handlerSortColumn.bind(this));
+		}
+	}, {
+		key: '_off',
+		value: function _off() {
+			this.storage.$headTable.off('.Xgrid');
+		}
+	}, {
+		key: '_handlerSortColumn',
+		value: function _handlerSortColumn(e) {
+			e.preventDefault();
+			var $item = $(e.currentTarget),
+			    alias = $item.attr('data-alias'),
+			    colmodel = this.storage.colModelsDictionary[alias];
+			$item.blur();
+			if (colmodel && colmodel.sortable) {
+				this.sortByAlias(alias);
+			}
+		}
+	}]);
+
+	return Sorting;
+}();
+
+;
+
+exports.default = Sorting;
+
+/***/ }),
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -783,9 +1024,17 @@ var _Tools = __webpack_require__(0);
 
 var _Tools2 = _interopRequireDefault(_Tools);
 
-var _QueryModel = __webpack_require__(7);
+var _QueryModel = __webpack_require__(9);
 
 var _QueryModel2 = _interopRequireDefault(_QueryModel);
+
+var _Sort = __webpack_require__(10);
+
+var _Sort2 = _interopRequireDefault(_Sort);
+
+var _SortFormatters = __webpack_require__(1);
+
+var _SortFormatters2 = _interopRequireDefault(_SortFormatters);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -793,6 +1042,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 var Display = function () {
 	function Display(options) {
+		var _this = this;
+
 		_classCallCheck(this, Display);
 
 		this.viewModel = options.viewModel;
@@ -805,19 +1056,21 @@ var Display = function () {
 			this.process = this._serverProcess.bind(this);
 		}
 
-		this._subscribe();
+		setTimeout(function () {
+			_this._subscribe();
+		}, 50);
 	}
 
 	_createClass(Display, [{
 		key: 'exec',
 		value: function exec() {
-			var _this = this;
+			var _this2 = this;
 
 			var storage = this.storage,
 			    viewModel = this.viewModel,
 			    query = new _QueryModel2.default({
 				filter: [],
-				sort: [],
+				sort: viewModel.sortBy,
 				rows: viewModel.rows,
 				page: viewModel.newPage
 			});
@@ -825,9 +1078,9 @@ var Display = function () {
 			storage.query = query;
 			storage.$box.addClass('Xgrid-loading');
 			setTimeout(function () {
-				_this.process().done(function (data) {
-					_this._filler(data);
-					_this.storage.$box.removeClass('Xgrid-loading');
+				_this2.process().done(function (data) {
+					_this2._filler(data);
+					_this2.storage.$box.removeClass('Xgrid-loading');
 				});
 			}, 0);
 		}
@@ -852,11 +1105,32 @@ var Display = function () {
 		}
 	}, {
 		key: '_localSort',
-		value: function _localSort(data) {
-			var deferred = $.Deferred();
-			setTimeout(function () {
+		value: function _localSort(data, sortRules) {
+			var deferred = $.Deferred(),
+			    storage = this.storage;
+			if (sortRules.length) {
+				sortRules = sortRules.map(function (rule) {
+					var colModel = storage.colModelsDictionary[rule.by];
+					var result = {
+						order: rule.order
+					};
+
+					if (colModel) {
+						result['by'] = colModel.key;
+						result['get'] = colModel.sortFormatter;
+					} else {
+						result['by'] = rule.by;
+						result['get'] = _SortFormatters2.default['text'];
+					}
+					return result;
+				});
+				data = _Sort2.default.exec(data, sortRules);
+				setTimeout(function () {
+					deferred.resolve(data);
+				}, 0);
+			} else {
 				deferred.resolve(data);
-			}, 0);
+			}
 			return deferred;
 		}
 	}, {
@@ -878,15 +1152,15 @@ var Display = function () {
 	}, {
 		key: '_localProcess',
 		value: function _localProcess() {
-			var _this2 = this;
+			var _this3 = this;
 
 			var storage = this.storage,
 			    deferred = $.Deferred(),
 			    query = storage.query;
 
 			this._localFilter(storage.data, query.filter).done(function (filteredData) {
-				_this2._localSort(filteredData, query.sort).done(function (sortedData) {
-					deferred.resolve(_this2._getLocalData(sortedData, query));
+				_this3._localSort(filteredData, query.sort).done(function (sortedData) {
+					deferred.resolve(_this3._getLocalData(sortedData, query));
 				});
 			});
 			return deferred;
@@ -900,14 +1174,15 @@ var Display = function () {
 	}, {
 		key: '_subscribe',
 		value: function _subscribe() {
-			var _this3 = this;
+			var _this4 = this;
 
 			var viewModel = this.viewModel,
 			    action = _Tools2.default.throttle(function (x) {
 				viewModel.page = viewModel.newPage;
-				_this3.exec();
+				_this4.exec();
 			}, 100);
 			viewModel.on('newPage', action);
+			viewModel.on('sortBy', action);
 		}
 	}]);
 
@@ -917,7 +1192,7 @@ var Display = function () {
 exports.default = Display;
 
 /***/ }),
-/* 7 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -942,7 +1217,104 @@ var QueryModel = function QueryModel(data) {
 exports.default = QueryModel;
 
 /***/ }),
-/* 8 */
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var Sort = function () {
+	function Sort() {
+		_classCallCheck(this, Sort);
+	}
+
+	_createClass(Sort, [{
+		key: 'exec',
+		value: function exec() {
+			var _this = this;
+
+			var data = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+			var rules = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+
+			var source = void 0;
+			if (!data.length || !rules.length) {
+				return data;
+			}
+			source = this._getSource(data, rules);
+			source.sort(function (a, b) {
+				var result = 0;
+				for (var i = 0, j = rules.length; i < rules.length; i++) {
+					var key = rules[i].by;
+					if (rules[i].order === 'ASC') {
+						result = _this.ASC(a.formatted[key], b.formatted[key]);
+					} else {
+						result = _this.DESC(a.formatted[key], b.formatted[key]);
+					}
+					if (result !== 0) {
+						return result;
+					}
+				}
+				return result;
+			});
+			return source.map(function (item) {
+				return item._;
+			});
+		}
+	}, {
+		key: 'ASC',
+		value: function ASC(a, b) {
+			if (a < b) {
+				return -1;
+			}
+			if (a > b) {
+				return 1;
+			}
+			return 0;
+		}
+	}, {
+		key: 'DESC',
+		value: function DESC(a, b) {
+			if (a < b) {
+				return 1;
+			}
+			if (a > b) {
+				return -1;
+			}
+			return 0;
+		}
+	}, {
+		key: '_getSource',
+		value: function _getSource(data, rules) {
+			return data.map(function (item) {
+				var formatted = {};
+				rules.forEach(function (rule) {
+					formatted[rule.by] = rule.get(item[rule.by], item, data);
+				});
+				return {
+					_: item,
+					formatted: formatted
+				};
+			});
+		}
+	}]);
+
+	return Sort;
+}();
+
+;
+
+exports.default = new Sort();
+
+/***/ }),
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1033,7 +1405,7 @@ var FixedHeader = function () {
 exports.default = FixedHeader;
 
 /***/ }),
-/* 9 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1209,7 +1581,7 @@ var Storage = function () {
 exports.default = Storage;
 
 /***/ }),
-/* 10 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1300,6 +1672,7 @@ var Fill = function () {
 			if ($gridWrap.get(0).offsetWidth - $gridWrap.get(0).clientWidth) {
 				$headWrap.css({ 'padding-right': storage.scrollbarWidth + 'px' });
 			}
+			this._updateHead();
 		}
 	}, {
 		key: '_createShadowBody',
@@ -1349,6 +1722,30 @@ var Fill = function () {
 				}
 			});
 		}
+	}, {
+		key: '_updateHead',
+		value: function _updateHead() {
+			var self = this,
+			    storage = this.storage,
+			    colModels = storage.colModels,
+			    viewModel = this.viewModel,
+			    $headLabels = storage.$headLabels,
+			    sortBy = {};
+
+			viewModel.sortBy.forEach(function (sortRule) {
+				sortBy[sortRule.by] = sortRule.order;
+			});
+
+			colModels.forEach(function (colModel, i) {
+				var $label = $headLabels.eq(i),
+				    order = sortBy[colModel.alias];
+				if (order) {
+					$label.attr('data-sort', order);
+				} else {
+					$label.removeAttr('data-sort');
+				}
+			});
+		}
 	}]);
 
 	return Fill;
@@ -1359,7 +1756,7 @@ var Fill = function () {
 exports.default = Fill;
 
 /***/ }),
-/* 11 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1479,6 +1876,48 @@ var Pagination = function () {
 ;
 
 exports.default = Pagination;
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var SortRule = function () {
+	function SortRule(by) {
+		var order = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'ASC';
+
+		_classCallCheck(this, SortRule);
+
+		this.by = by;
+		this.order = order;
+	}
+
+	_createClass(SortRule, [{
+		key: 'triggerOrder',
+		value: function triggerOrder() {
+			if (this.order === 'ASC') {
+				this.order = 'DESC';
+			} else {
+				this.order = 'ASC';
+			}
+		}
+	}]);
+
+	return SortRule;
+}();
+
+;
+exports.default = SortRule;
 
 /***/ })
 /******/ ]);

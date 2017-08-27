@@ -5,8 +5,9 @@ class ViewModel {
 			totalRows: 0,
 			page: 1,
 			totalPages: 0,
+			newPage: 1,
 			data: [],
-			newPage: 1
+			sortBy: []
 		}
 		this.subscribers = {};
 	}
@@ -18,6 +19,16 @@ class ViewModel {
 		if ($.isArray(data)) {
 			this.model.data = data;
 			this.notify('data', this);
+		}
+	};
+
+	get sortBy() {
+		return this.model.sortBy;
+	};
+	set sortBy(data) {
+		if ($.isArray(data)) {
+			this.model.sortBy = data;
+			this.notify('sortBy', this);
 		}
 	};
 
