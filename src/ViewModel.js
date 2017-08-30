@@ -7,7 +7,8 @@ class ViewModel {
 			totalPages: 0,
 			newPage: 1,
 			data: [],
-			sortBy: []
+			sortBy: [],
+			filterToolbar: false
 		}
 		this.subscribers = {};
 	}
@@ -80,6 +81,14 @@ class ViewModel {
 			this.model.newPage = page;
 			this.notify('newPage', this);
 		}
+	};
+
+	get filterToolbar() {
+		return this.model.newPage;
+	};
+	set filterToolbar(data) {
+		this.model.filterToolbar = data;
+		this.notify('filterToolbar', this);
 	};
 
 	on(name, subscriber) {

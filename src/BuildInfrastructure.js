@@ -1,7 +1,8 @@
 import tools from './Tools.js';
 
 class BuildInfrastructure {
-	constructor(options, storage) {
+	constructor(options, storage, viewModel) {
+		this.viewModel = viewModel;
 		this.options = $.extend({
 			theadClass: 'table table-bordered table-striped',
 			tbodyClass: 'table table-bordered table-striped',
@@ -22,20 +23,36 @@ class BuildInfrastructure {
 		this.storage = storage;
 		this._exec();
 	};
-
+	buildFilterToolbar() {
+		if (this.viewModel.filterToolbar) {
+			this._buildFilterToolbar();
+		}
+	};
 	_exec() {
 		this._build();
 		this._buildThead();
 		this._buildTBody();
 		this._buildPagination();
 	};
+	_buildFilterToolbar() {
+		const storage = this.storage,
+			viewModel = this.viewModel,
+			$filter = $('<tbody class="Xgrid-thead-filter"><tr>' + new Array(storage.colModels.length + 1).join('<td><div class="Xgrid-filter-wrapper"></div></td>') + '</tr></tbody>');
+
+		storage.$filterToolbarItems = $filter.find('.Xgrid-filter-wrapper');
+		storage.$headTable.append($filter);
+	};
 
 	_buildThead() {
 		const storage = this.storage;
-		let widthHelper = '<tbody class="Xgrid-thead-w"><tr>' + new Array(storage.colModels.length + 1).join('<td><div class="Xgrid-WidthListener-wrapper"><iframe data-col="0" class="Xgrid-WidthListener"></iframe></div></td>') + '</tr></tbody>';
+
+		let widthHelper = '<tfoot class="Xgrid-thead-w"><tr>' + new Array(storage.colModels.length + 1).join('<td><div class="Xgrid-WidthListener-wrapper"><iframe data-col="0" class="Xgrid-WidthListener"></iframe></div></td>') + '</tr></tfoot>';
+
 		storage.$headTable.html(widthHelper);
 		storage.$headTable.append('<thead class="Xgrid-thead-labels"><tr>' + new Array(storage.colModels.length + 1).join('<th class="Xgrid-thead-label"></th>') + '</tr></thead>');
 		storage.$headLabels = storage.$headTable.find('.Xgrid-thead-label');
+		
+		this.buildFilterToolbar();
 	};
 
 	_buildTBody() {

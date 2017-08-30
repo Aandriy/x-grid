@@ -74,6 +74,9 @@ class ProcessSettings {
 			options = this.options;
 		let sortBy = options.sortBy,
 			data = [];
+		if (options.filterToolbar) {
+			viewModel.filterToolbar = true;
+		}
 		if (sortBy && typeof (sortBy) === 'string') {
 			sortBy = sortBy.replace(/\s+/g, ' ').trim().split(',');
 			if (sortBy.length) {

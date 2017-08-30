@@ -30,7 +30,6 @@ class FixedHeader {
 
 		storage.$headTable.find('.Xgrid-thead-w td').each(function (i) {
 			const iframe = $(this).find('iframe').get(0);
-
 			iframe.setAttribute('data-col', i);
 			iframe.className = 'Xgrid-WidthListener';
 			cellWidthListeners.push(iframe);

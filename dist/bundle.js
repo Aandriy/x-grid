@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 2);
+/******/ 	return __webpack_require__(__webpack_require__.s = 3);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -236,41 +236,83 @@ exports.default = new SortFormatters();
 "use strict";
 
 
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _ViewModel = __webpack_require__(3);
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var SortRule = function () {
+	function SortRule(by) {
+		var order = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'ASC';
+
+		_classCallCheck(this, SortRule);
+
+		this.by = by;
+		this.order = order;
+	}
+
+	_createClass(SortRule, [{
+		key: 'triggerOrder',
+		value: function triggerOrder() {
+			if (this.order === 'ASC') {
+				this.order = 'DESC';
+			} else {
+				this.order = 'ASC';
+			}
+		}
+	}]);
+
+	return SortRule;
+}();
+
+;
+exports.default = SortRule;
+
+/***/ }),
+/* 3 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+var _ViewModel = __webpack_require__(4);
 
 var _ViewModel2 = _interopRequireDefault(_ViewModel);
 
-var _ProcessSettings = __webpack_require__(4);
+var _ProcessSettings = __webpack_require__(5);
 
 var _ProcessSettings2 = _interopRequireDefault(_ProcessSettings);
 
-var _BuildInfrastructure = __webpack_require__(6);
+var _BuildInfrastructure = __webpack_require__(7);
 
 var _BuildInfrastructure2 = _interopRequireDefault(_BuildInfrastructure);
 
-var _Sorting = __webpack_require__(7);
+var _Sorting = __webpack_require__(8);
 
 var _Sorting2 = _interopRequireDefault(_Sorting);
 
-var _Display = __webpack_require__(8);
+var _Display = __webpack_require__(9);
 
 var _Display2 = _interopRequireDefault(_Display);
 
-var _FixedHeader = __webpack_require__(11);
+var _FixedHeader = __webpack_require__(12);
 
 var _FixedHeader2 = _interopRequireDefault(_FixedHeader);
 
-var _Storage = __webpack_require__(12);
+var _Storage = __webpack_require__(13);
 
 var _Storage2 = _interopRequireDefault(_Storage);
 
-var _Fill = __webpack_require__(13);
+var _Fill = __webpack_require__(14);
 
 var _Fill2 = _interopRequireDefault(_Fill);
 
-var _Pagination = __webpack_require__(14);
+var _Pagination = __webpack_require__(15);
 
 var _Pagination2 = _interopRequireDefault(_Pagination);
 
@@ -299,7 +341,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				paginationSelector: '',
 				ajaxType: 'POST',
 				url: '',
-				multiSorting: false
+				multiSorting: false,
+				filterToolbar: false
 			}, options);
 
 			this.Storage = new _Storage2.default({ $box: box });
@@ -385,7 +428,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				this.ViewModel = new _ViewModel2.default();
 				this.ProcessSettings = new _ProcessSettings2.default(options, this.Storage, this.ViewModel);
-				this.BuildInfrastructure = new _BuildInfrastructure2.default(options, this.Storage);
+				this.BuildInfrastructure = new _BuildInfrastructure2.default(options, this.Storage, this.ViewModel);
 				this.Sorting = new _Sorting2.default(this.Storage, this.ViewModel, options);
 				this.Fill = new _Fill2.default(this.Storage, this.ViewModel);
 				this.Display = new _Display2.default({
@@ -430,7 +473,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 })(jQuery);
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -455,7 +498,8 @@ var ViewModel = function () {
 			totalPages: 0,
 			newPage: 1,
 			data: [],
-			sortBy: []
+			sortBy: [],
+			filterToolbar: false
 		};
 		this.subscribers = {};
 	}
@@ -564,6 +608,15 @@ var ViewModel = function () {
 				this.notify('newPage', this);
 			}
 		}
+	}, {
+		key: 'filterToolbar',
+		get: function get() {
+			return this.model.newPage;
+		},
+		set: function set(data) {
+			this.model.filterToolbar = data;
+			this.notify('filterToolbar', this);
+		}
 	}]);
 
 	return ViewModel;
@@ -572,7 +625,7 @@ var ViewModel = function () {
 exports.default = ViewModel;
 
 /***/ }),
-/* 4 */
+/* 5 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -584,11 +637,11 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _ColModel = __webpack_require__(5);
+var _ColModel = __webpack_require__(6);
 
 var _ColModel2 = _interopRequireDefault(_ColModel);
 
-var _SortRule = __webpack_require__(15);
+var _SortRule = __webpack_require__(2);
 
 var _SortRule2 = _interopRequireDefault(_SortRule);
 
@@ -679,6 +732,9 @@ var ProcessSettings = function () {
 			    options = this.options;
 			var sortBy = options.sortBy,
 			    data = [];
+			if (options.filterToolbar) {
+				viewModel.filterToolbar = true;
+			}
 			if (sortBy && typeof sortBy === 'string') {
 				sortBy = sortBy.replace(/\s+/g, ' ').trim().split(',');
 				if (sortBy.length) {
@@ -726,7 +782,7 @@ var ProcessSettings = function () {
 exports.default = ProcessSettings;
 
 /***/ }),
-/* 5 */
+/* 6 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -787,6 +843,11 @@ var ColModel = function () {
 			return '<div class="ellipsis">' + value + '</div>';
 		}
 	}, {
+		key: 'filterToolbarFormatter',
+		value: function filterToolbarFormatter($cell, colModel) {
+			return '<div class="input-group input-group-sm">\n\t\t\t<input type="text" class="form-control" placeholder="Username" />\n\t\t\t<span class="input-group-btn">\n\t\t\t\t<span class="btn btn-default"><i class="glyphicon glyphicon-remove"></i></span>\n\t\t\t\t<span class="btn btn-default"><i class="glyphicon glyphicon-ok"></i></span>\n\t\t\t</span>\n\t\t </div>';
+		}
+	}, {
 		key: 'filterFormatter',
 		value: function filterFormatter(value, rowData, data) {
 			return value;
@@ -801,7 +862,7 @@ var ColModel = function () {
 exports.default = ColModel;
 
 /***/ }),
-/* 6 */
+/* 7 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -822,9 +883,10 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var BuildInfrastructure = function () {
-	function BuildInfrastructure(options, storage) {
+	function BuildInfrastructure(options, storage, viewModel) {
 		_classCallCheck(this, BuildInfrastructure);
 
+		this.viewModel = viewModel;
 		this.options = $.extend({
 			theadClass: 'table table-bordered table-striped',
 			tbodyClass: 'table table-bordered table-striped',
@@ -841,6 +903,13 @@ var BuildInfrastructure = function () {
 	}
 
 	_createClass(BuildInfrastructure, [{
+		key: 'buildFilterToolbar',
+		value: function buildFilterToolbar() {
+			if (this.viewModel.filterToolbar) {
+				this._buildFilterToolbar();
+			}
+		}
+	}, {
 		key: '_exec',
 		value: function _exec() {
 			this._build();
@@ -849,13 +918,27 @@ var BuildInfrastructure = function () {
 			this._buildPagination();
 		}
 	}, {
+		key: '_buildFilterToolbar',
+		value: function _buildFilterToolbar() {
+			var storage = this.storage,
+			    viewModel = this.viewModel,
+			    $filter = $('<tbody class="Xgrid-thead-filter"><tr>' + new Array(storage.colModels.length + 1).join('<td><div class="Xgrid-filter-wrapper"></div></td>') + '</tr></tbody>');
+
+			storage.$filterToolbarItems = $filter.find('.Xgrid-filter-wrapper');
+			storage.$headTable.append($filter);
+		}
+	}, {
 		key: '_buildThead',
 		value: function _buildThead() {
 			var storage = this.storage;
-			var widthHelper = '<tbody class="Xgrid-thead-w"><tr>' + new Array(storage.colModels.length + 1).join('<td><div class="Xgrid-WidthListener-wrapper"><iframe data-col="0" class="Xgrid-WidthListener"></iframe></div></td>') + '</tr></tbody>';
+
+			var widthHelper = '<tfoot class="Xgrid-thead-w"><tr>' + new Array(storage.colModels.length + 1).join('<td><div class="Xgrid-WidthListener-wrapper"><iframe data-col="0" class="Xgrid-WidthListener"></iframe></div></td>') + '</tr></tfoot>';
+
 			storage.$headTable.html(widthHelper);
 			storage.$headTable.append('<thead class="Xgrid-thead-labels"><tr>' + new Array(storage.colModels.length + 1).join('<th class="Xgrid-thead-label"></th>') + '</tr></thead>');
 			storage.$headLabels = storage.$headTable.find('.Xgrid-thead-label');
+
+			this.buildFilterToolbar();
 		}
 	}, {
 		key: '_buildTBody',
@@ -911,7 +994,7 @@ var BuildInfrastructure = function () {
 exports.default = BuildInfrastructure;
 
 /***/ }),
-/* 7 */
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -923,7 +1006,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _SortRule = __webpack_require__(15);
+var _SortRule = __webpack_require__(2);
 
 var _SortRule2 = _interopRequireDefault(_SortRule);
 
@@ -1008,7 +1091,7 @@ var Sorting = function () {
 exports.default = Sorting;
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1024,11 +1107,11 @@ var _Tools = __webpack_require__(0);
 
 var _Tools2 = _interopRequireDefault(_Tools);
 
-var _QueryModel = __webpack_require__(9);
+var _QueryModel = __webpack_require__(10);
 
 var _QueryModel2 = _interopRequireDefault(_QueryModel);
 
-var _Sort = __webpack_require__(10);
+var _Sort = __webpack_require__(11);
 
 var _Sort2 = _interopRequireDefault(_Sort);
 
@@ -1192,7 +1275,7 @@ var Display = function () {
 exports.default = Display;
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1217,7 +1300,7 @@ var QueryModel = function QueryModel(data) {
 exports.default = QueryModel;
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1314,7 +1397,7 @@ var Sort = function () {
 exports.default = new Sort();
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1364,7 +1447,6 @@ var FixedHeader = function () {
 
 			storage.$headTable.find('.Xgrid-thead-w td').each(function (i) {
 				var iframe = $(this).find('iframe').get(0);
-
 				iframe.setAttribute('data-col', i);
 				iframe.className = 'Xgrid-WidthListener';
 				cellWidthListeners.push(iframe);
@@ -1405,7 +1487,7 @@ var FixedHeader = function () {
 exports.default = FixedHeader;
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1429,6 +1511,7 @@ var Storage = function () {
 			$gridTable: null,
 			$headLabels: null,
 			$paginationBox: null,
+			$filterToolbarItems: null,
 			query: null,
 			scrollbarWidth: 0,
 			colModels: [],
@@ -1514,6 +1597,17 @@ var Storage = function () {
 			}
 		}
 	}, {
+		key: '$filterToolbarItems',
+		get: function get() {
+			return this._model.$filterToolbarItems;
+		},
+		set: function set(value) {
+			if (value instanceof $) {
+				this._model.$filterToolbarItems = value;
+				this.notify('$filterToolbarItems', this);
+			}
+		}
+	}, {
 		key: 'scrollbarWidth',
 		get: function get() {
 			return this._model.scrollbarWidth;
@@ -1581,7 +1675,7 @@ var Storage = function () {
 exports.default = Storage;
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1608,7 +1702,7 @@ var Fill = function () {
 		value: function thead() {
 			var self = this,
 			    storage = this.storage,
-			    classRules = ['resizable', 'sortable', 'hidden'],
+			    classRules = ['resizable', 'sortable', 'filterable', 'hidden'],
 			    colModels = storage.colModels;
 
 			storage.$headLabels.each(function (i) {
@@ -1632,6 +1726,29 @@ var Fill = function () {
 					}
 				});
 			});
+			this.filterToolbar();
+		}
+	}, {
+		key: 'filterToolbar',
+		value: function filterToolbar() {
+			var self = this,
+			    storage = this.storage,
+			    viewModel = this.viewModel,
+			    colModels = storage.colModels;
+			if (storage.$filterToolbarItems) {
+				storage.$filterToolbarItems.each(function (i) {
+					var $cell = $(this),
+					    colModel = colModels[i];
+					if (colModel.filterable && colModel.filterToolbarFormatter) {
+						var data = colModel.filterToolbarFormatter($cell, colModel);
+						if (typeof data !== 'undefined') {
+							$cell.html(data);
+						}
+					} else {
+						$cell.empty();
+					}
+				});
+			}
 		}
 	}, {
 		key: 'tbody',
@@ -1756,7 +1873,7 @@ var Fill = function () {
 exports.default = Fill;
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1876,48 +1993,6 @@ var Pagination = function () {
 ;
 
 exports.default = Pagination;
-
-/***/ }),
-/* 15 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-
-var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-var SortRule = function () {
-	function SortRule(by) {
-		var order = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'ASC';
-
-		_classCallCheck(this, SortRule);
-
-		this.by = by;
-		this.order = order;
-	}
-
-	_createClass(SortRule, [{
-		key: 'triggerOrder',
-		value: function triggerOrder() {
-			if (this.order === 'ASC') {
-				this.order = 'DESC';
-			} else {
-				this.order = 'ASC';
-			}
-		}
-	}]);
-
-	return SortRule;
-}();
-
-;
-exports.default = SortRule;
 
 /***/ })
 /******/ ]);

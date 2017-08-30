@@ -24,17 +24,19 @@
 			data: mydata,
 			colModels: [
 				{ key: 'key', width: 60, sorttype: "int", label: 'Inv No', sortable: true },
-				{ key: 'invdate', width: 90, sorttype: "date", label: 'Date' },
+				{ key: 'invdate', width: 90, sorttype: "date", label: 'Date', filterable: true },
 				{ key: 'name', label: 'Client', resizable: true },
 				{ key: 'description', width: 100, label: 'Description', resizable: true },
 
 				{ key: 'amount', width: 80, align: "right", sorttype: "float", label: 'Amount', hidden: true },
 				{ key: 'tax', width: 80, align: "right", sorttype: "float", label: 'Tax' },
-				{ key: 'total', width: 80, align: "right", sorttype: "float", label: 'Total' },
+				{ key: 'total', width: 80, align: "right", sorttype: "float", label: 'Total', filterable: true },
 				{ key: 'note', width: 150, sortable: true, label: 'Notes' }
 			],
-			sortBy: 'tax ACS, key DESC'
-			//sortBy: [{ by: 'tax', order: 'ACS' }, { by: 'key', order: 'DESC' }]
+			sortBy: 'tax ACS, key DESC',
+			//sortBy: [{ by: 'tax', order: 'ACS' }, { by: 'key', order: 'DESC' }],
+			filterToolbar: false,
+			
 		});
 
 		console.log($('.grid').data('Xgrid'));

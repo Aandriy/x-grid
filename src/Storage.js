@@ -7,6 +7,7 @@ class Storage {
 			$gridTable: null,
 			$headLabels: null,
 			$paginationBox: null,
+			$filterToolbarItems: null,
 			query: null,
 			scrollbarWidth: 0,
 			colModels: [],
@@ -61,6 +62,15 @@ class Storage {
 		}
 	};
 
+	get $filterToolbarItems() {
+		return this._model.$filterToolbarItems;
+	};
+	set $filterToolbarItems(value) {
+		if (value instanceof $) {
+			this._model.$filterToolbarItems = value;
+			this.notify('$filterToolbarItems', this);
+		}
+	};
 
 	get scrollbarWidth() {
 		return this._model.scrollbarWidth;

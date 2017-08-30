@@ -8,7 +8,7 @@ class Fill {
 	thead() {
 		const self = this,
 			storage = this.storage,
-			classRules = ['resizable', 'sortable', 'hidden'],
+			classRules = ['resizable', 'sortable', 'filterable', 'hidden'],
 			colModels = storage.colModels;
 
 		storage.$headLabels.each(function (i) {
@@ -32,6 +32,28 @@ class Fill {
 				}
 			});
 		});
+		this.filterToolbar();
+	};
+
+	filterToolbar() {
+		const self = this,
+			storage = this.storage,
+			viewModel = this.viewModel,
+			colModels = storage.colModels;
+		if (storage.$filterToolbarItems) {
+			storage.$filterToolbarItems.each(function (i) {
+				const $cell = $(this),
+					colModel = colModels[i];
+				if (colModel.filterable && colModel.filterToolbarFormatter) {
+					let data = colModel.filterToolbarFormatter($cell, colModel);
+					if (typeof (data) !== 'undefined') {
+						$cell.html(data);
+					}
+				} else {
+					$cell.empty();
+				}
+			})
+		}
 	};
 
 	tbody() {

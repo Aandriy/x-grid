@@ -33,7 +33,17 @@ class ColModel {
 
 	cellFormatter($td, value, rowData, data) {
 		return '<div class="ellipsis">' + value + '</div>';
-	}
+	};
+
+	filterToolbarFormatter($cell, colModel) {
+		return `<div class="input-group input-group-sm">
+			<input type="text" class="form-control" placeholder="Username" />
+			<span class="input-group-btn">
+				<span class="btn btn-default"><i class="glyphicon glyphicon-remove"></i></span>
+				<span class="btn btn-default"><i class="glyphicon glyphicon-ok"></i></span>
+			</span>
+		 </div>`;
+	};
 
 	filterFormatter(value, rowData, data) {
 		return value;
