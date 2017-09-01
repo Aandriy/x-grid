@@ -188,46 +188,99 @@ var _createClass = function () { function defineProperties(target, props) { for 
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-var SortFormatters = function () {
-	function SortFormatters() {
-		_classCallCheck(this, SortFormatters);
+var Pipes = function () {
+	function Pipes() {
+		var _this = this;
 
-		this.float = this.number;
-		this.currency = this.number;
-		this.numeric = this.number;
-		this.int = this.number;
-		this.integer = this.number;
-		this.text = this.insensitivetext;
+		var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : { insensitive: false };
+
+		_classCallCheck(this, Pipes);
+
+		this.integer = this.integer.bind(this);
+		this.int = this.integer;
+
+		this.numeric = this.numeric.bind(this);
+		this.float = this.numeric;
+		this.number = this.numeric;
+
+		//this.datetime = this.date.bind(this);
+
+		if (options.insensitive) {
+			this.text = this.insensitivetext.bind(this);
+		} else {
+			this.text = this.sensitivetext.bind(this);
+		}
+		this.isNotZero = {
+			undefined: 1
+		};
+
+		['', null, false, true].forEach(function (key) {
+			_this.isNotZero[key] = 1;
+		});
 	}
 
-	_createClass(SortFormatters, [{
-		key: "number",
-		value: function number(value) {
+	_createClass(Pipes, [{
+		key: 'getByType',
+		value: function getByType(type) {
+			switch (type) {
+				case 'int':
+				case 'integer':
+					return this.integer;
+				case 'float':
+				case 'number':
+				case 'numeric':
+					return this.numeric;
+				default:
+					return this.text;
+			}
+		}
+	}, {
+		key: 'numeric',
+		value: function numeric(value) {
 			var result = void 0;
-			if (isNaN(value)) {
-				result = parseFloat(String(value).replace(/[\$,%]/g, ''));
-				result = isNaN(result) ? Number.NEGATIVE_INFINITY : result;
+			if (this.isNotZero[value]) {
+				result = Number.NEGATIVE_INFINITY;
 			} else {
-				result = +value;
+				if (isNaN(value)) {
+					result = parseFloat(String(value).replace(/,/g, '.').replace(/[\$%]/g, ''));
+					result = isNaN(result) ? Number.NEGATIVE_INFINITY : result;
+				} else {
+					result = +value;
+				}
 			}
 			return result;
 		}
 	}, {
-		key: "insensitivetext",
+		key: 'integer',
+		value: function integer(value) {
+			var result = void 0;
+			if (this.isNotZero[value]) {
+				result = Number.NEGATIVE_INFINITY;
+			} else {
+				if (isNaN(value)) {
+					result = String(value).replace(/[\$,%]/g, '');
+				}
+				result = parseInt(result);
+				result = isNaN(result) ? Number.NEGATIVE_INFINITY : result;
+			}
+			return result;
+		}
+	}, {
+		key: 'insensitivetext',
 		value: function insensitivetext(value) {
 			return value ? $.trim(String(value)) : "";
 		}
 	}, {
-		key: "sensitivetext",
+		key: 'sensitivetext',
 		value: function sensitivetext(value) {
 			return (value ? $.trim(String(value)) : "").toLowerCase();
 		}
 	}]);
 
-	return SortFormatters;
+	return Pipes;
 }();
 
-exports.default = new SortFormatters();
+exports.default = Pipes;
 
 /***/ }),
 /* 2 */
@@ -292,33 +345,41 @@ var _BuildInfrastructure = __webpack_require__(7);
 
 var _BuildInfrastructure2 = _interopRequireDefault(_BuildInfrastructure);
 
-var _Sorting = __webpack_require__(8);
+var _FilterToolbar = __webpack_require__(8);
+
+var _FilterToolbar2 = _interopRequireDefault(_FilterToolbar);
+
+var _Sorting = __webpack_require__(9);
 
 var _Sorting2 = _interopRequireDefault(_Sorting);
 
-var _Display = __webpack_require__(9);
+var _Display = __webpack_require__(10);
 
 var _Display2 = _interopRequireDefault(_Display);
 
-var _FixedHeader = __webpack_require__(12);
+var _FixedHeader = __webpack_require__(14);
 
 var _FixedHeader2 = _interopRequireDefault(_FixedHeader);
 
-var _Storage = __webpack_require__(13);
+var _Storage = __webpack_require__(15);
 
 var _Storage2 = _interopRequireDefault(_Storage);
 
-var _Fill = __webpack_require__(14);
+var _Fill = __webpack_require__(16);
 
 var _Fill2 = _interopRequireDefault(_Fill);
 
-var _Pagination = __webpack_require__(15);
+var _Pagination = __webpack_require__(17);
 
 var _Pagination2 = _interopRequireDefault(_Pagination);
 
 var _Tools = __webpack_require__(0);
 
 var _Tools2 = _interopRequireDefault(_Tools);
+
+var _Pipes = __webpack_require__(1);
+
+var _Pipes2 = _interopRequireDefault(_Pipes);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -427,10 +488,12 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				    options = this.options;
 
 				this.ViewModel = new _ViewModel2.default();
+				this.Pipes = new _Pipes2.default(options);
 				this.ProcessSettings = new _ProcessSettings2.default(options, this.Storage, this.ViewModel);
 				this.BuildInfrastructure = new _BuildInfrastructure2.default(options, this.Storage, this.ViewModel);
 				this.Sorting = new _Sorting2.default(this.Storage, this.ViewModel, options);
 				this.Fill = new _Fill2.default(this.Storage, this.ViewModel);
+				this.FilterToolbar = new _FilterToolbar2.default(this.Storage, this.ViewModel, options);
 				this.Display = new _Display2.default({
 					storage: this.Storage,
 					viewModel: this.ViewModel,
@@ -794,9 +857,9 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _SortFormatters = __webpack_require__(1);
+var _Pipes = __webpack_require__(1);
 
-var _SortFormatters2 = _interopRequireDefault(_SortFormatters);
+var _Pipes2 = _interopRequireDefault(_Pipes);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -813,22 +876,26 @@ var ColModel = function () {
 		this.order = order;
 		$.extend(this, model);
 
+		var pipes = new _Pipes2.default({
+			insensitive: this.insensitive
+		});
+
 		if (typeof this.alias === 'undefined') {
 			this.alias = this.key;
 		}
 		if (typeof this.key === 'undefined') {
 			this.alias = this.alias;
 		}
-		if (model.sorttype) {
-			if (typeof model.sorttype === 'function') {
-				this.sortFormatter = model.sorttype;
-			} else if (_SortFormatters2.default[model.sorttype]) {
-				this.sortFormatter = _SortFormatters2.default[model.sorttype];
-			} else {
-				this.sortFormatter = _SortFormatters2.default['text'];
-			}
+		if (model.sorttype && typeof model.sorttype === 'function') {
+			this.sortFormatter = model.sorttype;
 		} else {
-			this.sortFormatter = _SortFormatters2.default['text'];
+			this.sortFormatter = pipes.getByType(model.sorttype);
+		}
+
+		if (model.filtertype && typeof model.filtertype === 'function') {
+			this.filterFormatter = model.filtertype;
+		} else {
+			this.filterFormatter = pipes.getByType(model.filtertype);
 		}
 	}
 
@@ -845,12 +912,7 @@ var ColModel = function () {
 	}, {
 		key: 'filterToolbarFormatter',
 		value: function filterToolbarFormatter($cell, colModel) {
-			return '<div class="input-group input-group-sm">\n\t\t\t<input type="text" class="form-control" placeholder="Username" />\n\t\t\t<span class="input-group-btn">\n\t\t\t\t<span class="btn btn-default"><i class="glyphicon glyphicon-remove"></i></span>\n\t\t\t\t<span class="btn btn-default"><i class="glyphicon glyphicon-ok"></i></span>\n\t\t\t</span>\n\t\t </div>';
-		}
-	}, {
-		key: 'filterFormatter',
-		value: function filterFormatter(value, rowData, data) {
-			return value;
+			return '<div class="input-group input-group-sm">\n\t\t\t<input type="text" class="form-control Xgrid-input Xgrid-filter Xgrid-onEnter" placeholder="Username" />\n\t\t\t<span class="input-group-btn">\n\t\t\t\t<span class="btn btn-default"><i class="glyphicon glyphicon-remove"></i></span>\n\t\t\t\t<span class="btn btn-default"><i class="glyphicon glyphicon-ok"></i></span>\n\t\t\t</span>\n\t\t </div>';
 		}
 	}]);
 
@@ -1006,6 +1068,162 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var FilterToolbar = function () {
+	function FilterToolbar(storage, viewModel, options) {
+		_classCallCheck(this, FilterToolbar);
+
+		this.storage = storage;
+		this.viewModel = viewModel;
+		this.options = options;
+		this._bind();
+	}
+
+	_createClass(FilterToolbar, [{
+		key: 'triggerToolbar',
+		value: function triggerToolbar() {
+			var storage = this.storage,
+			    viewModel = this.viewModel,
+			    colModels = storage.colModels;
+
+			var sdata = {},
+			    j = 0,
+			    v,
+			    nm,
+			    sopt = {},
+			    postData = {},
+			    so,
+			    defaultSearch = 'bw',
+			    groupOp = 'AND';
+			if (!storage.$filterToolbarItems) {
+				return this;
+			}
+
+			storage.$filterToolbarItems.each(function (i) {
+				var $filter = $(this),
+				    colModel = colModels[i],
+				    $elem = $filter.find('.Xgrid-filter');
+
+				var nm = colModel.key || colModel.alias,
+				    so = defaultSearch;
+				$elem.val(i);
+				v = $elem.val();
+
+				if (v || so === "nu" || so === "nn") {
+					sdata[nm] = v;
+					sopt[nm] = so;
+					j++;
+				} else {
+					try {
+						delete postData[nm];
+					} catch (z) {}
+				}
+			});
+
+			var sd = j > 0 ? true : false;
+			if (1) {
+				// allow search
+				var ruleGroup = "{\"groupOp\":\"" + groupOp + "\",\"rules\":[";
+				var gi = 0;
+				$.each(sdata, function (i, n) {
+					if (gi > 0) {
+						ruleGroup += ",";
+					}
+					ruleGroup += "{\"field\":\"" + i + "\",";
+					ruleGroup += "\"op\":\"" + sopt[i] + "\",";
+					n += "";
+					ruleGroup += "\"data\":\"" + n.replace(/\\/g, '\\\\').replace(/\"/g, '\\"') + "\"}";
+					gi++;
+				});
+				ruleGroup += "]}";
+				$.extend(postData, { filters: ruleGroup });
+				['searchField', 'searchString', 'searchOper'].forEach(function (name) {
+					delete postData[name];
+				});
+			} else {
+				$.extend(postData, sdata);
+			}
+			console.log(postData);
+			var saveurl;
+			/*
+   var bsr = $($t).triggerHandler("jqGridToolbarBeforeSearch") === 'stop' ? true : false;
+   if (!bsr && $.isFunction(p.beforeSearch)) {
+   	bsr = p.beforeSearch.call($t);
+   }
+   if (!bsr) {
+   	$($t).jqGrid("setGridParam", { search: sd }).trigger("reloadGrid", [{ page: 1 }]);
+   }
+   if (saveurl) {
+   	$($t).jqGrid("setGridParam", { url: saveurl });
+   }
+   $($t).triggerHandler("jqGridToolbarAfterSearch");
+   if ($.isFunction(p.afterSearch)) {
+   	p.afterSearch.call($t); 
+   }
+   /*	*/
+		}
+	}, {
+		key: '_bind',
+		value: function _bind() {
+			var storage = this.storage;
+			storage.$headTable.on('keypress', 'input.Xgrid-input.Xgrid-onEnter', this._handlerFilterOnEnter.bind(this));
+			//storage.$headTable.on('keydown', 'input.Xgrid-input.Xgrid-onKeydown', this._handlerFilterOnKeydown.bind(this));
+		}
+	}, {
+		key: '_handlerFilterOnKeydown',
+		value: function _handlerFilterOnKeydown(e) {
+			e.preventDefault();
+			var key = e.which;
+			switch (key) {
+				case 13:
+					return false;
+				case 9:
+				case 16:
+				case 37:
+				case 38:
+				case 39:
+				case 40:
+				case 27:
+					break;
+				default:
+				/*
+    	if(timeoutHnd) {
+    		clearTimeout(timeoutHnd); 
+    	}
+    	timeoutHnd = setTimeout(function(){triggerToolbar();},500);
+    	*/
+			}
+		}
+	}, {
+		key: '_handlerFilterOnEnter',
+		value: function _handlerFilterOnEnter(e) {
+			var key = e.charCode || e.keyCode || 0;
+			if (key === 13) {
+				e.preventDefault();
+				this.triggerToolbar();
+			}
+		}
+	}]);
+
+	return FilterToolbar;
+}();
+
+exports.default = FilterToolbar;
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
 var _SortRule = __webpack_require__(2);
 
 var _SortRule2 = _interopRequireDefault(_SortRule);
@@ -1091,7 +1309,7 @@ var Sorting = function () {
 exports.default = Sorting;
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1107,15 +1325,15 @@ var _Tools = __webpack_require__(0);
 
 var _Tools2 = _interopRequireDefault(_Tools);
 
-var _QueryModel = __webpack_require__(10);
+var _QueryModel = __webpack_require__(11);
 
 var _QueryModel2 = _interopRequireDefault(_QueryModel);
 
-var _Sort = __webpack_require__(11);
+var _Sort = __webpack_require__(12);
 
 var _Sort2 = _interopRequireDefault(_Sort);
 
-var _SortFormatters = __webpack_require__(1);
+var _SortFormatters = __webpack_require__(13);
 
 var _SortFormatters2 = _interopRequireDefault(_SortFormatters);
 
@@ -1275,7 +1493,7 @@ var Display = function () {
 exports.default = Display;
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1300,7 +1518,7 @@ var QueryModel = function QueryModel(data) {
 exports.default = QueryModel;
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1397,7 +1615,63 @@ var Sort = function () {
 exports.default = new Sort();
 
 /***/ }),
-/* 12 */
+/* 13 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var SortFormatters = function () {
+	function SortFormatters() {
+		_classCallCheck(this, SortFormatters);
+
+		this.float = this.number;
+		this.currency = this.number;
+		this.numeric = this.number;
+		this.int = this.number;
+		this.integer = this.number;
+		this.text = this.insensitivetext;
+	}
+
+	_createClass(SortFormatters, [{
+		key: "number",
+		value: function number(value) {
+			var result = void 0;
+			if (isNaN(value)) {
+				result = parseFloat(String(value).replace(/[\$,%]/g, ''));
+				result = isNaN(result) ? Number.NEGATIVE_INFINITY : result;
+			} else {
+				result = +value;
+			}
+			return result;
+		}
+	}, {
+		key: "insensitivetext",
+		value: function insensitivetext(value) {
+			return value ? $.trim(String(value)) : "";
+		}
+	}, {
+		key: "sensitivetext",
+		value: function sensitivetext(value) {
+			return (value ? $.trim(String(value)) : "").toLowerCase();
+		}
+	}]);
+
+	return SortFormatters;
+}();
+
+exports.default = new SortFormatters();
+
+/***/ }),
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1487,7 +1761,7 @@ var FixedHeader = function () {
 exports.default = FixedHeader;
 
 /***/ }),
-/* 13 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1675,7 +1949,7 @@ var Storage = function () {
 exports.default = Storage;
 
 /***/ }),
-/* 14 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1873,7 +2147,7 @@ var Fill = function () {
 exports.default = Fill;
 
 /***/ }),
-/* 15 */
+/* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
