@@ -97,12 +97,11 @@ class ViewModel {
 	};
 
 	notify(name, data) {
-		setTimeout(() => {
-			var storege = this._getStorage(name);
-			$.each(storege, function (i, subscriber) {
-				subscriber.apply(subscriber, data);
-			});
-		}, 1);
+		var storege = this._getStorage(name);
+		$.each(storege, function (i, subscriber) {
+			let [...arg] = [data, name, i];
+			subscriber.apply(subscriber, arg);
+		});
 	};
 
 	_getStorage(name) {

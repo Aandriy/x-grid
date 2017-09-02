@@ -10,7 +10,6 @@ class FilterToolbar {
 		const storage = this.storage,
 			viewModel = this.viewModel,
 			colModels = storage.colModels;
-			
 		var sdata = {},
 			j = 0,
 			v,
@@ -18,7 +17,7 @@ class FilterToolbar {
 			sopt = {},
 			postData = {},
 			so,
-			defaultSearch = 'bw',
+			defaultSearch = 'cn',
 			groupOp = 'AND';
 		if (!storage.$filterToolbarItems) {
 			return this;
@@ -31,12 +30,10 @@ class FilterToolbar {
 				$elem = $filter.find('.Xgrid-filter')
 
 			var nm = colModel.key || colModel.alias,
-				
+
 				so = defaultSearch;
-				$elem.val(i);
-				v = $elem.val();
-			
-			
+			v = $elem.val();
+
 			if (v || so === "nu" || so === "nn") {
 				sdata[nm] = v;
 				sopt[nm] = so;
@@ -46,9 +43,9 @@ class FilterToolbar {
 					delete postData[nm];
 				} catch (z) { }
 			}
-			
+
 		});
-		
+
 		var sd = j > 0 ? true : false;
 		if (1) { // allow search
 			var ruleGroup = "{\"groupOp\":\"" + groupOp + "\",\"rules\":[";
@@ -64,36 +61,19 @@ class FilterToolbar {
 			ruleGroup += "]}";
 			$.extend(postData, { filters: ruleGroup });
 			['searchField', 'searchString', 'searchOper'].forEach(function (name) {
-				delete postData[name]; 
+				delete postData[name];
 			});
 		} else {
 			$.extend(postData, sdata);
 		}
-		console.log(postData)
-		var saveurl;
-		/*
-		var bsr = $($t).triggerHandler("jqGridToolbarBeforeSearch") === 'stop' ? true : false;
-		if (!bsr && $.isFunction(p.beforeSearch)) {
-			bsr = p.beforeSearch.call($t);
-		}
-		if (!bsr) {
-			$($t).jqGrid("setGridParam", { search: sd }).trigger("reloadGrid", [{ page: 1 }]);
-		}
-		if (saveurl) {
-			$($t).jqGrid("setGridParam", { url: saveurl });
-		}
-		$($t).triggerHandler("jqGridToolbarAfterSearch");
-		if ($.isFunction(p.afterSearch)) {
-			p.afterSearch.call($t); 
-		}
-	/*	*/
+		storage.filter = JSON.parse(postData.filters) || null;
 	};
 
 	_bind() {
 		const storage = this.storage;
 		storage.$headTable.on('keypress', 'input.Xgrid-input.Xgrid-onEnter', this._handlerFilterOnEnter.bind(this));
 		//storage.$headTable.on('keydown', 'input.Xgrid-input.Xgrid-onKeydown', this._handlerFilterOnKeydown.bind(this));
-		
+
 	};
 	_handlerFilterOnKeydown(e) {
 		e.preventDefault();

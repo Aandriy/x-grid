@@ -12,6 +12,7 @@ class Storage {
 			scrollbarWidth: 0,
 			colModels: [],
 			colModelsDictionary: {},
+			filter: null,
 			data: [],
 			processedData: []
 		}, model)
@@ -99,6 +100,16 @@ class Storage {
 	set colModelsDictionary(value) {
 		this._model.colModelsDictionary = value;
 		this.notify('colModelsDictionary', this);
+	};
+	
+	get filter() {
+		return this._model.filter;
+	};
+	set filter(data) {
+		if (data === null || typeof (data) === 'object') {
+			this._model.filter = data;
+			this.notify('filter', this);
+		}
 	};
 
 	get data() {

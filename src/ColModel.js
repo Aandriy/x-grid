@@ -1,5 +1,4 @@
-
-import Pipes from './Pipes.js';
+import pipes from './Pipes.js';
 class ColModel {
 	constructor(model, order) {
 		this.label = '';
@@ -7,11 +6,8 @@ class ColModel {
 		this.resizable = false;
 		this.sortable = false;
 		this.order = order;
+		this.insensitive = false;
 		$.extend(this, model);
-
-		const pipes = new Pipes({
-			insensitive: this.insensitive
-		});
 
 		if (typeof (this.alias) === 'undefined') {
 			this.alias = this.key;

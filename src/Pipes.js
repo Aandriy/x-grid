@@ -1,6 +1,5 @@
 class Pipes {
-	constructor(options = { insensitive: false }) {
-
+	constructor() {
 		this.integer = this.integer.bind(this);
 		this.int = this.integer;
 
@@ -9,12 +8,14 @@ class Pipes {
 		this.number = this.numeric;
 
 		//this.datetime = this.date.bind(this);
+		this.text = ((value, rowData, colModel) => {
+			if (colModel.insensitive) {
+				return this.insensitivetext.call(this, value);
+			} else {
+				return this.sensitivetext.call(this, value);
+			}
+		});
 
-		if (options.insensitive) {
-			this.text = this.insensitivetext.bind(this);
-		} else {
-			this.text = this.sensitivetext.bind(this);
-		}
 		this.isNotZero = {
 			undefined: 1
 		};
@@ -76,4 +77,4 @@ class Pipes {
 	};
 }
 
-export default Pipes;
+export default new Pipes();

@@ -54,7 +54,7 @@ class Sort {
 		return data.map(function (item) {
 			let formatted = {};
 			rules.forEach((rule) => {
-				formatted[rule.by] = rule.get(item[rule.by], item, data);
+				formatted[rule.by] = rule.get(item[rule.by], item, rule.colModel, data);
 			});
 			return {
 				_: item,

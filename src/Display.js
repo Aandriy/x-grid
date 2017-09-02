@@ -1,7 +1,8 @@
 import tools from './Tools.js';
 import QueryModel from './QueryModel.js';
 import sort from './Sort.js';
-import sortFormatters from './SortFormatters.js';
+import filter from './Filter.js';
+import pipes from './Pipes.js';
 
 class Display {
 	constructor(options) {
@@ -24,7 +25,7 @@ class Display {
 		const storage = this.storage,
 			viewModel = this.viewModel,
 			query = new QueryModel({
-				filter: [],
+				filter: storage.filter,
 				sort: viewModel.sortBy,
 				rows: viewModel.rows,
 				page: viewModel.newPage,
@@ -42,16 +43,32 @@ class Display {
 
 	_filler(data) {
 		const viewModel = this.viewModel;
-
 		viewModel.totalPages = data.totalPages
 		viewModel.totalRows = data.totalRows;
 		viewModel.data = data.data;
 		viewModel.page = data.page;
 	};
 
-	_localFilter(data) {
-		const deferred = $.Deferred();
+	_localFilter(data, filterQuery) {
+		const deferred = $.Deferred(),
+			storage = this.storage,
+			rawData = function () {
+				const colModels = storage.colModelsDictionary;
+				return function () {
+					const row = {};
+					return function (alias, rowData) {
+						if (typeof (row[alias]) === 'undefined') {
+							const colModel = colModels[alias];
+							row[alias] = colModel.filterFormatter(rowData[colModel.key], rowData, colModel);
+						};
+						return row[alias];
+					}
+				}
+			}
 		setTimeout(() => {
+			if (filterQuery) {
+				data = filter.exec(data, filterQuery, rawData());
+			}
 			deferred.resolve(data);
 		}, 0);
 		return deferred;
@@ -68,11 +85,12 @@ class Display {
 				};
 
 				if (colModel) {
+					result.colModel = colModel;
 					result['by'] = colModel.key;
 					result['get'] = colModel.sortFormatter;
 				} else {
 					result['by'] = rule.by;
-					result['get'] = sortFormatters['text'];
+					result['get'] = pipes.getByType();
 				}
 				return result;
 			});
@@ -106,7 +124,6 @@ class Display {
 		const storage = this.storage,
 			deferred = $.Deferred(),
 			query = storage.query;
-
 		this._localFilter(storage.data, query.filter).done((filteredData) => {
 			this._localSort(filteredData, query.sort).done((sortedData) => {
 				deferred.resolve(this._getLocalData(sortedData, query));
@@ -121,14 +138,27 @@ class Display {
 	};
 	_subscribe() {
 		const viewModel = this.viewModel,
-			action = tools.throttle((x) => {
-				viewModel.page = viewModel.newPage;
+			storage = this.storage,
+			action = tools.throttle(() => {
 				this.exec();
-			}, 100);
-		viewModel.on('newPage', action);
-		viewModel.on('sortBy', action);
-	};
+			}, 100),
+			_reload = function (s, type) {
+				
+				switch (type) {
+					case 'filter':
+						viewModel.newPage = 1;
+						break;
+					case 'sortBy':
+						//viewModel.newPage = 1; ?
+						break;
+				}
+				action();
+			}
 
+		viewModel.on('newPage', _reload);
+		viewModel.on('sortBy', _reload);
+		storage.on('filter', _reload);
+	};
 }
 
 export default Display;
