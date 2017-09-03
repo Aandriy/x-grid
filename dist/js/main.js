@@ -25,18 +25,69 @@
 			colModels: [
 				{ key: 'key', width: 60, sorttype: "int", label: 'Inv No', sortable: true },
 				{ key: 'invdate', width: 90, sorttype: "date", label: 'Date', filterable: true },
-				{ key: 'name', label: 'Client', resizable: true },
-				{ key: 'description', width: 100, label: 'Description', resizable: true },
+				{
+					key: 'name',
+					label: 'Client',
+					resizable: true,
+					filterable: true,
+					filterOption: 'eq',
+					filterToolbarSettings: {
+						formControlType: 'select',
+						allowResetButton: true,
+						allowSubmitButton: false,
+						onEnter: false,
+						onChange: true,
+						selectOptions: [
+							{ label: '1', value: 'test' },
+							{ label: '2', value: 'test2' },
+							{ label: '3', value: 'test3' }
+						]
+					}
+				},
+				{
+					key: 'description',
+					width: 100,
+					label: 'Description',
+					resizable: true,
+					filterable: true,
+					filterToolbarSettings: {
+						onKeydown: true,
+						allowSubmitButton: false
+					}
+				},
 
 				{ key: 'amount', width: 80, align: "right", sorttype: "float", label: 'Amount', hidden: true },
 				{ key: 'tax', width: 80, align: "right", sorttype: "float", label: 'Tax' },
 				{ key: 'total', width: 80, align: "right", sorttype: "float", label: 'Total', filterable: true },
-				{ key: 'note', width: 150, sortable: true, label: 'Notes' }
+				{
+					key: 'note',
+					width: 150,
+					sortable: true,
+					label: 'Notes',
+					filterable: true,
+					filterOption: 'in',
+					filterToolbarSettings: {
+						formControlType: 'select',
+						allowResetButton: true,
+						allowSubmitButton: false,
+						onEnter: false,
+						onChange: true,
+						selectOptions: [
+							{ label: '1', value: 'note' },
+							{ label: '2', value: 'note2' },
+							{ label: '3', value: 'note3' }
+						],
+						attr: {
+							multiple: 'multiple',
+							size: '1'
+						}
+					}
+				}
 			],
 			sortBy: 'tax ACS, key DESC',
 			//sortBy: [{ by: 'tax', order: 'ACS' }, { by: 'key', order: 'DESC' }],
 			filterToolbar: false,
-			
+
 		});
 
 		console.log($('.grid').data('Xgrid'));

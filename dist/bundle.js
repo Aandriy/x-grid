@@ -341,19 +341,19 @@ var _ProcessSettings = __webpack_require__(5);
 
 var _ProcessSettings2 = _interopRequireDefault(_ProcessSettings);
 
-var _BuildInfrastructure = __webpack_require__(7);
+var _BuildInfrastructure = __webpack_require__(8);
 
 var _BuildInfrastructure2 = _interopRequireDefault(_BuildInfrastructure);
 
-var _FilterToolbar = __webpack_require__(8);
+var _FilterToolbar = __webpack_require__(9);
 
 var _FilterToolbar2 = _interopRequireDefault(_FilterToolbar);
 
-var _Sorting = __webpack_require__(9);
+var _Sorting = __webpack_require__(10);
 
 var _Sorting2 = _interopRequireDefault(_Sorting);
 
-var _Display = __webpack_require__(10);
+var _Display = __webpack_require__(11);
 
 var _Display2 = _interopRequireDefault(_Display);
 
@@ -858,6 +858,10 @@ var _Pipes = __webpack_require__(0);
 
 var _Pipes2 = _interopRequireDefault(_Pipes);
 
+var _FilterToolbarModel = __webpack_require__(7);
+
+var _FilterToolbarModel2 = _interopRequireDefault(_FilterToolbarModel);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -866,13 +870,19 @@ var ColModel = function () {
 	function ColModel(model, order) {
 		_classCallCheck(this, ColModel);
 
+		this.order = order;
 		this.label = '';
+		this.filterable = false;
+		this.filterType = 'text';
+		this.filterOption = 'cn';
+		this.sortable = false;
+		this.sortType = 'text';
 		this.hidden = false;
 		this.resizable = false;
-		this.sortable = false;
-		this.order = order;
 		this.insensitive = false;
+
 		$.extend(this, model);
+		this.filterToolbarSettings = new _FilterToolbarModel2.default(model.filterToolbarSettings);
 
 		if (typeof this.alias === 'undefined') {
 			this.alias = this.key;
@@ -880,16 +890,16 @@ var ColModel = function () {
 		if (typeof this.key === 'undefined') {
 			this.alias = this.alias;
 		}
-		if (model.sorttype && typeof model.sorttype === 'function') {
-			this.sortFormatter = model.sorttype;
+		if (model.sortType && typeof model.sortType === 'function') {
+			this.sortFormatter = model.sortType;
 		} else {
-			this.sortFormatter = _Pipes2.default.getByType(model.sorttype);
+			this.sortFormatter = _Pipes2.default.getByType(model.sortType);
 		}
 
-		if (model.filtertype && typeof model.filtertype === 'function') {
-			this.filterFormatter = model.filtertype;
+		if (model.filterType && typeof model.filterType === 'function') {
+			this.filterFormatter = model.filterType;
 		} else {
-			this.filterFormatter = _Pipes2.default.getByType(model.filtertype);
+			this.filterFormatter = _Pipes2.default.getByType(model.filterType);
 		}
 	}
 
@@ -901,12 +911,57 @@ var ColModel = function () {
 	}, {
 		key: 'cellFormatter',
 		value: function cellFormatter($td, value, rowData, data) {
+			if (typeof value === 'undefined') {
+				value = '';
+			}
 			return '<div class="ellipsis">' + value + '</div>';
 		}
 	}, {
 		key: 'filterToolbarFormatter',
 		value: function filterToolbarFormatter($cell, colModel) {
-			return '<div class="input-group input-group-sm">\n\t\t\t<input type="text" class="form-control Xgrid-input Xgrid-filter Xgrid-onEnter" placeholder="Username" />\n\t\t\t<span class="input-group-btn">\n\t\t\t\t<span class="btn btn-default"><i class="glyphicon glyphicon-remove"></i></span>\n\t\t\t\t<span class="btn btn-default"><i class="glyphicon glyphicon-ok"></i></span>\n\t\t\t</span>\n\t\t </div>';
+			var settings = colModel.filterToolbarSettings || {};
+			var $control = void 0,
+			    $container = void 0,
+			    str = '<div class="Xgrid-filter-wrapper">';
+
+			if (settings.allowResetButton || settings.allowSubmitButton) {
+				str += '<span class="Xgrid-filter-btns">';
+				if (settings.allowResetButton) {
+					str += '<span class="btn btn-default Xgrid-reset"><i class="glyphicon glyphicon-remove"></i></span>';
+				}
+				if (settings.allowSubmitButton) {
+					str += '<span class="btn btn-default Xgrid-onSubmit"><i class="glyphicon glyphicon-ok"></i></span>';
+				}
+				str += '</span>';
+			}
+			str += '</div>';
+			switch (settings.formControlType) {
+				case 'select':
+					$control = $('<select class="form-control Xgrid-select Xgrid-filter"  />');
+					settings.selectOptions.forEach(function (element, i) {
+						$control.append('<option value="' + i + '">' + element.label + '</option>');
+					});
+					$control.val([]);
+					break;
+				default:
+					$control = $('<input type="text" class="form-control Xgrid-input Xgrid-filter" />');
+					break;
+			}
+			if (settings.onChange) {
+				$control.addClass('Xgrid-onChange');
+			}
+			if (settings.onKeydown) {
+				$control.addClass('Xgrid-onKeydown');
+			}
+			if (settings.onEnter) {
+				$control.addClass('Xgrid-onEnter');
+			}
+			if (settings.attr) {
+				$control.attr(settings.attr);
+			}
+			$container = $(str);
+			$container.prepend($control);
+			$cell.html($container);
 		}
 	}]);
 
@@ -919,6 +974,66 @@ exports.default = ColModel;
 
 /***/ }),
 /* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+var FilterToolbarModel = function FilterToolbarModel(settings) {
+	var _this = this;
+
+	_classCallCheck(this, FilterToolbarModel);
+
+	this.formControlType = 'text';
+	this.selectOptions = [];
+	this.placeholder = '';
+	this.onEnter = true;
+	this.onKeydown = false;
+	this.onChange = false;
+	this.allowResetButton = true;
+	this.allowSubmitButton = true;
+	$.extend(this, settings);
+	if (!this.transformData) {
+		if (this.formControlType === 'select') {
+			this.transformData = function (data) {
+				var result = void 0;
+				var selectOptions = _this.selectOptions;
+				if ($.isArray(data)) {
+					result = [];
+					data.forEach(function (key) {
+						var item = selectOptions[key];selectOptions;
+						if (item) {
+							result.push(item.value);
+						} else {
+							result.push(key);
+						}
+					});
+					if (!result.length) {
+						return null;
+					}
+				} else {
+					if (selectOptions[data]) {
+						return selectOptions[data].value;
+					}
+				}
+
+				return result;
+			};
+		}
+	}
+};
+
+;
+exports.default = FilterToolbarModel;
+
+/***/ }),
+/* 8 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -978,9 +1093,11 @@ var BuildInfrastructure = function () {
 		value: function _buildFilterToolbar() {
 			var storage = this.storage,
 			    viewModel = this.viewModel,
-			    $filter = $('<tbody class="Xgrid-thead-filter"><tr>' + new Array(storage.colModels.length + 1).join('<td><div class="Xgrid-filter-wrapper"></div></td>') + '</tr></tbody>');
+			    $filter = $('<tbody class="Xgrid-thead-filter"><tr>' + new Array(storage.colModels.length + 1).join('<td class="Xgrid-filter-cell"></td>') + '</tr></tbody>');
 
-			storage.$filterToolbarItems = $filter.find('.Xgrid-filter-wrapper');
+			storage.$filterToolbarItems = $filter.find('.Xgrid-filter-cell').each(function (i) {
+				$(this).attr('data-alias', storage.colModels[i].alias);
+			});
 			storage.$headTable.append($filter);
 		}
 	}, {
@@ -1050,7 +1167,7 @@ var BuildInfrastructure = function () {
 exports.default = BuildInfrastructure;
 
 /***/ }),
-/* 8 */
+/* 9 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1072,6 +1189,7 @@ var FilterToolbar = function () {
 		this.viewModel = viewModel;
 		this.options = options;
 		this._bind();
+		this.timeoutOnKeydown = null;
 	}
 
 	_createClass(FilterToolbar, [{
@@ -1079,76 +1197,102 @@ var FilterToolbar = function () {
 		value: function triggerToolbar() {
 			var storage = this.storage,
 			    viewModel = this.viewModel,
-			    colModels = storage.colModels;
-			var sdata = {},
-			    j = 0,
-			    v,
-			    nm,
-			    sopt = {},
-			    postData = {},
-			    so,
+			    colModels = storage.colModels,
+			    rules = [],
 			    defaultSearch = 'cn',
 			    groupOp = 'AND';
+			var ruleGroup = null;
+
 			if (!storage.$filterToolbarItems) {
 				return this;
 			}
 
 			storage.$filterToolbarItems.each(function (i) {
 				var $filter = $(this),
-				    colModel = colModels[i],
 				    $elem = $filter.find('.Xgrid-filter');
+				if ($elem.length) {
+					var colModel = colModels[i],
+					    settings = colModel.filterToolbarSettings || {},
+					    filterOption = colModel.filterOption || defaultSearch,
+					    fieldName = colModel.alias || colModel.key;
 
-				var nm = colModel.key || colModel.alias,
-				    so = defaultSearch;
-				v = $elem.val();
+					var value = $elem.val();
 
-				if (v || so === "nu" || so === "nn") {
-					sdata[nm] = v;
-					sopt[nm] = so;
-					j++;
-				} else {
-					try {
-						delete postData[nm];
-					} catch (z) {}
+					if (typeof settings.transformData === 'function') {
+						value = settings.transformData(value, settings);
+					}
+
+					if (value || filterOption === "nu" || filterOption === "nn") {
+						rules.push({
+							field: fieldName,
+							op: filterOption,
+							data: value
+						});
+					}
 				}
 			});
 
-			var sd = j > 0 ? true : false;
-			if (1) {
-				// allow search
-				var ruleGroup = "{\"groupOp\":\"" + groupOp + "\",\"rules\":[";
-				var gi = 0;
-				$.each(sdata, function (i, n) {
-					if (gi > 0) {
-						ruleGroup += ",";
-					}
-					ruleGroup += "{\"field\":\"" + i + "\",";
-					ruleGroup += "\"op\":\"" + sopt[i] + "\",";
-					n += "";
-					ruleGroup += "\"data\":\"" + n.replace(/\\/g, '\\\\').replace(/\"/g, '\\"') + "\"}";
-					gi++;
-				});
-				ruleGroup += "]}";
-				$.extend(postData, { filters: ruleGroup });
-				['searchField', 'searchString', 'searchOper'].forEach(function (name) {
-					delete postData[name];
-				});
-			} else {
-				$.extend(postData, sdata);
+			if (rules.length) {
+				ruleGroup = {
+					groupOp: groupOp,
+					rules: rules
+				};
 			}
-			storage.filter = JSON.parse(postData.filters) || null;
+			storage.filter = ruleGroup;
 		}
 	}, {
 		key: '_bind',
 		value: function _bind() {
 			var storage = this.storage;
 			storage.$headTable.on('keypress', 'input.Xgrid-input.Xgrid-onEnter', this._handlerFilterOnEnter.bind(this));
-			//storage.$headTable.on('keydown', 'input.Xgrid-input.Xgrid-onKeydown', this._handlerFilterOnKeydown.bind(this));
+			storage.$headTable.on('keydown', 'input.Xgrid-input.Xgrid-onKeydown', this._handlerFilterOnKeydown.bind(this));
+			storage.$headTable.on('change', '.Xgrid-filter.Xgrid-onChange', this._handlerFilterOnChange.bind(this));
+			storage.$headTable.on('click', '.Xgrid-reset', this._handlerFilterOnReset.bind(this));
+			storage.$headTable.on('click', '.Xgrid-onSubmit', this._handlerFilterOnSubmit.bind(this));
+		}
+	}, {
+		key: '_handlerFilterOnSubmit',
+		value: function _handlerFilterOnSubmit(e) {
+			$(e.currentTarget).blur();
+			this.triggerToolbar();
+		}
+	}, {
+		key: '_handlerFilterOnReset',
+		value: function _handlerFilterOnReset(e) {
+			var storage = this.storage,
+			    $sell = $(e.currentTarget).blur().parents('.Xgrid-filter-cell:eq(0)'),
+			    alias = $sell.attr('data-alias'),
+			    $control = $sell.find('.Xgrid-filter'),
+			    colModel = storage.colModelsDictionary[alias],
+			    data = $control.val();
+
+			if (colModel) {
+				if (colModel.filterToolbarSettings.formControlType === 'select') {
+					if ($.isArray(data)) {
+						if (data.length) {
+							$control.val([]);
+						}
+					} else {
+						if (typeof data !== 'undefined') {
+							$control.val([]);
+						}
+					}
+				} else {
+					$control.val('');
+				}
+				this.triggerToolbar();
+			}
+		}
+	}, {
+		key: '_handlerFilterOnChange',
+		value: function _handlerFilterOnChange(e) {
+			this.triggerToolbar();
 		}
 	}, {
 		key: '_handlerFilterOnKeydown',
 		value: function _handlerFilterOnKeydown(e) {
-			e.preventDefault();
+			var _this = this;
+
 			var key = e.which;
 			switch (key) {
 				case 13:
@@ -1162,12 +1306,13 @@ var FilterToolbar = function () {
 				case 27:
 					break;
 				default:
-				/*
-    	if(timeoutHnd) {
-    		clearTimeout(timeoutHnd); 
-    	}
-    	timeoutHnd = setTimeout(function(){triggerToolbar();},500);
-    	*/
+
+					if (this.timeoutOnKeydown) {
+						clearTimeout(this.timeoutOnKeydown);
+					}
+					this.timeoutOnKeydown = setTimeout(function () {
+						_this.triggerToolbar();
+					}, 500);
 			}
 		}
 	}, {
@@ -1187,7 +1332,7 @@ var FilterToolbar = function () {
 exports.default = FilterToolbar;
 
 /***/ }),
-/* 9 */
+/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1284,7 +1429,7 @@ var Sorting = function () {
 exports.default = Sorting;
 
 /***/ }),
-/* 10 */
+/* 11 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1300,15 +1445,15 @@ var _Tools = __webpack_require__(1);
 
 var _Tools2 = _interopRequireDefault(_Tools);
 
-var _QueryModel = __webpack_require__(11);
+var _QueryModel = __webpack_require__(12);
 
 var _QueryModel2 = _interopRequireDefault(_QueryModel);
 
-var _Sort = __webpack_require__(12);
+var _Sort = __webpack_require__(13);
 
 var _Sort2 = _interopRequireDefault(_Sort);
 
-var _Filter = __webpack_require__(13);
+var _Filter = __webpack_require__(14);
 
 var _Filter2 = _interopRequireDefault(_Filter);
 
@@ -1502,7 +1647,7 @@ var Display = function () {
 exports.default = Display;
 
 /***/ }),
-/* 11 */
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1527,7 +1672,7 @@ var QueryModel = function QueryModel(data) {
 exports.default = QueryModel;
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1624,7 +1769,7 @@ var Sort = function () {
 exports.default = new Sort();
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1636,7 +1781,7 @@ Object.defineProperty(exports, "__esModule", {
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _Operators = __webpack_require__(14);
+var _Operators = __webpack_require__(15);
 
 var _Operators2 = _interopRequireDefault(_Operators);
 
@@ -1718,7 +1863,7 @@ var Filter = function () {
 exports.default = new Filter();
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1823,8 +1968,8 @@ var Operators = function () {
 		}
 	}, {
 		key: "inArray",
-		value: function inArray(a, array) {
-			return $.inArray(a, array) !== -1;
+		value: function inArray(array, b) {
+			return $.inArray(b, array) !== -1;
 		}
 	}, {
 		key: "startsWith",
@@ -1871,7 +2016,6 @@ var Operators = function () {
 exports.default = new Operators();
 
 /***/ }),
-/* 15 */,
 /* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 

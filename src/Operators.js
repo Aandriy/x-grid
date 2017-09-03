@@ -48,8 +48,8 @@ class Operators {
 	lessOrEquals(a, b) {
 		return a <= b;
 	};
-	inArray(a, array) {
-		return $.inArray(a, array) !== -1;
+	inArray(array, b) {
+		return $.inArray(b, array) !== -1;
 	};
 	startsWith(a, b, insensitive) {
 		a = String(a);

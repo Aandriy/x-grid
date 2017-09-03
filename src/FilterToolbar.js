@@ -5,78 +5,99 @@ class FilterToolbar {
 		this.viewModel = viewModel;
 		this.options = options;
 		this._bind();
+		this.timeoutOnKeydown = null;
 	}
 	triggerToolbar() {
 		const storage = this.storage,
 			viewModel = this.viewModel,
-			colModels = storage.colModels;
-		var sdata = {},
-			j = 0,
-			v,
-			nm,
-			sopt = {},
-			postData = {},
-			so,
+			colModels = storage.colModels,
+			rules = [],
 			defaultSearch = 'cn',
 			groupOp = 'AND';
+		let ruleGroup = null;
+
 		if (!storage.$filterToolbarItems) {
 			return this;
-
 		}
 
 		storage.$filterToolbarItems.each(function (i) {
 			const $filter = $(this),
-				colModel = colModels[i],
 				$elem = $filter.find('.Xgrid-filter')
+			if ($elem.length) {
+				const colModel = colModels[i],
+					settings = colModel.filterToolbarSettings || {},
+					filterOption = colModel.filterOption || defaultSearch,
+					fieldName = colModel.alias || colModel.key;
 
-			var nm = colModel.key || colModel.alias,
+				let value = $elem.val();
 
-				so = defaultSearch;
-			v = $elem.val();
+				if (typeof (settings.transformData) === 'function') {
+					value = settings.transformData(value, settings);
+				}
 
-			if (v || so === "nu" || so === "nn") {
-				sdata[nm] = v;
-				sopt[nm] = so;
-				j++;
-			} else {
-				try {
-					delete postData[nm];
-				} catch (z) { }
+				if (value || filterOption === "nu" || filterOption === "nn") {
+					rules.push({
+						field: fieldName,
+						op: filterOption,
+						data: value
+					});
+				}
 			}
-
 		});
 
-		var sd = j > 0 ? true : false;
-		if (1) { // allow search
-			var ruleGroup = "{\"groupOp\":\"" + groupOp + "\",\"rules\":[";
-			var gi = 0;
-			$.each(sdata, function (i, n) {
-				if (gi > 0) { ruleGroup += ","; }
-				ruleGroup += "{\"field\":\"" + i + "\",";
-				ruleGroup += "\"op\":\"" + sopt[i] + "\",";
-				n += "";
-				ruleGroup += "\"data\":\"" + n.replace(/\\/g, '\\\\').replace(/\"/g, '\\"') + "\"}";
-				gi++;
-			});
-			ruleGroup += "]}";
-			$.extend(postData, { filters: ruleGroup });
-			['searchField', 'searchString', 'searchOper'].forEach(function (name) {
-				delete postData[name];
-			});
-		} else {
-			$.extend(postData, sdata);
+		if (rules.length) {
+			ruleGroup = {
+				groupOp,
+				rules
+			}
 		}
-		storage.filter = JSON.parse(postData.filters) || null;
+		storage.filter = ruleGroup;
 	};
 
 	_bind() {
 		const storage = this.storage;
 		storage.$headTable.on('keypress', 'input.Xgrid-input.Xgrid-onEnter', this._handlerFilterOnEnter.bind(this));
-		//storage.$headTable.on('keydown', 'input.Xgrid-input.Xgrid-onKeydown', this._handlerFilterOnKeydown.bind(this));
+		storage.$headTable.on('keydown', 'input.Xgrid-input.Xgrid-onKeydown', this._handlerFilterOnKeydown.bind(this));
+		storage.$headTable.on('change', '.Xgrid-filter.Xgrid-onChange', this._handlerFilterOnChange.bind(this));
+		storage.$headTable.on('click', '.Xgrid-reset', this._handlerFilterOnReset.bind(this));
+		storage.$headTable.on('click', '.Xgrid-onSubmit', this._handlerFilterOnSubmit.bind(this));
+	};
 
+	_handlerFilterOnSubmit(e) {
+		$(e.currentTarget).blur();
+		this.triggerToolbar();
+	};
+
+	_handlerFilterOnReset(e) {
+		const storage = this.storage,
+			$sell = $(e.currentTarget).blur().parents('.Xgrid-filter-cell:eq(0)'),
+			alias = $sell.attr('data-alias'),
+			$control = $sell.find('.Xgrid-filter'),
+			colModel = storage.colModelsDictionary[alias],
+			data = $control.val();
+
+		if (colModel) {
+			if (colModel.filterToolbarSettings.formControlType === 'select') {
+				if ($.isArray(data)) {
+					if (data.length) {
+						$control.val([]);
+					}
+				} else {
+					if (typeof (data) !== 'undefined') {
+						$control.val([]);
+					}
+				}
+			} else {
+				$control.val('');
+			}
+			this.triggerToolbar();
+		}
+	};
+	_handlerFilterOnChange(e) {
+		this.triggerToolbar();
 	};
 	_handlerFilterOnKeydown(e) {
-		e.preventDefault();
+		
 		var key = e.which;
 		switch (key) {
 			case 13:
@@ -90,12 +111,16 @@ class FilterToolbar {
 			case 27:
 				break;
 			default:
-			/*
-				if(timeoutHnd) {
-					clearTimeout(timeoutHnd); 
+
+				if (this.timeoutOnKeydown) {
+					clearTimeout(this.timeoutOnKeydown);
 				}
-				timeoutHnd = setTimeout(function(){triggerToolbar();},500);
-				*/
+				this.timeoutOnKeydown = setTimeout(
+					() => {
+						this.triggerToolbar();
+					},
+					500
+				);
 		}
 	};
 

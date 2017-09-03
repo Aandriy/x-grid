@@ -37,9 +37,11 @@ class BuildInfrastructure {
 	_buildFilterToolbar() {
 		const storage = this.storage,
 			viewModel = this.viewModel,
-			$filter = $('<tbody class="Xgrid-thead-filter"><tr>' + new Array(storage.colModels.length + 1).join('<td><div class="Xgrid-filter-wrapper"></div></td>') + '</tr></tbody>');
+			$filter = $('<tbody class="Xgrid-thead-filter"><tr>' + new Array(storage.colModels.length + 1).join('<td class="Xgrid-filter-cell"></td>') + '</tr></tbody>');
 
-		storage.$filterToolbarItems = $filter.find('.Xgrid-filter-wrapper');
+		storage.$filterToolbarItems = $filter.find('.Xgrid-filter-cell').each(function (i) {
+			$(this).attr('data-alias', storage.colModels[i].alias);
+		});
 		storage.$headTable.append($filter);
 	};
 
@@ -51,7 +53,7 @@ class BuildInfrastructure {
 		storage.$headTable.html(widthHelper);
 		storage.$headTable.append('<thead class="Xgrid-thead-labels"><tr>' + new Array(storage.colModels.length + 1).join('<th class="Xgrid-thead-label"></th>') + '</tr></thead>');
 		storage.$headLabels = storage.$headTable.find('.Xgrid-thead-label');
-		
+
 		this.buildFilterToolbar();
 	};
 
