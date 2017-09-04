@@ -65,25 +65,18 @@ class Fill {
 			dataToDisplay = viewModel.data,
 			$headWrap = storage.$headTable.parent(),
 			$gridWrap = storage.$gridTable.parent(),
-			data = storage.data,
-			$tfootCells = storage.$gridTable.find('.Xgrid-tbody-w td'),
-			$theadCells = storage.$headTable.find('tr'),
-			dependentCells = [];
+			data = storage.data;
+			
 		let tbody;
-		colModels.forEach(function (model, i) {
-			let cells = [];
-
-			cells.push($tfootCells.get(i));
-			$theadCells.each(function () {
-				cells.push($(this).find('>*:eq(' + i + ')').get(0));
-			});
-			dependentCells.push($(cells));
+		colModels.forEach(function (colModel, i) {
+			colModel._check();
 		});
+		
 		tbody = this._createShadowBody(fragment);
 
 		$(tbody).find('tr').each(function (i) {
 			const rowData = dataToDisplay[i];
-			self._fillRow($(this), rowData, data, dependentCells);
+			self._fillRow($(this), rowData, data);
 		});
 
 		storage.$gridTable.find('>tbody').remove();
@@ -117,7 +110,7 @@ class Fill {
 		return tbody;
 	};
 
-	_fillRow($tr, rowData, data, dependentCells) {
+	_fillRow($tr, rowData, data) {
 
 		const $tds = $tr.find('td'),
 			storage = this.storage,
@@ -129,23 +122,21 @@ class Fill {
 		$.each(colModels, function (i, colModel) {
 			let value = rowData[colModel.key],
 				$td = $tds.eq(i),
-				data = colModel.cellFormatter($td, value, rowData, data),
-				$dependentCell = dependentCells[i];
+				data;
 
 			if (colModel.hidden) {
-				$td.addClass('hidden');
+				$td.remove();
 			} else {
 				num++;
-			}
-			if (num % 2) {
-				$td.addClass('odd');
-			} else {
-				$td.addClass('even');
-			}
-			$dependentCell[colModel.hidden ? 'addClass' : 'removeClass']('hidden')
-
-			if (typeof (data) !== 'undefined') {
-				$td.html(data);
+				data = colModel.cellFormatter($td, value, rowData, data);
+				if (num % 2) {
+					$td.addClass('odd');
+				} else {
+					$td.addClass('even');
+				}
+				if (typeof (data) !== 'undefined') {
+					$td.html(data);
+				}
 			}
 		});
 	};

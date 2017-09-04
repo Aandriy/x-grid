@@ -78,15 +78,9 @@ class FilterToolbar {
 
 		if (colModel) {
 			if (colModel.filterToolbarSettings.formControlType === 'select') {
-				if ($.isArray(data)) {
-					if (data.length) {
-						$control.val([]);
-					}
-				} else {
-					if (typeof (data) !== 'undefined') {
-						$control.val([]);
-					}
-				}
+				$control.val([]).each(function () {
+					this.selectedIndex = -1;
+				});
 			} else {
 				$control.val('');
 			}
@@ -97,7 +91,7 @@ class FilterToolbar {
 		this.triggerToolbar();
 	};
 	_handlerFilterOnKeydown(e) {
-		
+
 		var key = e.which;
 		switch (key) {
 			case 13:

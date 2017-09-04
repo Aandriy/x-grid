@@ -33,6 +33,27 @@ class BuildInfrastructure {
 		this._buildThead();
 		this._buildTBody();
 		this._buildPagination();
+
+		const storage = this.storage,
+			colModels = storage.colModels,
+			$tfootCells = storage.$gridTable.find('.Xgrid-tbody-w td'),
+			$theadCells = storage.$headTable.find('tr');
+		colModels.forEach(function (model, i) {
+			let cells = [];
+			cells.push($tfootCells.get(i));
+			$theadCells.each(function () {
+				cells.push($(this).find('>*:eq(' + i + ')').get(0));
+			});
+			
+			model.dependent = cells.map(function (item) {
+				const result = {
+					$anchor: $(document.createTextNode('')),
+					$item: $(item)
+				};
+				result.$item.before(result.$anchor);
+				return result;
+			});
+		});
 	};
 	_buildFilterToolbar() {
 		const storage = this.storage,

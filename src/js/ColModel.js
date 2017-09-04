@@ -33,6 +33,18 @@ class ColModel {
 		} else {
 			this.filterFormatter = pipes.getByType(model.filterType);
 		}
+		this.dependent = [];
+		this._check = function () {
+			if (this.hidden) {
+				this.dependent.forEach(function (item) {
+					item.$item.detach();
+				});
+			} else {
+				this.dependent.forEach(function (item) {
+					item.$anchor.after(item.$item);
+				});
+			}
+		}
 	}
 
 	labelFormatter() {
@@ -40,7 +52,7 @@ class ColModel {
 	};
 
 	cellFormatter($td, value, rowData, data) {
-		if (typeof(value) === 'undefined') {
+		if (typeof (value) === 'undefined') {
 			value = '';
 		}
 		return '<div class="ellipsis">' + value + '</div>';
@@ -70,7 +82,9 @@ class ColModel {
 				settings.selectOptions.forEach(function (element, i) {
 					$control.append('<option value="' + i + '">' + element.label + '</option>')
 				});
-				$control.val([]);
+				$control.val([]).each(function(){
+					this.selectedIndex = -1;
+				});
 				break;
 			default:
 				$control = $('<input type="text" class="Xgrid-input Xgrid-filter" />');

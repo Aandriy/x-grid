@@ -901,6 +901,18 @@ var ColModel = function () {
 		} else {
 			this.filterFormatter = _Pipes2.default.getByType(model.filterType);
 		}
+		this.dependent = [];
+		this._check = function () {
+			if (this.hidden) {
+				this.dependent.forEach(function (item) {
+					item.$item.detach();
+				});
+			} else {
+				this.dependent.forEach(function (item) {
+					item.$anchor.after(item.$item);
+				});
+			}
+		};
 	}
 
 	_createClass(ColModel, [{
@@ -942,7 +954,9 @@ var ColModel = function () {
 					settings.selectOptions.forEach(function (element, i) {
 						$control.append('<option value="' + i + '">' + element.label + '</option>');
 					});
-					$control.val([]);
+					$control.val([]).each(function () {
+						this.selectedIndex = -1;
+					});
 					break;
 				default:
 					$control = $('<input type="text" class="Xgrid-input Xgrid-filter" />');
@@ -1090,6 +1104,27 @@ var BuildInfrastructure = function () {
 			this._buildThead();
 			this._buildTBody();
 			this._buildPagination();
+
+			var storage = this.storage,
+			    colModels = storage.colModels,
+			    $tfootCells = storage.$gridTable.find('.Xgrid-tbody-w td'),
+			    $theadCells = storage.$headTable.find('tr');
+			colModels.forEach(function (model, i) {
+				var cells = [];
+				cells.push($tfootCells.get(i));
+				$theadCells.each(function () {
+					cells.push($(this).find('>*:eq(' + i + ')').get(0));
+				});
+
+				model.dependent = cells.map(function (item) {
+					var result = {
+						$anchor: $(document.createTextNode('')),
+						$item: $(item)
+					};
+					result.$item.before(result.$anchor);
+					return result;
+				});
+			});
 		}
 	}, {
 		key: '_buildFilterToolbar',
@@ -1271,15 +1306,9 @@ var FilterToolbar = function () {
 
 			if (colModel) {
 				if (colModel.filterToolbarSettings.formControlType === 'select') {
-					if ($.isArray(data)) {
-						if (data.length) {
-							$control.val([]);
-						}
-					} else {
-						if (typeof data !== 'undefined') {
-							$control.val([]);
-						}
-					}
+					$control.val([]).each(function () {
+						this.selectedIndex = -1;
+					});
 				} else {
 					$control.val('');
 				}
@@ -2397,25 +2426,18 @@ var Fill = function () {
 			    dataToDisplay = viewModel.data,
 			    $headWrap = storage.$headTable.parent(),
 			    $gridWrap = storage.$gridTable.parent(),
-			    data = storage.data,
-			    $tfootCells = storage.$gridTable.find('.Xgrid-tbody-w td'),
-			    $theadCells = storage.$headTable.find('tr'),
-			    dependentCells = [];
-			var tbody = void 0;
-			colModels.forEach(function (model, i) {
-				var cells = [];
+			    data = storage.data;
 
-				cells.push($tfootCells.get(i));
-				$theadCells.each(function () {
-					cells.push($(this).find('>*:eq(' + i + ')').get(0));
-				});
-				dependentCells.push($(cells));
+			var tbody = void 0;
+			colModels.forEach(function (colModel, i) {
+				colModel._check();
 			});
+
 			tbody = this._createShadowBody(fragment);
 
 			$(tbody).find('tr').each(function (i) {
 				var rowData = dataToDisplay[i];
-				self._fillRow($(this), rowData, data, dependentCells);
+				self._fillRow($(this), rowData, data);
 			});
 
 			storage.$gridTable.find('>tbody').remove();
@@ -2451,7 +2473,7 @@ var Fill = function () {
 		}
 	}, {
 		key: '_fillRow',
-		value: function _fillRow($tr, rowData, data, dependentCells) {
+		value: function _fillRow($tr, rowData, data) {
 
 			var $tds = $tr.find('td'),
 			    storage = this.storage,
@@ -2463,23 +2485,21 @@ var Fill = function () {
 			$.each(colModels, function (i, colModel) {
 				var value = rowData[colModel.key],
 				    $td = $tds.eq(i),
-				    data = colModel.cellFormatter($td, value, rowData, data),
-				    $dependentCell = dependentCells[i];
+				    data = void 0;
 
 				if (colModel.hidden) {
-					$td.addClass('hidden');
+					$td.remove();
 				} else {
 					num++;
-				}
-				if (num % 2) {
-					$td.addClass('odd');
-				} else {
-					$td.addClass('even');
-				}
-				$dependentCell[colModel.hidden ? 'addClass' : 'removeClass']('hidden');
-
-				if (typeof data !== 'undefined') {
-					$td.html(data);
+					data = colModel.cellFormatter($td, value, rowData, data);
+					if (num % 2) {
+						$td.addClass('odd');
+					} else {
+						$td.addClass('even');
+					}
+					if (typeof data !== 'undefined') {
+						$td.html(data);
+					}
 				}
 			});
 		}
