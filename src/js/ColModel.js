@@ -50,29 +50,30 @@ class ColModel {
 		const settings = colModel.filterToolbarSettings || {};
 		let $control,
 			$container,
+			$wrap = $('<div class="Xgrid-filter-control-wrap"></div>'),
 			str = '<div class="Xgrid-filter-wrapper">';
 
 		if (settings.allowResetButton || settings.allowSubmitButton) {
 			str += '<span class="Xgrid-filter-btns">';
 			if (settings.allowResetButton) {
-				str += '<span class="btn btn-default Xgrid-reset"><i class="glyphicon glyphicon-remove"></i></span>';
+				str += '<span class="Xgrid-btn Xgrid-reset">&#10006;</span>';
 			}
 			if (settings.allowSubmitButton) {
-				str += '<span class="btn btn-default Xgrid-onSubmit"><i class="glyphicon glyphicon-ok"></i></span>';
+				str += '<span class="Xgrid-btn Xgrid-onSubmit">&#10004;</span>';
 			}
 			str += '</span>';
 		}
 		str += '</div>'
 		switch (settings.formControlType) {
 			case 'select':
-				$control = $('<select class="form-control Xgrid-select Xgrid-filter"  />');
+				$control = $('<select class="Xgrid-select Xgrid-filter"  />');
 				settings.selectOptions.forEach(function (element, i) {
 					$control.append('<option value="' + i + '">' + element.label + '</option>')
 				});
 				$control.val([]);
 				break;
 			default:
-				$control = $('<input type="text" class="form-control Xgrid-input Xgrid-filter" />');
+				$control = $('<input type="text" class="Xgrid-input Xgrid-filter" />');
 				break;
 		}
 		if (settings.onChange) {
@@ -87,8 +88,10 @@ class ColModel {
 		if (settings.attr) {
 			$control.attr(settings.attr);
 		}
+
 		$container = $(str);
-		$container.prepend($control);
+		$wrap.append($control);
+		$container.append($wrap);
 		$cell.html($container);
 	};
 };

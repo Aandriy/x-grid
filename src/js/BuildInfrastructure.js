@@ -5,7 +5,7 @@ class BuildInfrastructure {
 		this.viewModel = viewModel;
 		this.options = $.extend({
 			theadClass: 'table table-bordered table-striped',
-			tbodyClass: 'table table-bordered table-striped',
+			tbodyClass: '',
 			firstBtnTemplate: '<span class="btn btn-default"><i class="glyphicon glyphicon-step-backward"></i></span>',
 			lastBtnTemplate: '<span class="btn btn-default"><i class="glyphicon glyphicon-step-forward"></i></span>',
 			prevBtnTemplate: '<span class="btn btn-default"><i class="glyphicon glyphicon-chevron-left"></i></span>',

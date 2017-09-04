@@ -122,6 +122,7 @@ class Fill {
 		const $tds = $tr.find('td'),
 			storage = this.storage,
 			colModels = storage.colModels;
+		let num = 0;
 
 		$tr.data('Xgrid.data', rowData);
 
@@ -133,6 +134,13 @@ class Fill {
 
 			if (colModel.hidden) {
 				$td.addClass('hidden');
+			} else {
+				num++;
+			}
+			if (num % 2) {
+				$td.addClass('odd');
+			} else {
+				$td.addClass('even');
 			}
 			$dependentCell[colModel.hidden ? 'addClass' : 'removeClass']('hidden')
 

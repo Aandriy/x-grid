@@ -922,29 +922,30 @@ var ColModel = function () {
 			var settings = colModel.filterToolbarSettings || {};
 			var $control = void 0,
 			    $container = void 0,
+			    $wrap = $('<div class="Xgrid-filter-control-wrap"></div>'),
 			    str = '<div class="Xgrid-filter-wrapper">';
 
 			if (settings.allowResetButton || settings.allowSubmitButton) {
 				str += '<span class="Xgrid-filter-btns">';
 				if (settings.allowResetButton) {
-					str += '<span class="btn btn-default Xgrid-reset"><i class="glyphicon glyphicon-remove"></i></span>';
+					str += '<span class="Xgrid-btn Xgrid-reset">&#10006;</span>';
 				}
 				if (settings.allowSubmitButton) {
-					str += '<span class="btn btn-default Xgrid-onSubmit"><i class="glyphicon glyphicon-ok"></i></span>';
+					str += '<span class="Xgrid-btn Xgrid-onSubmit">&#10004;</span>';
 				}
 				str += '</span>';
 			}
 			str += '</div>';
 			switch (settings.formControlType) {
 				case 'select':
-					$control = $('<select class="form-control Xgrid-select Xgrid-filter"  />');
+					$control = $('<select class="Xgrid-select Xgrid-filter"  />');
 					settings.selectOptions.forEach(function (element, i) {
 						$control.append('<option value="' + i + '">' + element.label + '</option>');
 					});
 					$control.val([]);
 					break;
 				default:
-					$control = $('<input type="text" class="form-control Xgrid-input Xgrid-filter" />');
+					$control = $('<input type="text" class="Xgrid-input Xgrid-filter" />');
 					break;
 			}
 			if (settings.onChange) {
@@ -959,8 +960,10 @@ var ColModel = function () {
 			if (settings.attr) {
 				$control.attr(settings.attr);
 			}
+
 			$container = $(str);
-			$container.prepend($control);
+			$wrap.append($control);
+			$container.append($wrap);
 			$cell.html($container);
 		}
 	}]);
@@ -1060,7 +1063,7 @@ var BuildInfrastructure = function () {
 		this.viewModel = viewModel;
 		this.options = $.extend({
 			theadClass: 'table table-bordered table-striped',
-			tbodyClass: 'table table-bordered table-striped',
+			tbodyClass: '',
 			firstBtnTemplate: '<span class="btn btn-default"><i class="glyphicon glyphicon-step-backward"></i></span>',
 			lastBtnTemplate: '<span class="btn btn-default"><i class="glyphicon glyphicon-step-forward"></i></span>',
 			prevBtnTemplate: '<span class="btn btn-default"><i class="glyphicon glyphicon-chevron-left"></i></span>',
@@ -2453,6 +2456,7 @@ var Fill = function () {
 			var $tds = $tr.find('td'),
 			    storage = this.storage,
 			    colModels = storage.colModels;
+			var num = 0;
 
 			$tr.data('Xgrid.data', rowData);
 
@@ -2464,6 +2468,13 @@ var Fill = function () {
 
 				if (colModel.hidden) {
 					$td.addClass('hidden');
+				} else {
+					num++;
+				}
+				if (num % 2) {
+					$td.addClass('odd');
+				} else {
+					$td.addClass('even');
 				}
 				$dependentCell[colModel.hidden ? 'addClass' : 'removeClass']('hidden');
 
