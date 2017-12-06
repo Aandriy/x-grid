@@ -27,6 +27,7 @@ import Pipes from './Pipes.js';
 				sortBy: [],
 				paginationSelector: '',
 				ajaxType: 'POST',
+				filterToolbarGroupOp: 'AND',
 				url: '',
 				multiSorting: false,
 				filterToolbar: false
@@ -38,7 +39,7 @@ import Pipes from './Pipes.js';
 
 		ajaxFunction(queryObject, url) {
 			const options = this.options;
-			$.ajax({
+			return $.ajax({
 				url: url,
 				data: queryObject,
 				type: options.ajaxType,
@@ -47,7 +48,7 @@ import Pipes from './Pipes.js';
 		};
 		_response(responseObject) {
 			const options = this.options;
-
+			responseObject.a = 1;
 			if (options.afterResponse) {
 				tools.execute(options.afterResponse, responseObject);
 			}
@@ -60,8 +61,8 @@ import Pipes from './Pipes.js';
 				tools.execute(options.beforeRequest, queryObject);
 			}
 
-			this.ajaxFunction(queryObject, options.url).done(this._response.bind(this)).always(() => {
-				d.resolve();
+			this.ajaxFunction(queryObject, options.url).done(this._response.bind(this)).always((responseObject) => {
+				d.resolve(responseObject);
 			});
 
 			return d;
@@ -120,9 +121,10 @@ import Pipes from './Pipes.js';
 
 			this.Fill.thead();
 
-			if ($.isArray(options.data)) {
-				this.Storage.data = options.data;
+			if (!$.isArray(options.data)) {
+				options.data = [];
 			}
+			this.Storage.data = options.data;
 		}
 	}
 

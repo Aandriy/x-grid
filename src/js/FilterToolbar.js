@@ -11,9 +11,10 @@ class FilterToolbar {
 		const storage = this.storage,
 			viewModel = this.viewModel,
 			colModels = storage.colModels,
+			options = this.options,
 			rules = [],
 			defaultSearch = 'cn',
-			groupOp = 'AND';
+			groupOp = options.filterToolbarGroupOp === 'AND' ? 'AND' : 'OR';
 		let ruleGroup = null;
 
 		if (!storage.$filterToolbarItems) {

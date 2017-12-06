@@ -401,6 +401,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 				sortBy: [],
 				paginationSelector: '',
 				ajaxType: 'POST',
+				filterToolbarGroupOp: 'AND',
 				url: '',
 				multiSorting: false,
 				filterToolbar: false
@@ -414,7 +415,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			key: 'ajaxFunction',
 			value: function ajaxFunction(queryObject, url) {
 				var options = this.options;
-				$.ajax({
+				return $.ajax({
 					url: url,
 					data: queryObject,
 					type: options.ajaxType,
@@ -425,7 +426,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 			key: '_response',
 			value: function _response(responseObject) {
 				var options = this.options;
-
+				responseObject.a = 1;
 				if (options.afterResponse) {
 					_Tools2.default.execute(options.afterResponse, responseObject);
 				}
@@ -441,8 +442,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 					_Tools2.default.execute(options.beforeRequest, queryObject);
 				}
 
-				this.ajaxFunction(queryObject, options.url).done(this._response.bind(this)).always(function () {
-					d.resolve();
+				this.ajaxFunction(queryObject, options.url).done(this._response.bind(this)).always(function (responseObject) {
+					d.resolve(responseObject);
 				});
 
 				return d;
@@ -508,9 +509,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				this.Fill.thead();
 
-				if ($.isArray(options.data)) {
-					this.Storage.data = options.data;
+				if (!$.isArray(options.data)) {
+					options.data = [];
 				}
+				this.Storage.data = options.data;
 			}
 		}]);
 
@@ -1076,8 +1078,8 @@ var BuildInfrastructure = function () {
 
 		this.viewModel = viewModel;
 		this.options = $.extend({
-			theadClass: 'table table-bordered table-striped',
-			tbodyClass: '',
+			theadClass: 'table-grid-thead',
+			tbodyClass: 'table-grid-tbody',
 			firstBtnTemplate: '<span class="btn btn-default"><i class="glyphicon glyphicon-step-backward"></i></span>',
 			lastBtnTemplate: '<span class="btn btn-default"><i class="glyphicon glyphicon-step-forward"></i></span>',
 			prevBtnTemplate: '<span class="btn btn-default"><i class="glyphicon glyphicon-chevron-left"></i></span>',
@@ -1236,9 +1238,10 @@ var FilterToolbar = function () {
 			var storage = this.storage,
 			    viewModel = this.viewModel,
 			    colModels = storage.colModels,
+			    options = this.options,
 			    rules = [],
 			    defaultSearch = 'cn',
-			    groupOp = 'AND';
+			    groupOp = options.filterToolbarGroupOp === 'AND' ? 'AND' : 'OR';
 			var ruleGroup = null;
 
 			if (!storage.$filterToolbarItems) {
@@ -1506,7 +1509,7 @@ var Display = function () {
 		this.viewModel = options.viewModel;
 		this.storage = options.storage;
 		this.ajax = options.ajax;
-
+		console.log(1);
 		if (options.isLocal) {
 			this.process = this._localProcess.bind(this);
 		} else {
