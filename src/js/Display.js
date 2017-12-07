@@ -9,7 +9,7 @@ class Display {
 		this.viewModel = options.viewModel;
 		this.storage = options.storage;
 		this.ajax = options.ajax;
-console.log(1)
+
 		if (options.isLocal) {
 			this.process = this._localProcess.bind(this);
 		} else {

@@ -468,7 +468,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 				this.ViewModel.on('data', function () {
 					_this.Fill.tbody();
-					_this.FixedHeader.resize();
+					setTimeout(function () {
+						_this.FixedHeader.resize();
+					}, 1050);
 				});
 
 				this.Storage.on('$paginationBox', function () {
@@ -882,6 +884,7 @@ var ColModel = function () {
 		this.hidden = false;
 		this.resizable = false;
 		this.insensitive = false;
+		this.fixed = false;
 
 		$.extend(this, model);
 		this.filterToolbarSettings = new _FilterToolbarModel2.default(model.filterToolbarSettings);
@@ -1080,10 +1083,10 @@ var BuildInfrastructure = function () {
 		this.options = $.extend({
 			theadClass: 'table-grid-thead',
 			tbodyClass: 'table-grid-tbody',
-			firstBtnTemplate: '<span class="btn btn-default"><i class="glyphicon glyphicon-step-backward"></i></span>',
-			lastBtnTemplate: '<span class="btn btn-default"><i class="glyphicon glyphicon-step-forward"></i></span>',
-			prevBtnTemplate: '<span class="btn btn-default"><i class="glyphicon glyphicon-chevron-left"></i></span>',
-			nextBtnTemplate: '<span class="btn btn-default"><i class="glyphicon glyphicon-chevron-right"></i></span>',
+			firstBtnTemplate: '<span class="btn btn-default">&#171;</span>',
+			lastBtnTemplate: '<span class="btn btn-default">&#187;</span>',
+			prevBtnTemplate: '<span class="btn btn-default">&#8249;</span>',
+			nextBtnTemplate: '<span class="btn btn-default">&#8250;</span>',
 			currentPageTemplate: '<input type="text" class="form-control" />',
 			paginationTemplate: '<div class="Xgrid-paggination input-group input-group-sm">\n\t\t\t<div class="input-group-btn" >{firstBtnTemplate}{prevBtnTemplate}</div>\n\t\t\t\t<span class="input-group-addon"> Page </span>\n\t\t\t\t{currentPageTemplate}\n\t\t\t\t<span class="input-group-addon"> of <span class="Xgrid-total-pages"></span></span>\n\t\t\t\t<div class="input-group-btn" >{nextBtnTemplate}{lastBtnTemplate}</div>\n\t\t\t</div>'
 		}, options);
@@ -1129,36 +1132,66 @@ var BuildInfrastructure = function () {
 			});
 		}
 	}, {
+		key: '_addPropstoHeaderCells',
+		value: function _addPropstoHeaderCells(i, item) {
+			var $item = $(item),
+			    colModel = this.storage.colModels[i];
+
+			$item.attr('data-alias', colModel['alias']);
+			if (colModel.fixed) {
+				$item.addClass('fixed');
+				if (colModel.width) {
+					$item.width(colModel.width);
+				}
+			}
+		}
+	}, {
 		key: '_buildFilterToolbar',
 		value: function _buildFilterToolbar() {
 			var storage = this.storage,
 			    viewModel = this.viewModel,
-			    $filter = $('<tbody class="Xgrid-thead-filter"><tr>' + new Array(storage.colModels.length + 1).join('<td class="Xgrid-filter-cell"></td>') + '</tr></tbody>');
+			    $filter = $('<tbody class="Xgrid-thead-filter"><tr>' + new Array(storage.colModels.length + 1).join('<td class="Xgrid-filter-cell"></td>') + '</tr></tbody>'),
+			    addProp = this._addPropstoHeaderCells.bind(this);
 
-			storage.$filterToolbarItems = $filter.find('.Xgrid-filter-cell').each(function (i) {
-				$(this).attr('data-alias', storage.colModels[i].alias);
-			});
+			storage.$filterToolbarItems = $filter.find('.Xgrid-filter-cell').each(addProp);
+			storage.$headTable.find('.Xgrid-thead-w td').each(addProp);
 			storage.$headTable.append($filter);
 		}
 	}, {
 		key: '_buildThead',
 		value: function _buildThead() {
+			var _this = this;
+
 			var storage = this.storage;
 
 			var widthHelper = '<tfoot class="Xgrid-thead-w"><tr>' + new Array(storage.colModels.length + 1).join('<td><div class="Xgrid-WidthListener-wrapper"><iframe data-col="0" class="Xgrid-WidthListener"></iframe></div></td>') + '</tr></tfoot>';
 
 			storage.$headTable.html(widthHelper);
+			storage.$headTable.find('.Xgrid-thead-w td').each(function (i) {
+				var $td = $(this),
+				    colModel = storage.colModels[i],
+				    iframe = $td.find('iframe').get(0);
+				iframe.setAttribute('data-alias', colModel.alias);
+			});
 			storage.$headTable.append('<thead class="Xgrid-thead-labels"><tr>' + new Array(storage.colModels.length + 1).join('<th class="Xgrid-thead-label"></th>') + '</tr></thead>');
 			storage.$headLabels = storage.$headTable.find('.Xgrid-thead-label');
+			storage.$headLabels.each(function (i, item) {
+				_this._addPropstoHeaderCells(i, item);
+			});
 
 			this.buildFilterToolbar();
 		}
 	}, {
 		key: '_buildTBody',
 		value: function _buildTBody() {
+			var _this2 = this;
+
 			var storage = this.storage;
-			var widthHelper = '<tfoot class="Xgrid-tbody-w"><tr>' + new Array(storage.colModels.length + 1).join('<td><i></i></td>') + '</tr></tfoot>';
+			var widthHelper = '<thead class="Xgrid-tbody-w"><tr>' + new Array(storage.colModels.length + 1).join('<td><i></i></td>') + '</tr></thead>';
 			storage.$gridTable.html(widthHelper);
+			storage.$gridTable.find('.Xgrid-tbody-w tr td').each(function (i, item) {
+				_this2._addPropstoHeaderCells(i, item);
+			});
 		}
 	}, {
 		key: '_buildPagination',
@@ -1195,7 +1228,7 @@ var BuildInfrastructure = function () {
 			var storage = this.storage,
 			    options = this.options;
 
-			storage.$box.html('<div class="Xgrid">\n\t<div class="Xgrid-wrapper">\n\t\t<div class="Xgrid-thead-wrapper">\n\t\t\t<table class="Xgrid-thead ' + options.theadClass + '"></table>\n\t\t</div>\n\t\t<div class="Xgrid-tbody-wrapper">\n\t\t\t<table class="Xgrid-tbody ' + options.tbodyClass + '"></table>\n\t\t</div>\n\t\t<div class="Xgrid-paggination-wrapper"></div>\n\t</div>\n</div>');
+			storage.$box.html('<div class="Xgrid">\n\t<div class="Xgrid-wrapper">\n\t\t<div class="Xgrid-wrapper-holder">\n\t\t\t<div class="Xgrid-thead-wrapper">\n\t\t\t\t<table class="Xgrid-thead ' + options.theadClass + '"></table>\n\t\t\t</div>\n\t\t\t<div class="Xgrid-tbody-wrapper">\n\t\t\t\t<table class="Xgrid-tbody ' + options.tbodyClass + '"></table>\n\t\t\t</div>\n\t\t</div>\n\t\t<div class="Xgrid-paggination-wrapper"></div>\n\t</div>\n</div>');
 			storage.$headTable = storage.$box.find('.Xgrid-thead');
 			storage.$gridTable = storage.$box.find('.Xgrid-tbody');
 		}
@@ -1509,7 +1542,7 @@ var Display = function () {
 		this.viewModel = options.viewModel;
 		this.storage = options.storage;
 		this.ajax = options.ajax;
-		console.log(1);
+
 		if (options.isLocal) {
 			this.process = this._localProcess.bind(this);
 		} else {
@@ -2079,9 +2112,12 @@ var FixedHeader = function () {
 		value: function resize() {
 			var storage = this.storage,
 			    self = this;
+			var w = 0;
 			storage.$headTable.find('.Xgrid-thead-w iframe').each(function (i) {
-				var $iframe = $(this);
-				self._handlerResizedCellWidth($iframe.width(), i);
+				var $iframe = $(this),
+				    width = $iframe.width(),
+				    alias = $iframe.attr('data-alias');
+				self._handlerResizedCellWidth(width, i, alias);
 			});
 		}
 	}, {
@@ -2095,14 +2131,13 @@ var FixedHeader = function () {
 		value: function _build() {
 			var storage = this.storage,
 			    cellWidthListeners = [],
+			    colModels = storage.colModels,
 			    properties = this.properties;
 
 			properties.$cellWidthRecipients = storage.$gridTable.find('.Xgrid-tbody-w i');
-
 			storage.$headTable.find('.Xgrid-thead-w td').each(function (i) {
 				var iframe = $(this).find('iframe').get(0);
 				iframe.setAttribute('data-col', i);
-				iframe.className = 'Xgrid-WidthListener';
 				cellWidthListeners.push(iframe);
 			});
 			properties.$cellWidthListeners = $(cellWidthListeners);
@@ -2117,21 +2152,21 @@ var FixedHeader = function () {
 				var iframe = this,
 				    $iframe = $(iframe);
 
-				self._handlerResizedCellWidth($iframe.width(), i);
+				self._handlerResizedCellWidth($iframe.width(), i, $iframe.attr('data-alias'));
 				setTimeout(function () {
 					$(iframe.contentWindow).on('resize', function () {
-						self._handlerResizedCellWidth($iframe.width(), i);
+						self._handlerResizedCellWidth($iframe.width(), i, $iframe.attr('data-alias'));
 					});
 				}, 100);
 			});
-
-			//var cellWidthListeners = storage.$headTable.find('.Xgrid-thead-w div')
 		}
 	}, {
 		key: '_handlerResizedCellWidth',
-		value: function _handlerResizedCellWidth(width, num) {
-			var properties = this.properties;
-			properties.$cellWidthRecipients.eq(num).width(width);
+		value: function _handlerResizedCellWidth(width, num, alias) {
+			var properties = this.properties,
+			    $item = properties.$cellWidthRecipients.filter('[data-alias="' + alias + '"]');
+			$item.width(width);
+			$item.parent().width(width);
 		}
 	}]);
 
@@ -2385,7 +2420,6 @@ var Fill = function () {
 				}
 
 				$th.html($wrapper);
-				$th.attr('data-alias', colModel.alias);
 				$.each(classRules, function (i, mark) {
 					if (colModel[mark]) {
 						$th.addClass(mark);
@@ -2431,9 +2465,20 @@ var Fill = function () {
 			    $gridWrap = storage.$gridTable.parent(),
 			    data = storage.data;
 
-			var tbody = void 0;
+			var tbody = void 0,
+			    num = 0;
+
 			colModels.forEach(function (colModel, i) {
 				colModel._check();
+				var $td = storage.$headLabels.eq(i);
+				if (!colModel.hidden) {
+					num++;
+					if (num % 2) {
+						$td.addClass('odd');
+					} else {
+						$td.addClass('even');
+					}
+				}
 			});
 
 			tbody = this._createShadowBody(fragment);

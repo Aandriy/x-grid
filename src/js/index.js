@@ -84,7 +84,9 @@ import Pipes from './Pipes.js';
 
 			this.ViewModel.on('data', () => {
 				this.Fill.tbody();
-				this.FixedHeader.resize();
+				setTimeout(()=>{
+					this.FixedHeader.resize();
+				},1050)
 			});
 
 			this.Storage.on('$paginationBox', () => {

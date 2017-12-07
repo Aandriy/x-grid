@@ -57,7 +57,7 @@
 				},
 
 				{ key: 'amount', width: 80, align: "right", sorttype: "float", label: 'Amount', hidden: true },
-				{ key: 'tax', width: 80, align: "right", sorttype: "float", label: 'Tax' },
+				{ key: 'tax', width: 80, align: "right", sorttype: "float", label: 'Tax', fixed:true },
 				{ key: 'total', width: 80, align: "right", sorttype: "float", label: 'Total', filterable: true },
 				{
 					key: 'note',

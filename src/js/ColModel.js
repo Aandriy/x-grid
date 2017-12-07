@@ -12,6 +12,7 @@ class ColModel {
 		this.hidden = false;
 		this.resizable = false;
 		this.insensitive = false;
+		this.fixed = false;
 
 		$.extend(this, model);
 		this.filterToolbarSettings = new FilterToolbarModel(model.filterToolbarSettings);

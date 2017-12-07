@@ -2,6 +2,12 @@
   overflow: hidden;
   text-overflow: ellipsis; }
 
+.X1grid .ellipsis {
+  width: 100%;
+  white-space: nowrap;
+  float: left;
+  margin: 0 -100% 0 0; }
+
 .Xgrid {
   width: 100%; }
   .Xgrid:after {
@@ -13,13 +19,16 @@
   .Xgrid .Xgrid-wrapper {
     width: 100%;
     float: left;
-    position: relative; }
+    position: relative;
+    padding: 2px; }
   .Xgrid .Xgrid-thead-wrapper {
     width: 100%;
     float: left;
     position: relative;
     margin: 0 0 -1px; }
-    .Xgrid .Xgrid-thead-wrapper:after {
+  .Xgrid .Xgrid-wrapper-holder {
+    border: 1px solid #ddd; }
+    .Xgrid .Xgrid-wrapper-holder:after {
       content: '';
       display: block;
       clear: both;
@@ -33,6 +42,8 @@
     table-layout: fixed; }
     .Xgrid .Xgrid-thead thead {
       border: 0; }
+  .Xgrid .Xgrid-thead-labels {
+    background: #eee; }
   .Xgrid .Xgrid-thead-label {
     position: relative;
     -webkit-touch-callout: none;
@@ -40,11 +51,17 @@
     -khtml-user-select: none;
     -moz-user-select: none;
     -ms-user-select: none;
-    user-select: none; }
+    user-select: none;
+    vertical-align: top;
+    padding: 1px; }
     .Xgrid .Xgrid-thead-label.sortable {
       cursor: pointer; }
     .Xgrid .Xgrid-thead-label > div {
-      position: relative; }
+      position: relative;
+      padding: 6px 8px;
+      background: #fff;
+      line-height: 16px;
+      min-height: 28px; }
   .Xgrid .Xgrid-WidthListener-wrapper {
     width: 100%;
     overflow: hidden;
@@ -58,12 +75,6 @@
     overflow: hidden;
     border: 0;
     height: 0; }
-  .Xgrid .Xgrid-tbody-w td {
-    padding: 0 !important;
-    border: 0 !important;
-    font-size: 0 !important;
-    line-height: 0 !important;
-    height: 0 !important; }
   .Xgrid .Xgrid-tbody-w i {
     display: block;
     width: 100%;
@@ -103,6 +114,7 @@
   .Xgrid .Xgrid-thead-label[data-sort="DESC"]:before {
     background: linear-gradient(to bottom, transparent 0, rgba(0, 0, 0, 0.65) 100%);
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#00000000', endColorstr='#a6000000',GradientType=0 ); }
+  .Xgrid .Xgrid-tbody-w td,
   .Xgrid .Xgrid-thead-w td {
     border-image-width: 0 !important;
     padding: 0 !important;
@@ -114,8 +126,8 @@
     background: red;
     overflow: hidden; }
   .Xgrid .Xgrid-filter-cell {
-    padding: 0;
-    background: #f5f5f5;
+    padding: 1px;
+    background: #eee;
     vertical-align: top; }
   .Xgrid .Xgrid-filter-wrapper {
     width: 100%;
@@ -156,8 +168,7 @@
     max-height: 300px;
     overflow-x: hidden;
     overflow-y: auto;
-    clear: both;
-    border-bottom: 1px solid #ddd; }
+    clear: both; }
     .Xgrid .Xgrid-tbody-wrapper:after {
       content: '';
       display: block;
@@ -175,10 +186,7 @@
     .Xgrid .Xgrid-tbody tbody td {
       vertical-align: top;
       padding: 6px 8px;
-      line-height: 18px;
-      border-left: 1px solid #ddd;
-      border-right: 1px solid #ddd;
-      border-bottom: 1px solid #ddd; }
+      line-height: 18px; }
       .Xgrid .Xgrid-tbody tbody td.odd {
         background: rgba(0, 0, 0, 0.015); }
     .Xgrid .Xgrid-tbody tbody tr:last-child > td {

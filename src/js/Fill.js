@@ -23,7 +23,6 @@ class Fill {
 			}
 
 			$th.html($wrapper);
-			$th.attr('data-alias', colModel.alias);
 			$.each(classRules, function (i, mark) {
 				if (colModel[mark]) {
 					$th.addClass(mark);
@@ -66,12 +65,23 @@ class Fill {
 			$headWrap = storage.$headTable.parent(),
 			$gridWrap = storage.$gridTable.parent(),
 			data = storage.data;
-			
-		let tbody;
+
+		let tbody,
+			num = 0;
+
 		colModels.forEach(function (colModel, i) {
 			colModel._check();
+			const $td = storage.$headLabels.eq(i);
+			if (!colModel.hidden) {
+				num++;
+				if (num % 2) {
+					$td.addClass('odd');
+				} else {
+					$td.addClass('even');
+				}
+			}
 		});
-		
+
 		tbody = this._createShadowBody(fragment);
 
 		$(tbody).find('tr').each(function (i) {

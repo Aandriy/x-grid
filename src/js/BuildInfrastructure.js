@@ -6,10 +6,10 @@ class BuildInfrastructure {
 		this.options = $.extend({
 			theadClass: 'table-grid-thead',
 			tbodyClass: 'table-grid-tbody',
-			firstBtnTemplate: '<span class="btn btn-default"><i class="glyphicon glyphicon-step-backward"></i></span>',
-			lastBtnTemplate: '<span class="btn btn-default"><i class="glyphicon glyphicon-step-forward"></i></span>',
-			prevBtnTemplate: '<span class="btn btn-default"><i class="glyphicon glyphicon-chevron-left"></i></span>',
-			nextBtnTemplate: '<span class="btn btn-default"><i class="glyphicon glyphicon-chevron-right"></i></span>',
+			firstBtnTemplate: '<span class="btn btn-default">&#171;</span>',
+			lastBtnTemplate: '<span class="btn btn-default">&#187;</span>',
+			prevBtnTemplate: '<span class="btn btn-default">&#8249;</span>',
+			nextBtnTemplate: '<span class="btn btn-default">&#8250;</span>',
 			currentPageTemplate: '<input type="text" class="form-control" />',
 			paginationTemplate: `<div class="Xgrid-paggination input-group input-group-sm">
 			<div class="input-group-btn" >{firstBtnTemplate}{prevBtnTemplate}</div>
@@ -44,7 +44,7 @@ class BuildInfrastructure {
 			$theadCells.each(function () {
 				cells.push($(this).find('>*:eq(' + i + ')').get(0));
 			});
-			
+
 			model.dependent = cells.map(function (item) {
 				const result = {
 					$anchor: $(document.createTextNode('')),
@@ -55,14 +55,27 @@ class BuildInfrastructure {
 			});
 		});
 	};
+	_addPropstoHeaderCells(i, item) {
+		var $item = $(item),
+			colModel = this.storage.colModels[i];
+
+		$item.attr('data-alias', colModel['alias']);
+		if (colModel.fixed) {
+			$item.addClass('fixed');
+			if (colModel.width) {
+				$item.width(colModel.width);
+			}
+		}
+	};
 	_buildFilterToolbar() {
 		const storage = this.storage,
 			viewModel = this.viewModel,
-			$filter = $('<tbody class="Xgrid-thead-filter"><tr>' + new Array(storage.colModels.length + 1).join('<td class="Xgrid-filter-cell"></td>') + '</tr></tbody>');
+			$filter = $('<tbody class="Xgrid-thead-filter"><tr>' + new Array(storage.colModels.length + 1).join('<td class="Xgrid-filter-cell"></td>') + '</tr></tbody>'),
+			addProp = this._addPropstoHeaderCells.bind(this);
 
-		storage.$filterToolbarItems = $filter.find('.Xgrid-filter-cell').each(function (i) {
-			$(this).attr('data-alias', storage.colModels[i].alias);
-		});
+
+		storage.$filterToolbarItems = $filter.find('.Xgrid-filter-cell').each(addProp);
+		storage.$headTable.find('.Xgrid-thead-w td').each(addProp);
 		storage.$headTable.append($filter);
 	};
 
@@ -72,16 +85,28 @@ class BuildInfrastructure {
 		let widthHelper = '<tfoot class="Xgrid-thead-w"><tr>' + new Array(storage.colModels.length + 1).join('<td><div class="Xgrid-WidthListener-wrapper"><iframe data-col="0" class="Xgrid-WidthListener"></iframe></div></td>') + '</tr></tfoot>';
 
 		storage.$headTable.html(widthHelper);
+		storage.$headTable.find('.Xgrid-thead-w td').each(function (i) {
+			const $td =  $(this),
+			colModel = storage.colModels[i],
+			iframe = $td.find('iframe').get(0);
+			iframe.setAttribute('data-alias', colModel.alias);
+		});
 		storage.$headTable.append('<thead class="Xgrid-thead-labels"><tr>' + new Array(storage.colModels.length + 1).join('<th class="Xgrid-thead-label"></th>') + '</tr></thead>');
 		storage.$headLabels = storage.$headTable.find('.Xgrid-thead-label');
+		storage.$headLabels.each((i, item) => {
+			this._addPropstoHeaderCells(i, item);
+		});
 
 		this.buildFilterToolbar();
 	};
 
 	_buildTBody() {
 		const storage = this.storage;
-		let widthHelper = '<tfoot class="Xgrid-tbody-w"><tr>' + new Array(storage.colModels.length + 1).join('<td><i></i></td>') + '</tr></tfoot>';
+		let widthHelper = '<thead class="Xgrid-tbody-w"><tr>' + new Array(storage.colModels.length + 1).join('<td><i></i></td>') + '</tr></thead>';
 		storage.$gridTable.html(widthHelper);
+		storage.$gridTable.find('.Xgrid-tbody-w tr td').each((i, item) => {
+			this._addPropstoHeaderCells(i, item);
+		});
 	};
 
 	_buildPagination() {
@@ -113,11 +138,13 @@ class BuildInfrastructure {
 
 		storage.$box.html(`<div class="Xgrid">
 	<div class="Xgrid-wrapper">
-		<div class="Xgrid-thead-wrapper">
-			<table class="Xgrid-thead ${options.theadClass}"></table>
-		</div>
-		<div class="Xgrid-tbody-wrapper">
-			<table class="Xgrid-tbody ${options.tbodyClass}"></table>
+		<div class="Xgrid-wrapper-holder">
+			<div class="Xgrid-thead-wrapper">
+				<table class="Xgrid-thead ${options.theadClass}"></table>
+			</div>
+			<div class="Xgrid-tbody-wrapper">
+				<table class="Xgrid-tbody ${options.tbodyClass}"></table>
+			</div>
 		</div>
 		<div class="Xgrid-paggination-wrapper"></div>
 	</div>
@@ -125,5 +152,6 @@ class BuildInfrastructure {
 		storage.$headTable = storage.$box.find('.Xgrid-thead');
 		storage.$gridTable = storage.$box.find('.Xgrid-tbody');
 	}
+	
 }
 export default BuildInfrastructure;
