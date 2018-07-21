@@ -50,7 +50,7 @@ import Pipes from './Pipes.js';
 			const options = this.options;
 			responseObject.a = 1;
 			if (options.afterResponse) {
-				tools.execute(options.afterResponse, responseObject);
+				tools.execute(options.afterResponse, [responseObject]);
 			}
 		};
 
@@ -58,7 +58,7 @@ import Pipes from './Pipes.js';
 			const options = this.options,
 				d = $.Deferred();
 			if (options.beforeRequest) {
-				tools.execute(options.beforeRequest, queryObject);
+				tools.execute(options.beforeRequest, [queryObject]);
 			}
 
 			this.ajaxFunction(queryObject, options.url).done(this._response.bind(this)).always((responseObject) => {

@@ -1,47 +1,55 @@
 const path = require('path');
 const ExtractTextPlugin = require("extract-text-webpack-plugin");
 
-
 module.exports = {
-	entry: {
-		bundle: './src/js/index.js',
-		styles: './src/scss/main.scss'
-	},
-	output: {
-		filename: '[name].js',
-		path: path.resolve(__dirname, 'dist')
-	},
-	watch:true,
-	watchOptions: {
-		aggregateTimeout: 300,
-		poll: 1000,
-		ignored: /node_modules/
-	},
-	module: {
-		rules: [
-			{
-				test: /\.js$/,
-				 include: [
-					path.resolve(__dirname, "src"),
-				],
-				use: {
-					loader: 'babel-loader',
-					options: {
-						"presets": ["env"]
-					}
-				}
-			},
-			{
-				test: /\.scss$/,
-				use: ExtractTextPlugin.extract({
-					fallback: 'style-loader',
-					//resolve-url-loader may be chained before sass-loader if necessary
-					use: ['css-loader', 'sass-loader']
-				})
-			}
-		]
-	},
-	plugins: [
-		new ExtractTextPlugin('style.css')
-	]
+  mode: 'development',
+  entry: [
+    './src/index.ts',
+    './src/scss/style.scss',
+  ],
+  devtool: 'inline-source-map',
+  resolve: {
+    extensions: ['.tsx', '.ts', '.js']
+  },
+  output: {
+    filename: 'bundle.js',
+    path: path.resolve(__dirname, 'dist')
+  },
+  plugins: [
+    new ExtractTextPlugin({
+      filename: './css/style.bundle.css',
+      allChunks: true,
+    }),
+  ],
+  module: {
+    rules: [
+      {
+        test: /\.(sass|scss)$/,
+        include: path.resolve(__dirname, 'src/scss'),
+        use: ExtractTextPlugin.extract({
+          use: [{
+              loader: "css-loader",
+              options: {
+                sourceMap: true,
+                minimize: true,
+                url: false
+              }
+            },
+            {
+              loader: "sass-loader",
+              options: {
+                sourceMap: true
+              }
+            }
+          ]
+        })
+      },
+     
+      {
+        test: /\.tsx?$/,
+        use: 'ts-loader',
+        exclude: /node_modules/
+      }
+    ]
+  },
 };

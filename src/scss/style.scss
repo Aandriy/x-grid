@@ -1,21 +1,33 @@
 @import "mixins";
 //colors
 $black: #000;
-$black_65: rgba(0,0,0,0.65);
+$black_65: rgba(0, 0, 0, 0.65);
 $red: red;
-
 .ellipsis {
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
-.X1grid .ellipsis {
+
+.Xgrid .ellipsis {
 	width: 100%;
 	white-space: nowrap;
 	float: left;
-	margin: 0 -100% 0 0;
+	margin: -6px -100% -6px -2px;
+	padding: 6px 2px;
 }
+
 .Xgrid {
+	&,
+	table,
+	td,
+	th,
+	div{
+		box-sizing: border-box;
+	}
 	width: 100%;
+	table {
+		border-collapse: collapse;
+	}
 	&:after {
 		content: '';
 		display: block;
@@ -34,7 +46,6 @@ $red: red;
 		float: left;
 		position: relative;
 		margin: 0 0 -1px;
-		
 	}
 	.Xgrid-wrapper-holder {
 		border: 1px solid #ddd;
@@ -52,6 +63,7 @@ $red: red;
 		border: 0;
 		width: 100%;
 		table-layout: fixed;
+		border-spacing: 0;
 		thead {
 			border: 0;
 		}
@@ -70,7 +82,7 @@ $red: red;
 		&.sortable {
 			cursor: pointer;
 		}
-		> div {
+		>div {
 			position: relative;
 			padding: 6px 8px;
 			background: #fff;
@@ -102,7 +114,6 @@ $red: red;
 			height: 0;
 		}
 	}
-	
 	.Xgrid-paggination {
 		margin: 20px 0 0;
 		.input-group-addon {
@@ -135,15 +146,13 @@ $red: red;
 		left: 0;
 		top: 0;
 		width: 100%;
-		height: 100%;
-	}
-	.Xgrid-thead-label[data-sort="ASC"]:before {
-		background: linear-gradient(to bottom, $black_65 0,rgba(0,0,0,0) 100%);
-		filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#a6000000', endColorstr='#00000000',GradientType=0 );
-	}
+		height: 3px;
+		z-index: 2;
+		background: #888;
+	} //.Xgrid-thead-label[data-sort="ASC"]:before {}
 	.Xgrid-thead-label[data-sort="DESC"]:before {
-		background: linear-gradient(to bottom, rgba(0,0,0,0) 0,$black_65 100%);
-		filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#00000000', endColorstr='#a6000000',GradientType=0 );
+		top: auto;
+		bottom: 0;
 	}
 	.Xgrid-tbody-w td,
 	.Xgrid-thead-w td {
@@ -175,7 +184,7 @@ $red: red;
 	}
 	.Xgrid-filter {
 		width: 100%;
-		border:0;
+		border: 0;
 		display: block;
 	}
 	.Xgrid-select,
@@ -184,7 +193,7 @@ $red: red;
 		padding: 2px 4px;
 		height: 24px;
 		font: 14px/16px arial;
-		&:focus{
+		&:focus {
 			outline: none !important;
 			min-height: 100%;
 		}
@@ -200,15 +209,14 @@ $red: red;
 			background: #f5f5f5;
 			cursor: pointer;
 			text-align: center;
-			&:hover{
+			&:hover {
 				background: #ccc;
-				color:#fff;
+				color: #fff;
 			}
 		}
 	}
-	
 	.Xgrid-tbody-wrapper {
-		max-height: 300px;
+		//max-height: 300px;
 		overflow-x: hidden;
 		overflow-y: auto;
 		clear: both;
@@ -226,8 +234,9 @@ $red: red;
 		width: 100%;
 		table-layout: fixed;
 		vertical-align: top;
+		border-spacing: 0;
 		tbody {
-			& > tr:nth-of-type(odd){
+			&>tr:nth-of-type(odd) {
 				background: #f9f9f9;
 			}
 			td {
@@ -235,10 +244,10 @@ $red: red;
 				padding: 6px 8px;
 				line-height: 18px;
 				&.odd {
-					background: rgba(0,0,0,0.015)
+					background: rgba(0, 0, 0, 0.15)
 				}
 			}
-			tr:last-child >{
+			tr:last-child> {
 				td {
 					border-bottom: 0;
 				}
