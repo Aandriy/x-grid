@@ -1,13 +1,15 @@
-class FilterToolbarModel {
+export default class FilterToolbarModel implements IFilterToolbarModel {
+	formControlType = 'text';
+	selectOptions = [];
+	placeholder = '';
+	onEnter = true;
+	onKeydown = false;
+	onChange = false;
+	allowResetButton = true;
+	allowSubmitButton = true;
+	transformData?: Function; 
+
 	constructor(settings) {
-		this.formControlType = 'text';
-		this.selectOptions = [];
-		this.placeholder = '';
-		this.onEnter = true;
-		this.onKeydown = false;
-		this.onChange = false;
-		this.allowResetButton = true;
-		this.allowSubmitButton = true;
 		$.extend(this, settings);
 		if (!this.transformData) {
 			if (this.formControlType === 'select') {
@@ -17,7 +19,7 @@ class FilterToolbarModel {
 					if ($.isArray(data)) {
 						result = [];
 						data.forEach(function (key) {
-							const item = selectOptions[key]; selectOptions
+							const item = selectOptions[key];
 							if (item) {
 								result.push(item.value);
 							} else {
@@ -38,6 +40,4 @@ class FilterToolbarModel {
 			}
 		}
 	}
-
 };
-export default FilterToolbarModel;

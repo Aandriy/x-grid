@@ -1,6 +1,6 @@
-import tools from './Tools.js';
-import ViewModel from './ViewModel.js';
-import Storage from './Storage.js'
+import tools from './Tools';
+import ViewModel from './ViewModel';
+import Storage from './Storage';
 
 class BuildInfrastructure {
 	viewModel: ViewModel;

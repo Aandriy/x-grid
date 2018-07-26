@@ -1,18 +1,28 @@
-import pipes from './Pipes.js';
-import FilterToolbarModel from './FilterToolbarModel.js';
-class ColModel {
+import pipes from './Pipes';
+import FilterToolbarModel from './FilterToolbarModel';
+class ColModel implements IColModel {
+	order: number;
+	label = '';
+	filterable = false;
+	filterType = 'text';
+	filterOption = 'cn';
+	sortable = false;
+	sortType = 'text';
+	hidden = false;
+	resizable = false;
+	insensitive = false;
+	fixed = false;
+	sortFormatter: Function;
+	filterFormatter: Function;
+	key: string;
+	alias: string;
+	filterToolbarSettings: any;
+
+	dependent = [];
+	_check: Function;
+
 	constructor(model, order) {
 		this.order = order;
-		this.label = '';
-		this.filterable = false;
-		this.filterType = 'text';
-		this.filterOption = 'cn';
-		this.sortable = false;
-		this.sortType = 'text';
-		this.hidden = false;
-		this.resizable = false;
-		this.insensitive = false;
-		this.fixed = false;
 
 		$.extend(this, model);
 		this.filterToolbarSettings = new FilterToolbarModel(model.filterToolbarSettings);
@@ -21,7 +31,7 @@ class ColModel {
 			this.alias = this.key;
 		}
 		if (typeof (this.key) === 'undefined') {
-			this.alias = this.alias;
+			this.key = this.alias;
 		}
 		if (model.sortType && typeof (model.sortType) === 'function') {
 			this.sortFormatter = model.sortType;
@@ -34,8 +44,9 @@ class ColModel {
 		} else {
 			this.filterFormatter = pipes.getByType(model.filterType);
 		}
+
 		this.dependent = [];
-		this._check = function () {
+		this._check = function (): void {
 			if (this.hidden) {
 				this.dependent.forEach(function (item) {
 					item.$item.detach();
@@ -83,7 +94,7 @@ class ColModel {
 				settings.selectOptions.forEach(function (element, i) {
 					$control.append('<option value="' + i + '">' + element.label + '</option>')
 				});
-				$control.val([]).each(function(){
+				$control.val([]).each(function () {
 					this.selectedIndex = -1;
 				});
 				break;

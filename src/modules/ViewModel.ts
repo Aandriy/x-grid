@@ -1,4 +1,7 @@
 class ViewModel {
+	model: IViewModel;
+	subscribers: {[key: string]: Function[]};
+
 	constructor() {
 		this.model = {
 			rows: 10,
@@ -84,9 +87,9 @@ class ViewModel {
 	};
 
 	get filterToolbar() {
-		return this.model.newPage;
+		return this.model.filterToolbar;
 	};
-	set filterToolbar(data) {
+	set filterToolbar(data: boolean) {
 		this.model.filterToolbar = data;
 		this.notify('filterToolbar', this);
 	};

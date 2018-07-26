@@ -1,4 +1,4 @@
-import SortRule from './SortRule.js';
+import SortRule from './SortRule';
 class Sorting {
 	constructor(storage, viewModel, options) {
 		this.storage = storage;

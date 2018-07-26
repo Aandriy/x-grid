@@ -1,10 +1,4 @@
-
-
 class Sort {
-	constructor() {
-
-	}
-
 	exec(data = [], rules = []) {
 		let source;
 		if (!data.length || !rules.length) {

@@ -1,10 +1,18 @@
-import ColModel from './ColModel.js';
-import SortRule from './SortRule.js';
+import ColModel from './ColModel';
+import SortRule from './SortRule';
+import ViewModel from './ViewModel';
+import Storage from './Storage'
 
 class ProcessSettings {
+	viewModel: ViewModel;
+	storage: Storage;
+	properties: IProcessSettingsProperties;
+	options: IProcessSettingsOptions
+
 	constructor(options, storage, viewModel) {
 		this.options = $.extend({
-			colModels: []
+			colModels: [],
+			filterToolbar: false
 		}, options);
 
 		this.properties = {
@@ -18,8 +26,8 @@ class ProcessSettings {
 
 	_getScrollbarWidth() {
 		let div, width;
-		if (this.properties.ScrollbarWidth) {
-			return this.properties.ScrollbarWidth;
+		if (this.properties.scrollbarWidth) {
+			return this.properties.scrollbarWidth;
 		}
 
 		div = document.createElement('div');
@@ -28,19 +36,18 @@ class ProcessSettings {
 		document.body.appendChild(div);
 		width = div.offsetWidth - div.clientWidth;
 		document.body.removeChild(div);
-		this.properties.ScrollbarWidth = width;
+		this.properties.scrollbarWidth = width;
 		return width;
 	};
 
 	_columnModel() {
-		const storage = this.storage,
-			options = this.options,
-			colModels = [],
-			aliases = {},
-			colModelsDictionary = {};
+		const { storage, options } = this;
+		const colModels = [];
+		const aliases = {};
+		const colModelsDictionary = {};
 
 		$.each(options.colModels, (i, model) => {
-			const colModel = new ColModel(model, i, this.storage);
+			const colModel = new ColModel(model, i);
 
 			if (!aliases[colModel.alias]) {
 				aliases[colModel.alias] = 1;
@@ -63,26 +70,28 @@ class ProcessSettings {
 	};
 
 	_exec() {
-		const storage = this.storage;
+		const { storage } = this;
+
 		this._columnModel();
 		storage.scrollbarWidth = this._getScrollbarWidth();
 		this._processSorting();
 	};
 
 	_processSorting() {
-		const viewModel = this.viewModel,
-			options = this.options;
+		const {viewModel, options} = this;
 		let sortBy = options.sortBy,
 			data = [];
+
 		if (options.filterToolbar) {
 			viewModel.filterToolbar = true;
 		}
 		if (sortBy && typeof (sortBy) === 'string') {
-			sortBy = sortBy.replace(/\s+/g, ' ').trim().split(',');
-			if (sortBy.length) {
-				sortBy.forEach(function (item, i) {
-					let sortRule = item.trim().split(' '),
-						by = sortRule[0];
+			const sortByItems = sortBy.replace(/\s+/g, ' ').trim().split(',');
+			if (sortByItems.length) {
+				sortByItems.forEach(function (item, i) {
+					const sortRule = item.trim().split(' ');
+					const by = sortRule[0];
+
 					if (typeof (by) !== 'undefined') {
 						let rule;
 
@@ -97,9 +106,9 @@ class ProcessSettings {
 				});
 			}
 		} else if ($.isArray(sortBy) && sortBy.length) {
-			sortBy.forEach(function (item) {
-				let rule,
-					{ by, order } = item;
+			sortBy.forEach((item) => {
+				const { by, order } = item;
+				let rule;
 
 				if (by) {
 					if (String(order).toUpperCase() !== 'DESC') {

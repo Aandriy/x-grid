@@ -1,15 +1,14 @@
-import ViewModel from './ViewModel.js';
-import ProcessSettings from './ProcessSettings.js';
+import ViewModel from './ViewModel';
+import ProcessSettings from './ProcessSettings';
 import BuildInfrastructure from './BuildInfrastructure';
-import FilterToolbar from './FilterToolbar.js';
-import Sorting from './Sorting.js';
-import Display from './Display.js';
-import FixedHeader from './FixedHeader.js';
-import Storage from './Storage.js'
-import Fill from './Fill.js';
-import Pagination from './Pagination.js';
-import tools from './Tools.js';
-
+import FilterToolbar from './FilterToolbar';
+import Sorting from './Sorting';
+import Display from './Display';
+import FixedHeader from './FixedHeader';
+import Storage from './Storage'
+import Fill from './Fill';
+import Pagination from './Pagination';
+import tools from './Tools';
 
 export default class Xgrid {
 	options: IOptions;
@@ -105,7 +104,6 @@ export default class Xgrid {
 	};
 	_exec() {
 		const self = this,
-			properties = this.properties,
 			options = this.options;
 
 		this.ViewModel = new ViewModel();

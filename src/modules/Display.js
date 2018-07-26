@@ -1,8 +1,8 @@
-import tools from './Tools.js';
-import QueryModel from './QueryModel.js';
-import sort from './Sort.js';
-import filter from './Filter.js';
-import pipes from './Pipes.js';
+import tools from './Tools';
+import QueryModel from './QueryModel';
+import sort from './Sort';
+import filter from './Filter';
+import pipes from './Pipes';
 
 class Display {
 	constructor(options) {

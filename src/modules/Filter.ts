@@ -1,6 +1,5 @@
-import operators from './Operators.js';
+import operators from './Operators';
 class Filter {
-
 	exec(data, group, getData) {
 		const newData = data.filter((item, i) => {
 			const get = getData(),
@@ -9,7 +8,7 @@ class Filter {
 		});
 		return newData;
 	};
-	_or(rules, rowData, get) {
+	private _or(rules, rowData, get) {
 		let i = rules.length;
 		while (i--) {
 			const rule = rules[i];
@@ -24,7 +23,7 @@ class Filter {
 		}
 		return false;
 	};
-	_and(rules, rowData, get) {
+	private _and(rules, rowData, get) {
 		let i = rules.length;
 		while (i--) {
 			const rule = rules[i];
@@ -39,7 +38,7 @@ class Filter {
 		}
 		return true;
 	};
-	_check(group, rowData, get) {
+	private _check(group, rowData, get) {
 		const isOr = group.rules.length && String(group.groupOp).toUpperCase() === "OR";
 		if ($.isArray(group.rules) && group.rules.length) {
 			if (isOr) {

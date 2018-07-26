@@ -1,9 +1,12 @@
-class SortRule {
+export default class SortRule implements ISortRule {
+	by: string;
+	order: string;
+
 	constructor(by, order = 'ASC') {
 		this.by = by;
 		this.order = order;
 	}
-	triggerOrder() {
+	triggerOrder(): void {
 		if (this.order === 'ASC') {
 			this.order = 'DESC';
 		} else {
@@ -11,4 +14,3 @@ class SortRule {
 		}
 	};
 };
-export default SortRule;
