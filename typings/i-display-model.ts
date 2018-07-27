@@ -1,4 +1,4 @@
-interface IResponse {
+interface IDispalyModel {
 	data: IRawData[];
 	page: number;
 	totalPages: number;

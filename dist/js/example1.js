@@ -86,8 +86,7 @@
 			],
 			sortBy: 'tax ACS, key DESC',
 			//sortBy: [{ by: 'tax', order: 'ACS' }, { by: 'key', order: 'DESC' }],
-			filterToolbar: false,
-
+			filterToolbar: true,
 		});
 
 		console.log($('.grid').data('Xgrid'));

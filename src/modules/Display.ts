@@ -2,9 +2,17 @@ import tools from './Tools';
 import QueryModel from './QueryModel';
 import sort from './Sort';
 import filter from './Filter';
-import pipes from './Pipes';
+import DisplayModel from './DisplayModel';
+import LocalSortRuleModel from './LocalSortRuleModel';
 
-class Display {
+import Storage from './Storage';
+
+export default class Display {
+	viewModel: IViewModel;
+	storage: Storage;
+	ajax: Function;
+	process: Function;
+
 	constructor(options) {
 		this.viewModel = options.viewModel;
 		this.storage = options.storage;
@@ -21,27 +29,28 @@ class Display {
 		}, 50);
 	};
 
-	exec() {
-		const storage = this.storage,
-			viewModel = this.viewModel,
-			query = new QueryModel({
-				filter: storage.filter,
-				sort: viewModel.sortBy,
-				rows: viewModel.rows,
-				page: viewModel.newPage,
-			});
+	exec(): void {
+		const storage = this.storage;
+		const viewModel = this.viewModel;
+		const query: IQueryModel = new QueryModel({
+			filter: storage.filter,
+			sort: viewModel.sortBy,
+			rows: viewModel.rows,
+			page: viewModel.newPage,
+		});
 
 		storage.query = query;
 		storage.$box.addClass('Xgrid-loading');
+
 		setTimeout(() => {
-			this.process().done((data) => {
+			this.process().done((data: IDispalyModel) => {
 				this._filler(data);
 				this.storage.$box.removeClass('Xgrid-loading');
 			});
 		}, 0);
 	};
 
-	_filler(data) {
+	_filler(data: IDispalyModel): void {
 		const viewModel = this.viewModel;
 		viewModel.totalPages = data.totalPages
 		viewModel.totalRows = data.totalRows;
@@ -75,29 +84,20 @@ class Display {
 	};
 
 	_localSort(data, sortRules) {
-		const deferred = $.Deferred(),
-			storage = this.storage;
-		if (sortRules.length) {
-			sortRules = sortRules.map((rule) => {
-				const colModel = storage.colModelsDictionary[rule.by];
-				let result = {
-					order: rule.order
-				};
+		const deferred = $.Deferred();
+		const storage = this.storage;
 
-				if (colModel) {
-					result.colModel = colModel;
-					result['by'] = colModel.key;
-					result['get'] = colModel.sortFormatter;
-				} else {
-					result['by'] = rule.by;
-					result['get'] = pipes.getByType();
-				}
-				return result;
+		if (sortRules.length) {
+			const localSortRules: ILocalSortRule[] = sortRules.map((rule) => {
+				const colModel = storage.colModelsDictionary[rule.by];
+				const by = colModel ? colModel.key : rule.by;
+
+				return new LocalSortRuleModel(rule.order, by, colModel);
 			});
-			data = sort.exec(data, sortRules);
+
+			data = sort.exec(data, localSortRules);
 			setTimeout(() => {
 				deferred.resolve(data);
-
 			}, 0);
 		} else {
 			deferred.resolve(data);
@@ -105,25 +105,25 @@ class Display {
 		return deferred;
 	};
 
-	_getLocalData(data, query) {
-		const storage = this.storage,
-			viewModel = this.viewModel,
-			result = {
-				totalRows: data.length,
-				page: query.page,
-				totalPages: Math.ceil(data.length / viewModel.rows) || 1
-			},
-			begin = (result.page - 1) * viewModel.rows,
-			end = result.page * viewModel.rows;
+	private _getLocalData(data: IRawData[], query: IQueryModel): IDispalyModel {
+		const viewModel: IViewModel = this.viewModel;
+		const begin: number = (query.page - 1) * viewModel.rows;
+		const end: number = query.page * viewModel.rows;
+		const dataToDisplay: IRawData[] = data.slice(begin, end);
 
-		result.data = data.slice(begin, end);
-		return result;
+		return new DisplayModel(
+			dataToDisplay,
+			query.page,
+			Math.ceil(data.length / viewModel.rows) || 1,
+			data.length,
+		);
 	};
 
-	_localProcess() {
-		const storage = this.storage,
-			deferred = $.Deferred(),
-			query = storage.query;
+	private _localProcess(): JQueryDeferred<IDispalyModel> {
+		const deferred: JQueryDeferred<IDispalyModel> = $.Deferred();
+		const storage = this.storage;
+		const query: IQueryModel = storage.query;
+
 		this._localFilter(storage.data, query.filter).done((filteredData) => {
 			this._localSort(filteredData, query.sort).done((sortedData) => {
 				deferred.resolve(this._getLocalData(sortedData, query));
@@ -132,33 +132,27 @@ class Display {
 		return deferred;
 	};
 
-	_serverProcess() {
-		const deferred = this.ajax(this.storage.query);
-		return deferred;
+	private _serverProcess(): JQueryDeferred<IDispalyModel> {
+		return this.ajax(this.storage.query);
 	};
-	_subscribe() {
-		const viewModel = this.viewModel,
-			storage = this.storage,
-			action = tools.throttle(() => {
-				this.exec();
-			}, 100),
-			_reload = function (s, type) {
-				
-				switch (type) {
-					case 'filter':
-						viewModel.newPage = 1;
-						break;
-					case 'sortBy':
-						//viewModel.newPage = 1; ?
-						break;
-				}
-				action();
+	private _subscribe() {
+		const viewModel = this.viewModel;
+		const storage = this.storage;
+		const action = tools.throttle(() => { this.exec(); }, 100);
+		const _reload = function (s, type) {
+			switch (type) {
+				case 'filter':
+					viewModel.newPage = 1;
+					break;
+				case 'sortBy':
+					//viewModel.newPage = 1; ?
+					break;
 			}
+			action();
+		}
 
 		viewModel.on('newPage', _reload);
 		viewModel.on('sortBy', _reload);
 		storage.on('filter', _reload);
 	};
 }
-
-export default Display;

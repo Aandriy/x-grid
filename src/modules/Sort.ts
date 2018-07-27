@@ -1,5 +1,5 @@
 class Sort {
-	exec(data = [], rules = []) {
+	exec(data = [], rules: ILocalSortRule[] = []) {
 		let source;
 		if (!data.length || !rules.length) {
 			return data;

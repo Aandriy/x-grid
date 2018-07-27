@@ -1,6 +1,6 @@
-class ViewModel {
-	model: IViewModel;
-	subscribers: {[key: string]: Function[]};
+export default class ViewModel implements IViewModel {
+	model: IViewModelPartial;
+	subscribers: { [key: string]: Function[] };
 
 	constructor() {
 		this.model = {
@@ -94,7 +94,7 @@ class ViewModel {
 		this.notify('filterToolbar', this);
 	};
 
-	on(name, subscriber) {
+	on(name, subscriber): void {
 		var storege = this._getStorage(name);
 		storege.push(subscriber);
 	};
@@ -107,13 +107,11 @@ class ViewModel {
 		});
 	};
 
-	_getStorage(name) {
+	private _getStorage(name) {
 		const subscribers = this.subscribers;
 		if (!subscribers[name]) {
 			subscribers[name] = [];
 		}
 		return subscribers[name];
 	}
-
 }
-export default ViewModel;

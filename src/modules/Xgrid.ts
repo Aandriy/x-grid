@@ -5,7 +5,7 @@ import FilterToolbar from './FilterToolbar';
 import Sorting from './Sorting';
 import Display from './Display';
 import FixedHeader from './FixedHeader';
-import Storage from './Storage'
+import Storage from './Storage';
 import Fill from './Fill';
 import Pagination from './Pagination';
 import tools from './Tools';
