@@ -13,11 +13,11 @@ import tools from './Tools';
 export default class Xgrid {
 	options: IOptions;
 	properties: IXgridProperties;
-	ViewModel: ViewModel;
+	ViewModel: IViewModel;
 	ProcessSettings: ProcessSettings;
 	BuildInfrastructure: BuildInfrastructure;
 	Sorting: Sorting;
-	Storage: Storage;
+	Storage: IStorage;
 	Fill: Fill;
 	Display: Display;
 	FixedHeader: FixedHeader;

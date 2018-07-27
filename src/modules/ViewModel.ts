@@ -99,7 +99,7 @@ export default class ViewModel implements IViewModel {
 		storege.push(subscriber);
 	};
 
-	notify(name, data) {
+	notify(name, data): void {
 		var storege = this._getStorage(name);
 		$.each(storege, function (i, subscriber) {
 			let [...arg] = [data, name, i];

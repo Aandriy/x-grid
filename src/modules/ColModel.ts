@@ -1,22 +1,24 @@
 import pipes from './Pipes';
 import FilterToolbarModel from './FilterToolbarModel';
+
 class ColModel implements IColModel {
-	order: number;
-	label = '';
-	filterable = false;
-	filterType = 'text';
-	filterOption = 'cn';
-	sortable = false;
-	sortType = 'text';
-	hidden = false;
-	resizable = false;
-	insensitive = false;
-	fixed = false;
-	sortFormatter: Function;
-	filterFormatter: Function;
-	key: string;
 	alias: string;
+	filterFormatter: Function;
+	filterOption = 'cn';
 	filterToolbarSettings: any;
+	filterType = 'text';
+	filterable = false;
+	fixed = false;
+	hidden = false;
+	insensitive = false;
+	key: string;
+	label = '';
+	order: number;
+	resizable = false;
+	sortFormatter: Function;
+	sortType = 'text';
+	sortable = false;
+	width: number;
 
 	dependent = [];
 	_check: Function;

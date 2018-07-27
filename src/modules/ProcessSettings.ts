@@ -1,11 +1,9 @@
 import ColModel from './ColModel';
 import SortRule from './SortRule';
-import ViewModel from './ViewModel';
-import Storage from './Storage'
 
 class ProcessSettings {
-	viewModel: ViewModel;
-	storage: Storage;
+	viewModel: IViewModel;
+	storage: IStorage;
 	properties: IProcessSettingsProperties;
 	options: IProcessSettingsOptions
 

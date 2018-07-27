@@ -5,11 +5,10 @@ import filter from './Filter';
 import DisplayModel from './DisplayModel';
 import LocalSortRuleModel from './LocalSortRuleModel';
 
-import Storage from './Storage';
 
 export default class Display {
 	viewModel: IViewModel;
-	storage: Storage;
+	storage: IStorage;
 	ajax: Function;
 	process: Function;
 

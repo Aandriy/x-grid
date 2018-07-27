@@ -1,10 +1,8 @@
 import tools from './Tools';
-import ViewModel from './ViewModel';
-import Storage from './Storage';
 
 class BuildInfrastructure {
-	viewModel: ViewModel;
-	storage: Storage;
+	viewModel: IViewModel;
+	storage: IStorage;
 	options: IBuildInfrastructureOptions;
 
 	constructor(options, storage, viewModel) {

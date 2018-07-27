@@ -13,6 +13,7 @@ interface IColModel {
 	resizable: boolean;
 	sortType: string;
 	sortable: boolean;
+	width: number;
 
 	cellFormatter: Function;
 	filterFormatter: Function;

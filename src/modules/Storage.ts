@@ -1,6 +1,8 @@
-class Storage {
-	constructor(model) {
+export default class Storage implements IStorage {
+	private _model: IStorageModel;
+	private _subscribers: { [key: string]: Function[] } = {};
 
+	constructor(model) {
 		this._model = $.extend({
 			$box: null,
 			$headTable: null,
@@ -15,8 +17,7 @@ class Storage {
 			filter: null,
 			data: [],
 			processedData: []
-		}, model)
-		this._subscribers = {};
+		}, model);
 	}
 
 	get $box() {
@@ -26,7 +27,7 @@ class Storage {
 	get $headTable() {
 		return this._model.$headTable;
 	};
-	set $headTable(value) {
+	set $headTable(value: JQuery<HTMLElement>) {
 		if (value instanceof $) {
 			this._model.$headTable = value;
 			this.notify('$headTable', this);
@@ -36,7 +37,7 @@ class Storage {
 	get $gridTable() {
 		return this._model.$gridTable;
 	};
-	set $gridTable(value) {
+	set $gridTable(value: JQuery<HTMLElement>) {
 		if (value instanceof $) {
 			this._model.$gridTable = value;
 			this.notify('$gridTable', this);
@@ -46,7 +47,7 @@ class Storage {
 	get $headLabels() {
 		return this._model.$headLabels;
 	};
-	set $headLabels(value) {
+	set $headLabels(value: JQuery<HTMLElement>) {
 		if (value instanceof $) {
 			this._model.$headLabels = value;
 			this.notify('$headLabels', this);
@@ -56,7 +57,7 @@ class Storage {
 	get $paginationBox() {
 		return this._model.$paginationBox;
 	};
-	set $paginationBox(value) {
+	set $paginationBox(value: JQuery<HTMLElement>) {
 		if (value instanceof $) {
 			this._model.$paginationBox = value;
 			this.notify('$paginationBox', this);
@@ -66,7 +67,7 @@ class Storage {
 	get $filterToolbarItems() {
 		return this._model.$filterToolbarItems;
 	};
-	set $filterToolbarItems(value) {
+	set $filterToolbarItems(value: JQuery<HTMLElement>) {
 		if (value instanceof $) {
 			this._model.$filterToolbarItems = value;
 			this.notify('$filterToolbarItems', this);
@@ -77,7 +78,7 @@ class Storage {
 		return this._model.scrollbarWidth;
 	};
 
-	set scrollbarWidth(value) {
+	set scrollbarWidth(value: number) {
 		if (typeof (value) === "number" && value > 0) {
 			this._model.scrollbarWidth = value;
 			this.notify('scrollbarWidth', this);
@@ -87,7 +88,7 @@ class Storage {
 	get colModels() {
 		return this._model.colModels;
 	};
-	set colModels(value) {
+	set colModels(value: IColModel[]) {
 		if ($.isArray(value)) {
 			this._model.colModels = value;
 			this.notify('colModels', this);
@@ -101,7 +102,7 @@ class Storage {
 		this._model.colModelsDictionary = value;
 		this.notify('colModelsDictionary', this);
 	};
-	
+
 	get filter() {
 		return this._model.filter;
 	};
@@ -115,7 +116,7 @@ class Storage {
 	get data() {
 		return this._model.data;
 	};
-	set data(data) {
+	set data(data: IRawData[]) {
 		if ($.isArray(data)) {
 			this._model.data = data;
 			this.notify('data', this);
@@ -131,14 +132,12 @@ class Storage {
 	};
 
 	get processedData() {
-		return this._model.query;
+		return this._model.processedData;
 	};
 	set processedData(data) {
 		this._model.processedData = data;
 		this.notify('processedData', this);
 	};
-
-
 
 	on(name, subscriber) {
 		var storege = this._getStorage(name);
@@ -153,13 +152,11 @@ class Storage {
 		});
 	};
 
-	_getStorage(name) {
+	private _getStorage(name) {
 		const subscribers = this._subscribers;
 		if (!subscribers[name]) {
 			subscribers[name] = [];
 		}
 		return subscribers[name];
 	}
-
 }
-export default Storage;
