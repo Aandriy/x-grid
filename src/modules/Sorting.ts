@@ -1,20 +1,27 @@
 import SortRule from './SortRule';
-class Sorting {
+
+export default class Sorting {
+	storage: IStorage;
+	viewModel: IViewModel;
+	options: IOptions;
+
 	constructor(storage, viewModel, options) {
 		this.storage = storage;
 		this.viewModel = viewModel;
 		this.options = options;
+
 		this.bind();
 	};
-	sortByAlias(alias) {
-		const storage = this.storage,
-			viewModel = this.viewModel,
-			colModel = storage.colModelsDictionary[alias];
-		let sortBy;
+
+	sortByAlias(alias: string) {
+		const { storage, viewModel } = this;
+		const colModel = storage.colModelsDictionary[alias];
+		let sortBy: ISortRule[];
+
 		if (colModel) {
 			sortBy = viewModel.sortBy;
-			let i = sortBy.length,
-				sortRule;
+			let i = sortBy.length;
+			let sortRule: ISortRule;
 
 			while (i--) {
 				if (sortBy[i].by === alias) {
@@ -38,26 +45,26 @@ class Sorting {
 		}
 	};
 
-	bind() {
+	bind(): void {
 		const $headTable = this.storage.$headTable;
+
 		this._off();
 		$headTable.on('click.Xgrid', '.Xgrid-thead-label.sortable', this._handlerSortColumn.bind(this));
 	};
 
-	_off() {
+	private _off(): void {
 		this.storage.$headTable.off('.Xgrid');
 	};
 
-	_handlerSortColumn(e) {
+	private _handlerSortColumn(e: JQueryEventObject): void {
 		e.preventDefault();
-		const $item = $(e.currentTarget),
-			alias = $item.attr('data-alias'),
-			colmodel = this.storage.colModelsDictionary[alias];
+		const $item = $(e.currentTarget);
+		const alias = $item.attr('data-alias');
+		const colmodel = this.storage.colModelsDictionary[alias];
+
 		$item.blur();
 		if (colmodel && colmodel.sortable) {
 			this.sortByAlias(alias);
 		}
 	};
 };
-
-export default Sorting;

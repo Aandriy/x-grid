@@ -4,7 +4,7 @@ interface IViewModelPartial {
 	newPage: number;
 	page: number;
 	rows: number;
-	sortBy: ISortBy[];
+	sortBy: ISortRule[];
 	totalPages: number;
 	totalRows: number,
 }

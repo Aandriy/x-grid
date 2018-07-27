@@ -1,28 +1,31 @@
-'use strict';
-class Fill {
+export default class Fill {
+	viewModel: IViewModel;
+	storage: IStorage;
+
 	constructor(storage, viewModel) {
 		this.viewModel = viewModel;
 		this.storage = storage;
 	};
 
-	thead() {
-		const self = this,
-			storage = this.storage,
-			classRules = ['resizable', 'sortable', 'filterable', 'hidden'],
-			colModels = storage.colModels;
+	thead(): void {
+		const storage = this.storage;
+		const classRules = ['resizable', 'sortable', 'filterable', 'hidden'];
+		const colModels = storage.colModels;
 
-		storage.$headLabels.each(function (i) {
-			const $th = $(this),
-				$wrapper = $(document.createElement('div')),
-				colModel = colModels[i];
+		storage.$headLabels.each((i: number, th: HTMLElement) => {
+			const $th = $(th);
+			const $wrapper = $(document.createElement('div'));
+			const colModel = colModels[i];
 
 			$th.data('Xgrid.data', colModel);
+
 			let data = colModel.labelFormatter($wrapper, $th, colModel, i);
 			if (typeof (data) !== 'undefined') {
 				$wrapper.html(data);
 			}
 
-			$th.html($wrapper);
+			th.innerHTML = '';
+			$th.append($wrapper);
 			$.each(classRules, function (i, mark) {
 				if (colModel[mark]) {
 					$th.addClass(mark);
@@ -34,11 +37,10 @@ class Fill {
 		this.filterToolbar();
 	};
 
-	filterToolbar() {
-		const self = this,
-			storage = this.storage,
-			viewModel = this.viewModel,
-			colModels = storage.colModels;
+	filterToolbar(): void {
+		const storage = this.storage;
+		const colModels = storage.colModels;
+
 		if (storage.$filterToolbarItems) {
 			storage.$filterToolbarItems.each(function (i) {
 				const $cell = $(this),
@@ -55,23 +57,21 @@ class Fill {
 		}
 	};
 
-	tbody() {
-		const self = this,
-			storage = this.storage,
-			fragment = document.createDocumentFragment(),
-			colModels = storage.colModels,
-			viewModel = this.viewModel,
-			dataToDisplay = viewModel.data,
-			$headWrap = storage.$headTable.parent(),
-			$gridWrap = storage.$gridTable.parent(),
-			data = storage.data;
-
-		let tbody,
-			num = 0;
+	tbody(): void {
+		const { storage, viewModel } = this;
+		const fragment = document.createDocumentFragment();
+		const dataToDisplay = viewModel.data;
+		const colModels = storage.colModels;
+		const $headWrap = storage.$headTable.parent();
+		const $gridWrap = storage.$gridTable.parent();
+		const data = storage.data;
+		const tbody = this._createShadowBody(fragment);
+		let num = 0;
 
 		colModels.forEach(function (colModel, i) {
 			colModel._check();
 			const $td = storage.$headLabels.eq(i);
+
 			if (!colModel.hidden) {
 				num++;
 				if (num % 2) {
@@ -82,49 +82,45 @@ class Fill {
 			}
 		});
 
-		tbody = this._createShadowBody(fragment);
-
-		$(tbody).find('tr').each(function (i) {
+		$(tbody).find('tr').each((i, tr) => {
 			const rowData = dataToDisplay[i];
-			self._fillRow($(this), rowData, data);
+
+			this._fillRow($(tr), rowData, data);
 		});
 
 		storage.$gridTable.find('>tbody').remove();
 		$headWrap.css({ 'padding-right': '' });
 		storage.$gridTable.append(tbody);
 
-		if ($gridWrap.get(0).offsetWidth - $gridWrap.get(0).clientWidth) {
+		if ($gridWrap[0].offsetWidth - $gridWrap[0].clientWidth) {
 			$headWrap.css({ 'padding-right': storage.scrollbarWidth + 'px' });
 		}
 		this._updateHead();
 	};
 
-	_createShadowBody(fragment, amount) {
-		const options = this.options,
-			storage = this.storage,
-			colModels = storage.colModels,
-			tbody = document.createElement('tbody'),
-			viewModel = this.viewModel,
-			rowsCount = viewModel.data.length;
-
-		let tr = '<tr>' + Array(colModels.length + 1).join('<td></td>') + '</tr>',
-			trs = '<tbody>' + new Array(rowsCount + 1).join(tr) + '<tbody>';
+	private _createShadowBody(fragment: DocumentFragment) {
+		const { storage, viewModel } = this;
+		const colModels = storage.colModels;
+		const tbody = document.createElement('tbody');
+		const rowsCount = viewModel.data.length;
+		let tr = '<tr>' + Array(colModels.length + 1).join('<td></td>') + '</tr>';
+		let trs = '<tbody>' + new Array(rowsCount + 1).join(tr) + '<tbody>';
 
 		if (!fragment) {
 			fragment = document.createDocumentFragment();
 		}
 
 		tbody.innerHTML = trs;
-
 		fragment.appendChild(tbody);
+
 		return tbody;
 	};
 
-	_fillRow($tr, rowData, data) {
+	private _fillRow($tr, rowData, data): void {
 
-		const $tds = $tr.find('td'),
-			storage = this.storage,
-			colModels = storage.colModels;
+		const $tds = $tr.find('td');
+		const storage = this.storage;
+		const colModels = storage.colModels;
 		let num = 0;
 
 		$tr.data('Xgrid.data', rowData);
@@ -151,21 +147,20 @@ class Fill {
 		});
 	};
 
-	_updateHead() {
-		const self = this,
-			storage = this.storage,
-			colModels = storage.colModels,
-			viewModel = this.viewModel,
-			$headLabels = storage.$headLabels,
-			sortBy = {};
+	private _updateHead(): void {
+		const { storage, viewModel } = this;
+		const colModels = storage.colModels;
+		const $headLabels = storage.$headLabels;
+		const sortBy = {};
 
-		viewModel.sortBy.forEach(function (sortRule) {
+		viewModel.sortBy.forEach((sortRule) => {
 			sortBy[sortRule.by] = sortRule.order;
 		});
 
-		colModels.forEach(function (colModel, i) {
-			const $label = $headLabels.eq(i),
-				order = sortBy[colModel.alias];
+		colModels.forEach((colModel, i) => {
+			const $label = $headLabels.eq(i);
+			const order = sortBy[colModel.alias];
+
 			if (order) {
 				$label.attr('data-sort', order);
 			} else {
@@ -174,5 +169,3 @@ class Fill {
 		});
 	};
 };
-
-export default Fill;

@@ -1,20 +1,25 @@
-'use strict';
-class FilterToolbar {
+import FilterModel from './FilterModel';
+
+export default class FilterToolbar {
+	storage: IStorage;
+	viewModel: IViewModel;
+	options: IOptions;
+	timeoutOnKeydown = null;
+
 	constructor(storage, viewModel, options) {
 		this.storage = storage;
 		this.viewModel = viewModel;
 		this.options = options;
 		this._bind();
-		this.timeoutOnKeydown = null;
 	}
+
 	triggerToolbar() {
-		const storage = this.storage,
-			viewModel = this.viewModel,
-			colModels = storage.colModels,
-			options = this.options,
-			rules = [],
-			defaultSearch = 'cn',
-			groupOp = options.filterToolbarGroupOp === 'AND' ? 'AND' : 'OR';
+		const storage = this.storage;
+		const options = this.options;
+		const colModels = storage.colModels;
+		const rules = [];
+		const defaultSearch = 'cn';
+		const groupOp = options.filterToolbarGroupOp === 'AND' ? 'AND' : 'OR';
 		let ruleGroup = null;
 
 		if (!storage.$filterToolbarItems) {
@@ -22,14 +27,14 @@ class FilterToolbar {
 		}
 
 		storage.$filterToolbarItems.each(function (i) {
-			const $filter = $(this),
-				$elem = $filter.find('.Xgrid-filter')
-			if ($elem.length) {
-				const colModel = colModels[i],
-					settings = colModel.filterToolbarSettings || {},
-					filterOption = colModel.filterOption || defaultSearch,
-					fieldName = colModel.alias || colModel.key;
+			const $filter = $(this);
+			const $elem = $filter.find('.Xgrid-filter')
 
+			if ($elem.length) {
+				const colModel = colModels[i];
+				const settings = colModel.filterToolbarSettings || {};
+				const filterOption = colModel.filterOption || defaultSearch;
+				const fieldName = colModel.alias || colModel.key;
 				let value = $elem.val();
 
 				if (typeof (settings.transformData) === 'function') {
@@ -37,11 +42,7 @@ class FilterToolbar {
 				}
 
 				if (value || filterOption === "nu" || filterOption === "nn") {
-					rules.push({
-						field: fieldName,
-						op: filterOption,
-						data: value
-					});
+					rules.push(new FilterModel(value, fieldName, filterOption));
 				}
 			}
 		});
@@ -55,8 +56,9 @@ class FilterToolbar {
 		storage.filter = ruleGroup;
 	};
 
-	_bind() {
+	private _bind(): void {
 		const storage = this.storage;
+
 		storage.$headTable.on('keypress', 'input.Xgrid-input.Xgrid-onEnter', this._handlerFilterOnEnter.bind(this));
 		storage.$headTable.on('keydown', 'input.Xgrid-input.Xgrid-onKeydown', this._handlerFilterOnKeydown.bind(this));
 		storage.$headTable.on('change', '.Xgrid-filter.Xgrid-onChange', this._handlerFilterOnChange.bind(this));
@@ -64,23 +66,22 @@ class FilterToolbar {
 		storage.$headTable.on('click', '.Xgrid-onSubmit', this._handlerFilterOnSubmit.bind(this));
 	};
 
-	_handlerFilterOnSubmit(e) {
+	private _handlerFilterOnSubmit(e: JQueryEventObject) {
 		$(e.currentTarget).blur();
 		this.triggerToolbar();
 	};
 
-	_handlerFilterOnReset(e) {
-		const storage = this.storage,
-			$sell = $(e.currentTarget).blur().parents('.Xgrid-filter-cell:eq(0)'),
-			alias = $sell.attr('data-alias'),
-			$control = $sell.find('.Xgrid-filter'),
-			colModel = storage.colModelsDictionary[alias],
-			data = $control.val();
+	private _handlerFilterOnReset(e: JQueryEventObject) {
+		const storage = this.storage;
+		const $sell = $(e.currentTarget).blur().parents('.Xgrid-filter-cell:eq(0)');
+		const alias = $sell.attr('data-alias');
+		const $control = $sell.find('.Xgrid-filter');
+		const colModel = storage.colModelsDictionary[alias];
 
 		if (colModel) {
 			if (colModel.filterToolbarSettings.formControlType === 'select') {
-				$control.val([]).each(function () {
-					this.selectedIndex = -1;
+				$control.val([]).each((i: number, select: HTMLSelectElement) => {
+					select.selectedIndex = -1;
 				});
 			} else {
 				$control.val('');
@@ -88,12 +89,14 @@ class FilterToolbar {
 			this.triggerToolbar();
 		}
 	};
-	_handlerFilterOnChange(e) {
+
+	private _handlerFilterOnChange() {
 		this.triggerToolbar();
 	};
-	_handlerFilterOnKeydown(e) {
 
-		var key = e.which;
+	private _handlerFilterOnKeydown(e: JQueryEventObject) {
+		const key = e.which;
+
 		switch (key) {
 			case 13:
 				return false;
@@ -106,25 +109,20 @@ class FilterToolbar {
 			case 27:
 				break;
 			default:
-
 				if (this.timeoutOnKeydown) {
 					clearTimeout(this.timeoutOnKeydown);
 				}
-				this.timeoutOnKeydown = setTimeout(
-					() => {
-						this.triggerToolbar();
-					},
-					500
-				);
+				this.timeoutOnKeydown = setTimeout(() => {
+					this.triggerToolbar();
+				}, 500);
 		}
 	};
 
-	_handlerFilterOnEnter(e) {
-		var key = e.charCode || e.keyCode || 0;
+	private _handlerFilterOnEnter(e: JQueryEventObject) {
+		const key = e.charCode || e.keyCode || 0;
 		if (key === 13) {
 			e.preventDefault();
 			this.triggerToolbar();
 		}
 	}
 }
-export default FilterToolbar;
