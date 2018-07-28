@@ -1,5 +1,9 @@
 'use strict';
-class Pagination {
+export default class Pagination {
+	options: IOptions;
+	viewModel: IViewModel;
+	storage: IStorage;
+
 	constructor(options, storage, viewModel, ) {
 		this.options = options;
 		this.viewModel = viewModel;
@@ -22,14 +26,16 @@ class Pagination {
 		this.storage.$paginationBox.find('.Xgrid-total-pages').text(this.viewModel.totalPages);
 	};
 
-	_subscribe() {
-		const viewModel = this.viewModel;
+	private _subscribe() {
+		const { viewModel } = this;
+
 		viewModel.on('page', this.page.bind(this));
 		viewModel.on('totalPages', this.totalPages.bind(this));
 	};
 
-	_bind() {
-		const storage = this.storage;
+	private _bind() {
+		const { storage } = this;
+
 		storage.$paginationBox.on('click.xgrid', '.Xgrid-first', this._handlerFirst.bind(this));
 		storage.$paginationBox.on('click.xgrid', '.Xgrid-prev', this._handlerPrev.bind(this));
 		storage.$paginationBox.on('click.xgrid', '.Xgrid-next', this._handlerNext.bind(this));
@@ -37,37 +43,36 @@ class Pagination {
 		storage.$paginationBox.on('keypress.xgrid', '.Xgrid-current-page', this._handlerGoTo.bind(this));
 	};
 
-	_handlerFirst(e) {
+	private _handlerFirst(e) {
 		e.preventDefault();
 		if (this.viewModel.page !== 1) {
 			this.viewModel.newPage = 1;
 		}
 	};
-	_handlerLast(e) {
+	private _handlerLast(e) {
 		e.preventDefault();
 		if (this.viewModel.page !== this.viewModel.totalPages) {
 			this.viewModel.newPage = this.viewModel.totalPages;
 		}
 	};
-	_handlerNext(e) {
+	private _handlerNext(e) {
 		e.preventDefault();
 		const page = this.viewModel.page + 1;
 		if (page <= this.viewModel.totalPages) {
 			this.viewModel.newPage = page;
 		}
 	};
-	_handlerPrev(e) {
+	private _handlerPrev(e) {
 		e.preventDefault();
 		const page = this.viewModel.page - 1;
 		if (page > 0) {
 			this.viewModel.newPage = page;
 		}
 	};
-	_handlerGoTo(e) {
+	private _handlerGoTo(e) {
 		if (e.which === 13) {
-			let page = $(e.currentTarget).val();
+			let page: number = +$(e.currentTarget).val();
 			if (!isNaN(page)) {
-				page = +page;
 				if (page < 1) {
 					page = 1;
 				} else if (page > this.viewModel.totalPages) {
@@ -80,5 +85,3 @@ class Pagination {
 		}
 	}
 };
-
-export default Pagination;

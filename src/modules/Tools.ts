@@ -1,10 +1,11 @@
-'use strict';
 class Tools {
+	now: Function;
+
 	constructor() {
 		this.now = Date.now || (() => { return new Date().getTime(); });
 	}
 
-	execute(functions, args, context) {
+	execute(functions, args, context?) {
 		const apply = function (foo) {
 			if (typeof (foo) === 'function') {
 				foo.apply(context ? context : foo, args)
@@ -45,7 +46,7 @@ class Tools {
 						this.data = part1;
 					}
 				} else {
-					this.data = this.data.replace(searchStr,replacement);
+					this.data = this.data.replace(searchStr, replacement);
 				}
 			}
 		});

@@ -1,4 +1,17 @@
 class Pipes {
+	int: Function;
+	float: Function;
+	number: Function;
+	text: Function;
+
+	isNotZero = {
+		undefined: 1,
+		'': 1,
+		null: 1,
+		false: 1,
+		true: 1,
+	};
+
 	constructor() {
 		this.integer = this.integer.bind(this);
 		this.int = this.integer;
@@ -15,17 +28,9 @@ class Pipes {
 				return this.sensitivetext.call(this, value);
 			}
 		});
-
-		this.isNotZero = {
-			undefined: 1
-		};
-
-		['', null, false, true].forEach((key) => {
-			this.isNotZero[key] = 1;
-		});
 	};
 
-	getByType(type) {
+	getByType(type?: string): Function {
 		switch (type) {
 			case 'int':
 			case 'integer':
@@ -39,8 +44,8 @@ class Pipes {
 		}
 	}
 
-	numeric(value) {
-		let result;
+	numeric(value: any): number {
+		let result: number;
 		if (this.isNotZero[value]) {
 			result = Number.NEGATIVE_INFINITY;
 		} else {
@@ -54,7 +59,7 @@ class Pipes {
 		return result;
 	};
 
-	integer(value) {
+	integer(value): number {
 		let result;
 		if (this.isNotZero[value]) {
 			result = Number.NEGATIVE_INFINITY;
@@ -68,11 +73,11 @@ class Pipes {
 		return result;
 	};
 
-	insensitivetext(value) {
+	insensitivetext(value): string {
 		return value ? $.trim(String(value)) : "";
 	};
 
-	sensitivetext(value) {
+	sensitivetext(value): string {
 		return (value ? $.trim(String(value)) : "").toLowerCase();
 	};
 }

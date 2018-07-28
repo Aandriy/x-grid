@@ -103,8 +103,7 @@ export default class Xgrid {
 		});
 	};
 	_exec() {
-		const self = this,
-			options = this.options;
+		const { options } = this;
 
 		this.ViewModel = new ViewModel();
 		this.ProcessSettings = new ProcessSettings(options, this.Storage, this.ViewModel);
