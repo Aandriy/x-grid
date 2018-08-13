@@ -10,17 +10,15 @@ class BuildInfrastructure {
 		this.options = $.extend({
 			theadClass: 'table-grid-thead',
 			tbodyClass: 'table-grid-tbody',
-			firstBtnTemplate: '<span class="btn btn-default">&#171;</span>',
-			lastBtnTemplate: '<span class="btn btn-default">&#187;</span>',
-			prevBtnTemplate: '<span class="btn btn-default">&#8249;</span>',
-			nextBtnTemplate: '<span class="btn btn-default">&#8250;</span>',
+			firstBtnTemplate: '<span class="btn btn-outline-secondary">&#171;</span>',
+			lastBtnTemplate: '<span class="btn btn-outline-secondary">&#187;</span>',
+			prevBtnTemplate: '<span class="btn btn-outline-secondary">&#8249;</span>',
+			nextBtnTemplate: '<span class="btn btn-outline-secondary">&#8250;</span>',
 			currentPageTemplate: '<input type="text" class="form-control" />',
 			paginationTemplate: `<div class="Xgrid-paggination input-group input-group-sm">
-			<div class="input-group-btn" >{firstBtnTemplate}{prevBtnTemplate}</div>
-				<span class="input-group-addon"> Page </span>
+			<div class="input-group-prepend" >{firstBtnTemplate}{prevBtnTemplate}<span class="input-group-text"> Page </span></div>
 				{currentPageTemplate}
-				<span class="input-group-addon"> of <span class="Xgrid-total-pages"></span></span>
-				<div class="input-group-btn" >{nextBtnTemplate}{lastBtnTemplate}</div>
+				<div class="input-group-prepend" ><span class="input-group-text"> of <span class="Xgrid-total-pages"></span></span>{nextBtnTemplate}{lastBtnTemplate}</div>
 			</div>`
 		}, options);
 

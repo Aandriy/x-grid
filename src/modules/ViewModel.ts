@@ -11,7 +11,7 @@ export default class ViewModel implements IViewModel {
 			newPage: 1,
 			data: [],
 			sortBy: [],
-			filterToolbar: false
+			filterToolbar: true
 		}
 		this.subscribers = {};
 	}

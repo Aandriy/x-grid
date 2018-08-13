@@ -5,6 +5,7 @@ export default class SortRule implements ISortRule {
 	constructor(by: string, order = 'ASC') {
 		this.by = by;
 		this.order = order;
+		this.triggerOrder = this.triggerOrder.bind(this);
 	}
 
 	triggerOrder(): void {
