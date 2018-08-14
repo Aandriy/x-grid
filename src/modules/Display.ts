@@ -51,6 +51,7 @@ export default class Display {
 
 	_filler(data: IDispalyModel): void {
 		const viewModel = this.viewModel;
+
 		viewModel.totalPages = data.totalPages
 		viewModel.totalRows = data.totalRows;
 		viewModel.data = data.data;
@@ -132,7 +133,16 @@ export default class Display {
 	};
 
 	private _serverProcess(): JQueryDeferred<IDispalyModel> {
-		return this.ajax(this.storage.query);
+		const query: IQueryModel = this.storage.query;
+		const deferred: JQueryDeferred<IDispalyModel> = $.Deferred();
+		
+		this.ajax(JSON.parse(JSON.stringify(query))).always((data)=>{
+			const displayModel = new DisplayModel();
+
+			$.extend(displayModel, data);
+			deferred.resolve(displayModel);
+		});
+		return deferred;
 	};
 	private _subscribe() {
 		const viewModel = this.viewModel;
@@ -144,7 +154,7 @@ export default class Display {
 					viewModel.newPage = 1;
 					break;
 				case 'sortBy':
-					//viewModel.newPage = 1; ?
+					viewModel.newPage = 1;
 					break;
 			}
 			action();

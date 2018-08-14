@@ -1,5 +1,5 @@
 export default class QueryModel implements IQueryModel {
-	filter = {};
+	filter = [];
 	sort = [];
 	rows = 0;
 	page = 1;

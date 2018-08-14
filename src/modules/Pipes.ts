@@ -64,7 +64,7 @@ class Pipes {
 		if (this.isNotZero[value]) {
 			result = Number.NEGATIVE_INFINITY;
 		} else {
-			if (isNaN(value)) {
+			if (!isNaN(value)) {
 				result = String(value).replace(/[\$,%]/g, '');
 			}
 			result = parseInt(result);

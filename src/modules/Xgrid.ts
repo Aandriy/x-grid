@@ -45,8 +45,9 @@ export default class Xgrid {
 		this._exec();
 	};
 
-	ajaxFunction(queryObject: any, url: string) {
+	ajaxFunction(queryObject: IRequest, url: string) {
 		const options = this.options;
+
 		return $.ajax({
 			url: url,
 			data: queryObject,
@@ -61,9 +62,10 @@ export default class Xgrid {
 		}
 	};
 
-	_request(queryObject = {}) {
+	_request(queryObject: IRequest = {}) {
 		const options = this.options,
 			d = $.Deferred();
+
 		if (options.beforeRequest) {
 			tools.execute(options.beforeRequest, [queryObject]);
 		}

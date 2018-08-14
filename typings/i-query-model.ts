@@ -1,5 +1,5 @@
 interface IQueryModel {
-	filter: null | any;
+	filter: null | IFilterModel[];
 	sort: ISortBy[];
 	rows: number;
 	page: number;

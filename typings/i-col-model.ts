@@ -1,5 +1,6 @@
 interface IColModel {
 	alias: string;
+	filterAlias?: string;
 	filterOption: string;
 	filterToolbarSettings: any;
 	filterType: string;

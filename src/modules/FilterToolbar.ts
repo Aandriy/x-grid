@@ -34,7 +34,7 @@ export default class FilterToolbar {
 				const colModel = colModels[i];
 				const settings = colModel.filterToolbarSettings || {};
 				const filterOption = colModel.filterOption || defaultSearch;
-				const fieldName = colModel.alias || colModel.key;
+				const fieldName = colModel.filterAlias || colModel.alias || colModel.key;
 				let value = $elem.val();
 
 				if (typeof (settings.transformData) === 'function') {
