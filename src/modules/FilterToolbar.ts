@@ -41,6 +41,9 @@ export default class FilterToolbar {
 					value = settings.transformData(value, settings);
 				}
 
+				if (value && colModel.insensitive) {
+					value = String(value).toLowerCase();
+				}
 				if (value || filterOption === "nu" || filterOption === "nn") {
 					rules.push(new FilterModel(value, fieldName, filterOption));
 				}

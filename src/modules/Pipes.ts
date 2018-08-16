@@ -74,11 +74,11 @@ class Pipes {
 	};
 
 	insensitivetext(value): string {
-		return value ? $.trim(String(value)) : "";
+		return (value ? $.trim(String(value)) : "").toLowerCase();
 	};
 
 	sensitivetext(value): string {
-		return (value ? $.trim(String(value)) : "").toLowerCase();
+		return value ? $.trim(String(value)) : "";
 	};
 }
 

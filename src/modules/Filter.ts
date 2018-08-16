@@ -2,14 +2,16 @@ import operators from './Operators';
 class Filter {
 	exec(data, group, getData) {
 		const newData = data.filter((item, i) => {
-			const get = getData(),
-				state = this._check(group, item, get);
+			const get = getData();
+			const state = this._check(group, item, get);
+
 			return state;
 		});
 		return newData;
 	};
 	private _or(rules, rowData, get) {
 		let i = rules.length;
+		
 		while (i--) {
 			const rule = rules[i];
 			if (!operators[rule.op]) {
@@ -25,6 +27,7 @@ class Filter {
 	};
 	private _and(rules, rowData, get) {
 		let i = rules.length;
+
 		while (i--) {
 			const rule = rules[i];
 			if (!operators[rule.op]) {
@@ -40,6 +43,7 @@ class Filter {
 	};
 	private _check(group, rowData, get) {
 		const isOr = group.rules.length && String(group.groupOp).toUpperCase() === "OR";
+
 		if ($.isArray(group.rules) && group.rules.length) {
 			if (isOr) {
 				return this._or(group.rules, rowData, get);
