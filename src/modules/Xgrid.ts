@@ -45,7 +45,16 @@ export default class Xgrid {
 		this._exec();
 	};
 
-	ajaxFunction(queryObject: IRequest, url: string) {
+	public setGridData(rows): Xgrid {
+		this.Storage.data = rows;
+		return this;
+	};
+	public refresh(): Xgrid {
+		this.Storage.notify('data', this.Storage);
+		return this;
+	};
+
+	ajaxFunction(queryObject: IRequest, url: string): JQuery.jqXHR<IResponse> {
 		const options = this.options;
 
 		return $.ajax({
@@ -55,14 +64,15 @@ export default class Xgrid {
 			dataType: 'json'
 		});
 	};
-	_response(responseObject: IResponse) {
+
+	private _response(responseObject: IResponse) {
 		const options = this.options;
 		if (options.afterResponse) {
 			tools.execute(options.afterResponse, [responseObject]);
 		}
 	};
 
-	_request(queryObject: IRequest = {}) {
+	private _request(queryObject: IRequest = {}) {
 		const options = this.options,
 			d = $.Deferred();
 
@@ -75,11 +85,7 @@ export default class Xgrid {
 		return d;
 	};
 
-	_bind() {
-		const self = this,
-			properties = this.properties,
-			options = this.options;
-
+	private _bind(): void {
 		// to Do if model will be changed
 		this.Storage.on('colModels', () => {
 			//console.log(this.Fill);
@@ -104,7 +110,7 @@ export default class Xgrid {
 			this.Sorting.bind();
 		});
 	};
-	_exec() {
+	private _exec(): void {
 		const { options } = this;
 
 		this.ViewModel = new ViewModel();

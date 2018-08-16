@@ -83,6 +83,9 @@ class ProcessSettings {
 		if (options.filterToolbar) {
 			viewModel.filterToolbar = true;
 		}
+		if (options.rows) {
+			viewModel.rows = options.rows;
+		}
 		if (sortBy && typeof (sortBy) === 'string') {
 			const sortByItems = sortBy.replace(/\s+/g, ' ').trim().split(',');
 			if (sortByItems.length) {

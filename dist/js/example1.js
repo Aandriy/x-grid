@@ -1,3 +1,8 @@
+function getRandomInt(min, max) {
+	return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+
 (function () {
 	var mydata = [
 		{ key: "1", invdate: "2007-10-01", name: "test", note: "note", amount: "200.00", tax: "10.00", total: "110.00", description: 'What is Lorem Ipsum?' },
@@ -23,7 +28,7 @@
 		$('.grid').Xgrid({
 			data: mydata,
 			colModels: [
-				{ key: 'key', width: 60, sorttype: "int", label: 'Inv No', sortable: true },
+				{ key: 'key', width: 60, sorttype: "int", label: 'Key', sortable: true },
 				{ key: 'invdate', width: 90, sorttype: "date", label: 'Date', filterable: true },
 				{
 					key: 'name',
@@ -57,7 +62,7 @@
 				},
 
 				{ key: 'amount', width: 80, align: "right", sorttype: "float", label: 'Amount', hidden: true },
-				{ key: 'tax', width: 80, align: "right", sorttype: "float", label: 'Tax', fixed:true },
+				{ key: 'tax', width: 80, align: "right", sorttype: "float", label: 'Tax', fixed: true },
 				{ key: 'total', width: 80, align: "right", sorttype: "float", label: 'Total', filterable: true },
 				{
 					key: 'note',
@@ -84,11 +89,19 @@
 					}
 				}
 			],
-			sortBy: 'tax ACS, key DESC',
-			//sortBy: [{ by: 'tax', order: 'ACS' }, { by: 'key', order: 'DESC' }],
+			sortBy: 'tax ACS, name DESC',
+			//sortBy: [{ by: 'tax', order: 'ACS' }, { by: 'name', order: 'DESC' }],
 			filterToolbar: true,
 		});
 
-		console.log($('.grid').data('Xgrid'));
+
+		var $btn = $('<span class="btn btn-primary">add</span>');
+		var _Xgrid = $('.grid').data('Xgrid');
+		$('.grid').after($btn);
+		$btn.on('click', function () {
+			mydata[0].key = getRandomInt(-100,100);
+			_Xgrid.setGridData(mydata);
+		});
+		
 	});
 })();

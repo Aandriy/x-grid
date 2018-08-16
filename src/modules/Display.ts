@@ -58,7 +58,7 @@ export default class Display {
 		viewModel.page = data.page;
 	};
 
-	_localFilter(data, filterQuery) {
+	private _localFilter(data, filterQuery) {
 		const deferred = $.Deferred(),
 			storage = this.storage,
 			rawData = function () {
@@ -83,7 +83,7 @@ export default class Display {
 		return deferred;
 	};
 
-	_localSort(data, sortRules) {
+	private _localSort(data, sortRules) {
 		const deferred = $.Deferred();
 		const storage = this.storage;
 
