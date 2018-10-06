@@ -1,12 +1,13 @@
 import pipes from './Pipes';
 import FilterToolbarModel from './FilterToolbarModel';
+import CellFormatters from './CellFormatters';
 
 class ColModel implements IColModel {
 	alias: string;
 	filterFormatter: Function;
 	filterOption = 'cn';
-	filterToolbarSettings: any;
-	filterType = 'text';
+	filterToolbarSettings: IFilterToolbarModel;
+	filterType = 'string' as TFilterType;
 	filterable = false;
 	fixed = false;
 	hidden = false;
@@ -16,12 +17,13 @@ class ColModel implements IColModel {
 	order: number;
 	resizable = false;
 	sortFormatter: Function;
-	sortType = 'text';
+	sortType = 'string' as TSortType;
 	sortable = false;
 	width: number;
 
 	dependent = [];
 	_check: Function;
+	cellFormatter: Function;
 
 	constructor(model, order) {
 		this.order = order;
@@ -46,6 +48,13 @@ class ColModel implements IColModel {
 		} else {
 			this.filterFormatter = pipes.getByType(model.filterType);
 		}
+		if (typeof(model.cellFormatter) === 'string' && typeof(CellFormatters[model.cellFormatter]) === 'function') {
+			this.cellFormatter = CellFormatters[model.cellFormatter];
+		} else if (typeof(model.cellFormatter) === 'function') {
+			this.cellFormatter = model.cellFormatter;
+		} else {
+			this.cellFormatter = CellFormatters['text'];
+		}
 
 		this.dependent = [];
 		this._check = function (): void {
@@ -63,13 +72,6 @@ class ColModel implements IColModel {
 
 	labelFormatter() {
 		return this.label;
-	};
-
-	cellFormatter($td, value, rowData, data) {
-		if (typeof (value) === 'undefined') {
-			value = '';
-		}
-		return '<div class="ellipsis">' + value + '</div>';
 	};
 
 	filterToolbarFormatter($cell, colModel) {

@@ -32,7 +32,7 @@ export default class FilterToolbar {
 
 			if ($elem.length) {
 				const colModel = colModels[i];
-				const settings = colModel.filterToolbarSettings || {};
+				const settings = colModel.filterToolbarSettings;
 				const filterOption = colModel.filterOption || defaultSearch;
 				const fieldName = colModel.filterAlias || colModel.alias || colModel.key;
 				let value = $elem.val();
@@ -44,7 +44,8 @@ export default class FilterToolbar {
 				if (value && colModel.insensitive) {
 					value = String(value).toLowerCase();
 				}
-				if (value || filterOption === "nu" || filterOption === "nn") {
+				console.log(value)
+				if ((typeof(value) !== 'undefined' && value !== '' && value !== null) || filterOption === "nu" || filterOption === "nn") {
 					rules.push(new FilterModel(value, fieldName, filterOption));
 				}
 			}

@@ -1,8 +1,7 @@
-class Pipes {
-	int: Function;
-	float: Function;
-	number: Function;
-	text: Function;
+class Pipes implements IPipes {
+	float(val){return val}
+	int(val){return val}
+	number(val){return val}
 
 	isNotZero = {
 		undefined: 1,
@@ -15,22 +14,13 @@ class Pipes {
 	constructor() {
 		this.integer = this.integer.bind(this);
 		this.int = this.integer;
-
 		this.numeric = this.numeric.bind(this);
 		this.float = this.numeric;
 		this.number = this.numeric;
-
-		//this.datetime = this.date.bind(this);
-		this.text = ((value, rowData, colModel) => {
-			if (colModel.insensitive) {
-				return this.insensitivetext.call(this, value);
-			} else {
-				return this.sensitivetext.call(this, value);
-			}
-		});
+		this.string = this.string.bind(this);
 	};
-
-	getByType(type?: string): Function {
+	
+	getByType(type?: TPipes): Function {
 		switch (type) {
 			case 'int':
 			case 'integer':
@@ -39,10 +29,24 @@ class Pipes {
 			case 'number':
 			case 'numeric':
 				return this.numeric;
+			case 'boolean':
+				return this.boolean;
 			default:
-				return this.text;
+				return this.string;
 		}
 	}
+
+	string (value, rowData, colModel) {
+		if (colModel.insensitive) {
+			return this.insensitivetext.call(this, value);
+		} else {
+			return this.sensitivetext.call(this, value);
+		}
+	};
+
+	boolean(value: any): boolean {
+		return !!value;
+	};
 
 	numeric(value: any): number {
 		let result: number;

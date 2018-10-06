@@ -1,9 +1,13 @@
+type TSortType = | TPipes | Function;
+	
+type TFilterType =  | TPipes | Function;
+
 interface IColModel {
 	alias: string;
 	filterAlias?: string;
 	filterOption: string;
-	filterToolbarSettings: any;
-	filterType: string;
+	filterToolbarSettings: IFilterToolbarModel;
+	filterType: TFilterType;
 	filterable: boolean;
 	fixed: boolean;
 	hidden: boolean;
@@ -12,7 +16,7 @@ interface IColModel {
 	label: string;
 	order: number;
 	resizable: boolean;
-	sortType: string;
+	sortType: TSortType;
 	sortable: boolean;
 	width: number;
 

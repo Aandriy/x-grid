@@ -11,6 +11,7 @@ import Pagination from './Pagination';
 import tools from './Tools';
 
 export default class Xgrid {
+	version: '1.0.0';
 	options: IOptions;
 	properties: IXgridProperties;
 	ViewModel: IViewModel;

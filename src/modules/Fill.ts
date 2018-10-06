@@ -117,7 +117,6 @@ export default class Fill {
 	};
 
 	private _fillRow($tr, rowData, data): void {
-
 		const $tds = $tr.find('td');
 		const storage = this.storage;
 		const colModels = storage.colModels;
@@ -129,6 +128,8 @@ export default class Fill {
 			let value = rowData[colModel.key],
 				$td = $tds.eq(i),
 				data;
+
+			$td.attr('data-key', colModel.alias);
 
 			if (colModel.hidden) {
 				$td.remove();
