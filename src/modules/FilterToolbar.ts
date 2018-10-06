@@ -44,7 +44,7 @@ export default class FilterToolbar {
 				if (value && colModel.insensitive) {
 					value = String(value).toLowerCase();
 				}
-				console.log(value)
+
 				if ((typeof(value) !== 'undefined' && value !== '' && value !== null) || filterOption === "nu" || filterOption === "nn") {
 					rules.push(new FilterModel(value, fieldName, filterOption));
 				}
