@@ -1,0 +1,86 @@
+﻿@{
+	ViewData["Title"] = "Home Page";
+}
+
+
+<div class="row">
+	<div class="col">
+		<div class="grid"></div>
+	</div>
+</div>
+@section Scripts {
+<script>
+$(function () {
+	var $grid = $('.grid');
+	$grid.Xgrid({
+		data: [],
+		url: '@Url.Action("GetSampleThingList", "Home")',
+		colModels: [
+			{
+				key: 'id',
+				width: '90px',
+				fixed: true,
+				label: 'Id',
+				filterable: true,
+				sortable: true,
+			},
+			{
+				filterable: true,
+				key: 'date',
+				width: '210px',
+				fixed: true,
+				label: 'Date',
+				sortable: true
+			},
+			{
+				key: 'isActive',
+				width: '90px',
+				fixed: true,
+				label: 'Available',
+				cellFormatter: 'booleanYesNo',
+				filterable: true,
+				sortable: true,
+				filterType: 'boolean',
+				filterOption: 'eq',
+				filterToolbarSettings: {
+					formControlType: 'select',
+					allowResetButton: true,
+					allowSubmitButton: false,
+					onEnter: false,
+					onChange: true,
+					selectOptions: [{ "label": "Yes", "value": true }, { "label": "No", "value": false }],
+				},
+			},
+			{
+				filterable: true,
+				key: 'cost',
+				width: '90px',
+				fixed: true,
+				label: 'Cost',
+				sortable: true
+			},
+			{
+				filterable: true,
+				key: 'multiplier',
+				width: '90px',
+				fixed: true,
+				label: 'Multiplier',
+				sortable: true
+			},
+			{
+				filterable: true,
+				key: 'title',
+				label: 'Title',
+				sortable: true
+			},
+		],
+		sortBy: 'name DESC',
+		beforeRequest: [function (request) {
+			if (request.filter) {
+				request.filters = JSON.stringify(request.filter);
+			}
+		}]
+	});
+});
+</script>
+}

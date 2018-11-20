@@ -1,0 +1,7 @@
+.vs/
+NetServer/bin/*
+NetServer/obj/*
+Grid/bin/*
+Grid/obj/*
+
+
