@@ -23,6 +23,7 @@ interface IColModel {
 	cellFormatter: Function;
 	filterFormatter: Function;
 	filterToolbarFormatter: Function;
+	afterFilterToolbarFormatter?: Function;
 	labelFormatter: Function;
 	sortFormatter: Function;
 

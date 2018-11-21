@@ -29,7 +29,22 @@ function getRandomInt(min, max) {
 			data: mydata,
 			colModels: [
 				{ key: 'key', width: 60, sorttype: "int", label: 'Key', sortable: true },
-				{ key: 'invdate', width: 90, sorttype: "date", label: 'Date', filterable: true },
+				{
+					key: 'invdate',
+					width: 90,
+					sorttype: "date",
+					label: 'Date',
+					filterable: true,
+					afterFilterToolbarFormatter: function ($td) {
+						$td.find('input').daterangepicker({
+							locale: {
+								format: 'YYYY-MM-DD'
+							},
+							singleDatePicker: true,
+							showDropdowns: true,
+						});
+					}
+				},
 				{
 					key: 'name',
 					label: 'Client',
@@ -99,9 +114,9 @@ function getRandomInt(min, max) {
 		var _Xgrid = $('.grid').data('Xgrid');
 		$('.grid').after($btn);
 		$btn.on('click', function () {
-			mydata[0].key = getRandomInt(-100,100);
+			mydata[0].key = getRandomInt(-100, 100);
 			_Xgrid.setGridData(mydata);
 		});
-		
+
 	});
 })();

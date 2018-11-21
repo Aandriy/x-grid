@@ -50,6 +50,9 @@ export default class Fill {
 					if (typeof (data) !== 'undefined') {
 						$cell.html(data);
 					}
+					if (typeof(colModel.afterFilterToolbarFormatter) === 'function') {
+						colModel.afterFilterToolbarFormatter($cell, colModel);
+					}
 				} else {
 					$cell.empty();
 				}
