@@ -47,7 +47,15 @@ export default class FilterToolbar {
 				}
 
 				if ((typeof (value) !== 'undefined' && value !== '' && value !== null) || filterOption === "nu" || filterOption === "nn") {
-					rules.push(new FilterModel(value, fieldName, filterOption));
+					let rule: IFilterModel | null = new FilterModel(value, fieldName, filterOption);
+
+					if (typeof (colModel.filterRuleFormatter) === 'function') {
+						rule = colModel.filterRuleFormatter(rule, rules, colModel, FilterModel);
+					}
+
+					if (rule) {
+						rules.push(rule);
+					}
 				}
 			}
 		});

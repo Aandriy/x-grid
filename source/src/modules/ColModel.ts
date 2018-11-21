@@ -6,7 +6,7 @@ import tools from './Tools';
 class ColModel implements IColModel {
 	alias: string;
 	filterFormatter: Function;
-	filterOption = 'cn';
+	filterOption = 'cn' as TOperatorType;
 	filterToolbarSettings: IFilterToolbarModel;
 	filterType = 'string' as TFilterType;
 	filterable = false;
@@ -43,7 +43,6 @@ class ColModel implements IColModel {
 		} else {
 			this.sortFormatter = pipes.getByType(model.sortType);
 		}
-
 		if (model.filterType && typeof (model.filterType) === 'function') {
 			this.filterFormatter = model.filterType;
 		} else {

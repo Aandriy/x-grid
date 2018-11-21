@@ -59,27 +59,32 @@ export default class Display {
 	};
 
 	private _localFilter(data, filterQuery) {
-		const deferred = $.Deferred(),
-			storage = this.storage,
-			rawData = function () {
-				const colModels = storage.colModelsDictionary;
-				return function () {
-					const row = {};
-					return function (alias, rowData) {
-						if (typeof (row[alias]) === 'undefined') {
-							const colModel = colModels[alias];
-							row[alias] = colModel.filterFormatter(rowData[colModel.key], rowData, colModel);
-						};
-						return row[alias];
-					}
-				}
-			}
+		const deferred = $.Deferred();
+		const storage = this.storage;
+		const rawData = () => {
+			const colModels = storage.colModelsDictionary;
+
+			return () => {
+				const row = {};
+
+				return (alias, rowData) => {
+					if (typeof (row[alias]) === 'undefined') {
+						const colModel = colModels[alias];
+						row[alias] = colModel.filterFormatter(rowData[colModel.key], rowData, colModel);
+					};
+
+					return row[alias];
+				};
+			};
+		};
+
 		setTimeout(() => {
 			if (filterQuery) {
 				data = filter.exec(data, filterQuery, rawData());
 			}
 			deferred.resolve(data);
 		}, 0);
+
 		return deferred;
 	};
 
@@ -135,8 +140,8 @@ export default class Display {
 	private _serverProcess(): JQueryDeferred<IDispalyModel> {
 		const query: IQueryModel = this.storage.query;
 		const deferred: JQueryDeferred<IDispalyModel> = $.Deferred();
-		
-		this.ajax(JSON.parse(JSON.stringify(query))).always((data)=>{
+
+		this.ajax(JSON.parse(JSON.stringify(query))).always((data) => {
 			const displayModel = new DisplayModel();
 
 			$.extend(displayModel, data);
