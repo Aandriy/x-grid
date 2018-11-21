@@ -32,6 +32,8 @@ namespace NetServer.Data
 					Id = i,
 					Cost = Math.Round(i * 1.1, 2),
 					Date = date,
+					Created = date,
+					Updated = date,
 					IsActive = !(i % 3 == 0),
 					Multiplier = (int)((1 / ((i + 1) * 1.1)) * 100),
 					Title = Regex.Replace(Convert.ToBase64String(Guid.NewGuid().ToByteArray()), "[/+=]", "")

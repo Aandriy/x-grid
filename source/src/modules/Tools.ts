@@ -52,6 +52,24 @@ class Tools {
 		});
 	}
 
+	getDefaultSelectedIndex(colModel) {
+		const { filterToolbarSettings } = colModel;
+		let index = -1;
+
+		if (Array.isArray(filterToolbarSettings.selectOptions)) {
+			index = filterToolbarSettings.selectOptions.length;
+
+			while (index--) {
+				const item = filterToolbarSettings.selectOptions[index];
+
+				if (typeof (item.value) === 'undefined') {
+					return index;
+				}
+			}
+		}
+		return index;
+	}
+
 	throttle(func, wait = 10) {
 		let context,
 			args,

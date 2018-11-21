@@ -7,17 +7,17 @@ module.exports = {
     './src/index.ts',
     './src/scss/style.scss',
   ],
-  devtool: 'inline-source-map',
+  devtool: 'source-map',
   resolve: {
     extensions: ['.tsx', '.ts', '.js']
   },
   output: {
-    filename: 'bundle.js',
+    filename: 'xgrid.js',
     path: path.resolve(__dirname, '../grid/dist')
   },
   plugins: [
     new ExtractTextPlugin({
-      filename: '../grid/dist/style.bundle.css',
+      filename: '../dist/xgrid.css',
       allChunks: true,
     }),
   ],

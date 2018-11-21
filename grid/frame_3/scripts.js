@@ -1,73 +1,108 @@
 $(function () {
-	var url = 'https://localhost:44367/Admin/Place/GetPlaceList';
 	$('.grid').Xgrid({
-		data: [],
-		url: url,
+		data: data,
 		colModels: [
 			{
-				key: 'description',
+				key: 'id',
+				width: '90px',
 				fixed: true,
-				label: 'description',
+				label: 'Id',
 				filterable: true,
 				sortable: true,
-				cellFormatter: function (td, value) {
+			},
+			{
+				sortable: true,
+				key: 'date',
+				width: 90,
+				sorttype: "date",
+				label: 'Date',
+				filterable: true,
+				cellFormatter: function (td, value, rowData) {
 					if (!value) {
 						return '';
 					}
-					return value;
+					var m = moment(value);
+					if (m.isValid) {
+						return m.format('YYYY-MM-DD HH:mm');
+					}
+					return '<a href="#' + rowData.id + '">' + value + '</a>';
+				},
+				afterFilterToolbarFormatter: function ($td) {
+					var $input = $td.find('input');
+					$input.daterangepicker({
+						autoUpdateInput: false,
+						locale: {
+							format: 'YYYY-MM-DD'
+						},
+						singleDatePicker: true,
+						showDropdowns: true,
+					},
+						function (date) {
+							var value = '';
+							if (date.isValid) {
+								value = date.format('YYYY-MM-DD');
+							}
+							$input.val(value);
+						});
 				}
 			},
 			{
-				key: 'number',
-				width: '100px',
+				filterable: true,
+				key: 'created',
+				width: '210px',
 				fixed: true,
-				label: 'Number',
+				label: 'Created',
+				sortable: true
+			},
+			{
+				filterable: true,
+				key: 'updated',
+				width: '210px',
+				fixed: true,
+				label: 'Updated',
+				sortable: true
+			},
+			{
+				key: 'isActive',
+				width: '90px',
+				fixed: true,
+				label: 'Available',
+				cellFormatter: 'booleanYesNo',
 				filterable: true,
 				sortable: true,
-				filterAlias: 'numberStr',
+				filterType: 'boolean',
+				filterOption: 'eq',
 				filterToolbarSettings: {
+					formControlType: 'select',
 					allowResetButton: true,
 					allowSubmitButton: false,
 					onEnter: false,
 					onChange: true,
+					selectOptions: [{ "label": "All" },{ "label": "Yes", "value": true }, { "label": "No", "value": false }],
 				},
 			},
 			{
-				key: 'row',
-				width: '60px',
-				fixed: true,
-				label: 'Row',
 				filterable: true,
-				sortable: true,
-				filterAlias: 'rowStr',
-				filterToolbarSettings: {
-					allowResetButton: true,
-					allowSubmitButton: false,
-					onEnter: false,
-					onChange: true,
-				},
-			},
-			{
-				key: 'area',
-				width: '60px',
+				key: 'cost',
+				width: '90px',
 				fixed: true,
-				label: 'Area',
-				filterable: true,
+				label: 'Cost',
 				sortable: true
 			},
 			{
-				key: 'type',
-				width: '190px',
+				filterable: true,
+				key: 'multiplier',
+				width: '90px',
 				fixed: true,
-				label: 'type',
+				label: 'Multiplier',
 				sortable: true
-			}
+			},
+			{
+				filterable: true,
+				key: 'title',
+				label: 'Title',
+				sortable: true
+			},
 		],
-		sortBy: 'type ASC, name DESC',
-		beforeRequest: [function (request) {
-			if (request.filter) {
-				request.filters = JSON.stringify(request.filter);
-			}
-		}]
 	});
 });

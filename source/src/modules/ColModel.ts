@@ -1,6 +1,7 @@
 import pipes from './Pipes';
 import FilterToolbarModel from './FilterToolbarModel';
 import CellFormatters from './CellFormatters';
+import tools from './Tools';
 
 class ColModel implements IColModel {
 	alias: string;
@@ -99,7 +100,9 @@ class ColModel implements IColModel {
 					$control.append('<option value="' + i + '">' + element.label + '</option>')
 				});
 				$control.val([]).each(function () {
-					this.selectedIndex = -1;
+					const index = tools.getDefaultSelectedIndex(colModel);
+
+					this.selectedIndex = index;
 				});
 				break;
 			default:

@@ -9,11 +9,12 @@
 	</div>
 </div>
 @section Scripts {
-<script>
+	<script>
 $(function () {
 	var $grid = $('.grid');
 	$grid.Xgrid({
 		data: [],
+		rows: 11,
 		url: '@Url.Action("GetSampleThingList", "Home")',
 		colModels: [
 			{
@@ -25,11 +26,55 @@ $(function () {
 				sortable: true,
 			},
 			{
-				filterable: true,
+				sortable: true,
 				key: 'date',
+				width: 90,
+				sorttype: "date",
+				label: 'Date',
+				filterable: true,
+				cellFormatter: function (td, value, rowData) {
+					if (!value) {
+						return '';
+					}
+					var m = moment(value);
+					if (m.isValid) {
+						return m.format('YYYY-MM-DD HH:mm');
+					}
+					return '<a href="#' + rowData.id + '">' + value + '</a>';
+				},
+				afterFilterToolbarFormatter: function ($td) {
+					var $input = $td.find('input');
+					$input.daterangepicker({
+						autoUpdateInput: false,
+						locale: {
+							format: 'YYYY-MM-DD'
+						},
+						singleDatePicker: true,
+						showDropdowns: true,
+					},
+						function (date) {
+							var value = '';
+							if (date.isValid) {
+								value = date.format('YYYY-MM-DD');
+							}
+							$input.val(value);
+						});
+				}
+			},
+			{
+				filterable: true,
+				key: 'created',
 				width: '210px',
 				fixed: true,
-				label: 'Date',
+				label: 'Created',
+				sortable: true
+			},
+			{
+				filterable: true,
+				key: 'updated',
+				width: '210px',
+				fixed: true,
+				label: 'Updated',
 				sortable: true
 			},
 			{
@@ -48,7 +93,7 @@ $(function () {
 					allowSubmitButton: false,
 					onEnter: false,
 					onChange: true,
-					selectOptions: [{ "label": "Yes", "value": true }, { "label": "No", "value": false }],
+					selectOptions: [{ label:"All"},{ "label": "Yes", "value": true }, { "label": "No", "value": false }],
 				},
 			},
 			{
@@ -82,5 +127,5 @@ $(function () {
 		}]
 	});
 });
-</script>
+	</script>
 }

@@ -1,4 +1,5 @@
 import FilterModel from './FilterModel';
+import tools from './Tools';
 
 export default class FilterToolbar {
 	storage: IStorage;
@@ -45,7 +46,7 @@ export default class FilterToolbar {
 					value = String(value).toLowerCase();
 				}
 
-				if ((typeof(value) !== 'undefined' && value !== '' && value !== null) || filterOption === "nu" || filterOption === "nn") {
+				if ((typeof (value) !== 'undefined' && value !== '' && value !== null) || filterOption === "nu" || filterOption === "nn") {
 					rules.push(new FilterModel(value, fieldName, filterOption));
 				}
 			}
@@ -81,11 +82,14 @@ export default class FilterToolbar {
 		const alias = $sell.attr('data-alias');
 		const $control = $sell.find('.Xgrid-filter');
 		const colModel = storage.colModelsDictionary[alias];
+		const { filterToolbarSettings } = colModel;
 
 		if (colModel) {
-			if (colModel.filterToolbarSettings.formControlType === 'select') {
+			if (filterToolbarSettings.formControlType === 'select') {
 				$control.val([]).each((i: number, select: HTMLSelectElement) => {
-					select.selectedIndex = -1;
+					const index = tools.getDefaultSelectedIndex(colModel);
+
+					select.selectedIndex = index;
 				});
 			} else {
 				$control.val('');
