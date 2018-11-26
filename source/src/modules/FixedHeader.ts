@@ -31,7 +31,7 @@ export default class FixedHeader {
 		const { storage, properties } = this;
 		const cellWidthListeners = [];
 
-		properties.$cellWidthRecipients = storage.$gridTable.find('.Xgrid-tbody-w i');
+		properties.$cellWidthRecipients = storage.$gridTable.find('.Xgrid-tbody-w td');
 		storage.$headTable.find('.Xgrid-thead-w td').each(function (i) {
 			const iframe: HTMLElement = $(this).find('iframe')[0];
 

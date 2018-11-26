@@ -115,6 +115,7 @@ export default class Xgrid {
 		const { options } = this;
 
 		this.ViewModel = new ViewModel();
+		
 		this.ProcessSettings = new ProcessSettings(options, this.Storage, this.ViewModel);
 		this.BuildInfrastructure = new BuildInfrastructure(options, this.Storage, this.ViewModel);
 		this.Sorting = new Sorting(this.Storage, this.ViewModel, options);

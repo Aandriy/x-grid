@@ -139,6 +139,7 @@
 	  ];
 	$(function () {
 		$('.grid').Xgrid({
+			filterToolbar: true,
 			data: mydata,
 			colModels: [
 				{

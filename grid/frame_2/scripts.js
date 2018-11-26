@@ -3,6 +3,7 @@
 	$(function () {
 		$('.grid').Xgrid({
 			data: mydata,
+			filterToolbar: true,
 			colModels: [
 				{
 					key: 'date',

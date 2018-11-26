@@ -27,6 +27,7 @@ function getRandomInt(min, max) {
 	$(function () {
 		$('.grid').Xgrid({
 			data: mydata,
+			filterToolbar: true,
 			colModels: [
 				{ key: 'key', width: 60, sorttype: "int", label: 'Key', sortable: true },
 				{

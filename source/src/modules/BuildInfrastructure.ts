@@ -85,7 +85,7 @@ class BuildInfrastructure {
 
 	_buildThead() {
 		const storage = this.storage;
-		let tag = 'thead';
+		let tag = 'tbody';
 		let widthHelper = `<${tag} class="Xgrid-thead-w"><tr>${new Array(storage.colModels.length + 1).join('<td><div class="Xgrid-WidthListener-wrapper"><iframe data-col="0" class="Xgrid-WidthListener"></iframe></div></td>')}</tr></${tag}>`;
 
 		storage.$headTable.html(widthHelper);
@@ -97,7 +97,7 @@ class BuildInfrastructure {
 			iframe.setAttribute('data-alias', colModel.alias);
 		});
 
-		tag = 'tbody';
+		tag = 'thead';
 		storage.$headTable.append(`<${tag} class="Xgrid-thead-labels"><tr>${new Array(storage.colModels.length + 1).join('<th class="Xgrid-thead-label"></th>')}</tr></${tag}>`);
 		storage.$headLabels = storage.$headTable.find('.Xgrid-thead-label');
 		storage.$headLabels.each((i, item) => {

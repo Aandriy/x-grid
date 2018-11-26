@@ -1,6 +1,7 @@
 $(function () {
 	$('.grid').Xgrid({
 		data: data,
+		filterToolbar: true,
 		colModels: [
 			{
 				key: 'id',

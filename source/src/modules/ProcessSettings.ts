@@ -10,7 +10,7 @@ class ProcessSettings {
 	constructor(options, storage, viewModel) {
 		this.options = $.extend({
 			colModels: [],
-			filterToolbar: false
+			filterToolbar: true
 		}, options);
 
 		this.properties = {
@@ -76,13 +76,12 @@ class ProcessSettings {
 	};
 
 	_processSorting() {
-		const {viewModel, options} = this;
+		const { viewModel, options } = this;
 		let sortBy = options.sortBy,
 			data = [];
 
-		if (options.filterToolbar) {
-			viewModel.filterToolbar = true;
-		}
+		viewModel.filterToolbar = options.filterToolbar;
+
 		if (options.rows) {
 			viewModel.rows = options.rows;
 		}
@@ -98,7 +97,6 @@ class ProcessSettings {
 
 						if (String(sortRule[1]).toUpperCase() === 'DESC') {
 							rule = new SortRule(by, 'DESC');
-
 						} else {
 							rule = new SortRule(by);
 						}
