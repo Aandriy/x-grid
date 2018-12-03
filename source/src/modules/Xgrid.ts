@@ -9,6 +9,7 @@ import Storage from './Storage';
 import Fill from './Fill';
 import Pagination from './Pagination';
 import tools from './Tools';
+import Events from './Events';
 
 export default class Xgrid {
 	version: '1.0.0';
@@ -19,6 +20,7 @@ export default class Xgrid {
 	BuildInfrastructure: BuildInfrastructure;
 	Sorting: Sorting;
 	Storage: IStorage;
+	Events: IEvents;
 	Fill: Fill;
 	Display: Display;
 	FixedHeader: FixedHeader;
@@ -115,7 +117,7 @@ export default class Xgrid {
 		const { options } = this;
 
 		this.ViewModel = new ViewModel();
-		
+		this.Events = new Events(this.Storage);
 		this.ProcessSettings = new ProcessSettings(options, this.Storage, this.ViewModel);
 		this.BuildInfrastructure = new BuildInfrastructure(options, this.Storage, this.ViewModel);
 		this.Sorting = new Sorting(this.Storage, this.ViewModel, options);
@@ -123,6 +125,7 @@ export default class Xgrid {
 		this.FilterToolbar = new FilterToolbar(this.Storage, this.ViewModel, options);
 		this.Display = new Display({
 			storage: this.Storage,
+			events: this.Events,
 			viewModel: this.ViewModel,
 			ajax: ((queryObject: IRequest) => {
 				return this._request(queryObject);

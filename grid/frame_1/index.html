@@ -13,18 +13,42 @@
 </head>
 
 <body>
-<!--[if lte IE 9]>
+	<!--[if lte IE 9]>
 	<p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
 <![endif]-->
-	<h1>1</h1>
-	<div class="container">
-		<div class="grid"></div>
+	<h1>Events</h1>
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-auto">
+				<table class="table">
+					<thead>
+						<tr>
+							<th>#</th>
+							<th>Event</th>
+							<th>Data</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<th>1</th>
+							<td>after-displaying-grid-data.xg</td>
+							<td data-id="after-displaying-grid-data.xg"></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="col">
+				<div class="grid"></div>
+			</div>
+		</div>
 	</div>
+	<script src="data.js"></script>
 	<script src="../js/jquery-3.2.1.min.js"></script>
 	<script src="../dist/xgrid.js"></script>
 	<script src="../js/moment.js"></script>
 	<script src="../js/daterangepicker.js"></script>
-	<script src="scripts.js"></script>
+	<script src="./scripts.js"></script>
+	<script src="../js/resize-frame.js"></script>
 </body>
 
 </html>

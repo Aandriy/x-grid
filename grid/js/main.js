@@ -3,9 +3,10 @@ function setHeight(frame) {
     $(frame).height(height + 'px');
 }
 
-function initAutoheight(e) {
+function initAutoheight() {
     var frame = this;
-    $(frame.contentWindow).resize(function () {
+    
+    $(frame.contentWindow).on('resize', function () {
         setHeight(frame);
     });
     setHeight(frame);

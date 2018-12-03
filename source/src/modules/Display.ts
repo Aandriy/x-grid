@@ -11,10 +11,12 @@ export default class Display {
 	storage: IStorage;
 	ajax: Function;
 	process: Function;
+	private _events: IEvents;
 
 	constructor(options) {
 		this.viewModel = options.viewModel;
 		this.storage = options.storage;
+		this._events = options.events;
 		this.ajax = options.ajax;
 
 		if (options.isLocal) {
@@ -45,6 +47,7 @@ export default class Display {
 			this.process().done((data: IDispalyModel) => {
 				this._filler(data);
 				this.storage.$box.removeClass('Xgrid-loading');
+				this._events.triggerAfterDisplayingGridData(viewModel.data);
 			});
 		}, 0);
 	};
