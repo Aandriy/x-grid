@@ -89,7 +89,7 @@ export default class Xgrid {
 	};
 
 	private _bind(): void {
-		// to Do if model will be changed
+		// To do if model will be changed
 		this.Storage.on('colModels', () => {
 			//console.log(this.Fill);
 		});
@@ -102,7 +102,7 @@ export default class Xgrid {
 			this.Fill.tbody();
 			setTimeout(() => {
 				this.FixedHeader.resize();
-			}, 1050)
+			}, 15);
 		});
 
 		this.Storage.on('$paginationBox', () => {

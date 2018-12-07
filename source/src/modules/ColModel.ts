@@ -48,9 +48,9 @@ class ColModel implements IColModel {
 		} else {
 			this.filterFormatter = pipes.getByType(model.filterType);
 		}
-		if (typeof(model.cellFormatter) === 'string' && typeof(CellFormatters[model.cellFormatter]) === 'function') {
+		if (typeof (model.cellFormatter) === 'string' && typeof (CellFormatters[model.cellFormatter]) === 'function') {
 			this.cellFormatter = CellFormatters[model.cellFormatter];
-		} else if (typeof(model.cellFormatter) === 'function') {
+		} else if (typeof (model.cellFormatter) === 'function') {
 			this.cellFormatter = model.cellFormatter;
 		} else {
 			this.cellFormatter = CellFormatters['text'];
@@ -59,12 +59,14 @@ class ColModel implements IColModel {
 		this.dependent = [];
 		this._check = function (): void {
 			if (this.hidden) {
-				this.dependent.forEach(function (item) {
+				this.dependent.forEach((item) => {
 					item.$item.detach();
 				});
 			} else {
-				this.dependent.forEach(function (item) {
-					item.$anchor.after(item.$item);
+				this.dependent.forEach((item) => {
+					if (!item.$item.parent()) {
+						item.$anchor.after(item.$item);
+					}
 				});
 			}
 		}

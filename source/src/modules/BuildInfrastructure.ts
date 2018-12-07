@@ -45,6 +45,7 @@ class BuildInfrastructure {
 			let cells = [];
 
 			cells.push($tfootCells.get(i));
+
 			$theadCells.each(function () {
 				cells.push($(this).find('>*:eq(' + i + ')').get(0));
 			});
