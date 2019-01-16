@@ -1,17 +1,15 @@
 import ColModel from './ColModel';
 import SortRule from './SortRule';
+import processSettingsDefaults from './ProcessSettings.defaults';
 
 class ProcessSettings {
 	viewModel: IViewModel;
 	storage: IStorage;
 	properties: IProcessSettingsProperties;
-	options: IProcessSettingsOptions
+	options: IOptionsProcessSettings
 
 	constructor(options, storage, viewModel) {
-		this.options = $.extend({
-			colModels: [],
-			filterToolbar: true
-		}, options);
+		this.options = {...processSettingsDefaults, ...options};
 
 		this.properties = {
 			scrollbarWidth: null

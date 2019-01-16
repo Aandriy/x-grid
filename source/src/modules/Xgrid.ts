@@ -10,9 +10,10 @@ import Fill from './Fill';
 import Pagination from './Pagination';
 import tools from './Tools';
 import Events from './Events';
+import xgridDefaults from './XgridDefaults';
 
 export default class Xgrid {
-	version: '1.0.0';
+	version: '1.0.1';
 	options: IOptions;
 	properties: IXgridProperties;
 	ViewModel: IViewModel;
@@ -27,23 +28,13 @@ export default class Xgrid {
 	FilterToolbar: FilterToolbar;
 	Pagination: Pagination;
 
-	constructor(options: IOptions, $box: JQuery) {
+	constructor(options: IOptions, $box: JQuery, defaults = {}) {
 		this.properties = {
 			$box,
 			data: []
-		}
-		this.options = $.extend({
-			beforeRequest: [],
-			afterResponse: [],
-			sortBy: [],
-			paginationSelector: '',
-			ajaxType: 'POST',
-			filterToolbarGroupOp: 'AND',
-			url: '',
-			multiSorting: false,
-			filterToolbar: false
-		}, options);
+		};
 
+		this.options = $.extend({}, xgridDefaults(defaults), options);
 		this.Storage = new Storage({ $box })
 		this._exec();
 	};

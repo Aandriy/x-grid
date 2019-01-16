@@ -1,6 +1,6 @@
-interface IProcessSettingsOptions {
+interface IOptionsProcessSettings {
 	colModels: IColModel[];
 	filterToolbar: boolean;
-	sortBy: string | ISortBy[];
+	sortBy?: string | ISortBy[];
 	rows?: number;
 }

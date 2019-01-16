@@ -1,3 +1,7 @@
+export const CUSTOM_EVENTS = {
+    'AFTER_DISPLAYING_GRID_DATA': 'after-displaying-grid-data.xg'
+};
+
 export default class Events implements IEvents {
     storage: IStorage;
 
@@ -6,7 +10,7 @@ export default class Events implements IEvents {
     }
 
     public triggerAfterDisplayingGridData (data: IRawData[]): void{
-        this._trigger('after-displaying-grid-data.xg', [data])
+        this._trigger(CUSTOM_EVENTS.AFTER_DISPLAYING_GRID_DATA, [data])
     }
     
     private _trigger(event: string, data? :any): void {

@@ -1,4 +1,5 @@
 import tools from './Tools';
+import buildInfrastructureDefaults from './BuildInfrastructure.defaults';
 
 class BuildInfrastructure {
 	viewModel: IViewModel;
@@ -7,21 +8,10 @@ class BuildInfrastructure {
 
 	constructor(options, storage, viewModel) {
 		this.viewModel = viewModel;
-		this.options = $.extend({
-			theadClass: 'table-grid-thead',
-			tbodyClass: 'table-grid-tbody',
-			firstBtnTemplate: '<span class="btn btn-outline-secondary">&#171;</span>',
-			lastBtnTemplate: '<span class="btn btn-outline-secondary">&#187;</span>',
-			prevBtnTemplate: '<span class="btn btn-outline-secondary">&#8249;</span>',
-			nextBtnTemplate: '<span class="btn btn-outline-secondary">&#8250;</span>',
-			currentPageTemplate: '<input type="text" class="form-control" />',
-			paginationTemplate: `<div class="Xgrid-paggination input-group input-group-sm">
-			<div class="input-group-prepend" >{firstBtnTemplate}{prevBtnTemplate}<span class="input-group-text"> Page </span></div>
-				{currentPageTemplate}
-				<div class="input-group-prepend" ><span class="input-group-text"> of <span class="Xgrid-total-pages"></span></span>{nextBtnTemplate}{lastBtnTemplate}</div>
-			</div>`
-		}, options);
-
+		this.options = {
+			...buildInfrastructureDefaults,
+			...options,
+		};
 		this.storage = storage;
 		this._exec();
 	};
@@ -76,7 +66,7 @@ class BuildInfrastructure {
 	_buildFilterToolbar() {
 		const tag = 'tfoot';
 		const storage = this.storage;
-		const $filter = $(`<${tag} class="Xgrid-thead-filter"><tr>${ new Array(storage.colModels.length + 1).join('<td class="Xgrid-filter-cell"></td>')}</tr></${tag}>`);
+		const $filter = $(`<${tag} class="Xgrid-thead-filter"><tr>${new Array(storage.colModels.length + 1).join('<td class="Xgrid-filter-cell"></td>')}</tr></${tag}>`);
 		const addProp = this._addPropstoHeaderCells.bind(this);
 
 		storage.$filterToolbarItems = $filter.find('.Xgrid-filter-cell').each(addProp);
