@@ -1,5 +1,5 @@
 const path = require('path');
-const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 
 module.exports = {
   mode: 'development',
@@ -15,36 +15,49 @@ module.exports = {
     filename: 'xgrid.js',
     path: path.resolve(__dirname, '../grid/dist')
   },
+
   plugins: [
-    new ExtractTextPlugin({
+    new MiniCssExtractPlugin({
+      // Options similar to the same options in webpackOptions.output
+      // both options are optional
       filename: '../dist/xgrid.css',
-      allChunks: true,
-    }),
+    })
   ],
   module: {
     rules: [
       {
         test: /\.(sass|scss)$/,
         include: path.resolve(__dirname, 'src/scss'),
-        use: ExtractTextPlugin.extract({
-          use: [{
-              loader: "css-loader",
-              options: {
-                sourceMap: true,
-                minimize: true,
-                url: false
-              }
-            },
-            {
-              loader: "sass-loader",
-              options: {
-                sourceMap: true
-              }
+        use: [
+          {
+            loader: MiniCssExtractPlugin.loader,
+            options: {
+              // you can specify a publicPath here
+              // by default it use publicPath in webpackOptions.output
             }
-          ]
-        })
+          },
+          /*
+          {
+            loader: 'file-loader',
+            options: {
+              name: '../dist/xgrid.css',
+            }
+          },
+          {
+            loader: 'extract-loader'
+          },
+          */
+          {
+            loader: 'css-loader?-url'
+          },
+          {
+            loader: 'postcss-loader'
+          },
+          {
+            loader: 'sass-loader'
+          }
+        ]
       },
-     
       {
         test: /\.tsx?$/,
         use: 'ts-loader',
