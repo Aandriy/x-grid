@@ -12,9 +12,9 @@ export default class Pagination {
 		this._subscribe();
 		this.page();
 		this.totalPages();
-		this.exec();
+		this._bind();
 	};
-	exec() {
+	public exec() {
 		this._bind();
 	};
 
@@ -26,14 +26,55 @@ export default class Pagination {
 		this.storage.$paginationBox.find('.Xgrid-total-pages').text(this.viewModel.totalPages);
 	};
 
-	private _subscribe() {
+	public goTo(num: number): void {
+		let page = num;
+
+		if (!isNaN(page)) {
+			if (page < 1) {
+				page = 1;
+			} else if (page > this.viewModel.totalPages) {
+				page = this.viewModel.totalPages;
+			}
+			this.viewModel.newPage = page;
+		} else {
+			this.viewModel.page = this.viewModel.newPage;
+		}
+	}
+
+	public prev(): void {
+		const page = this.viewModel.page - 1;
+		if (page > 0) {
+			this.viewModel.newPage = page;
+		}
+	}
+
+	public next(): void {
+		const page = this.viewModel.page + 1;
+		if (page <= this.viewModel.totalPages) {
+			this.viewModel.newPage = page;
+		}
+	}
+
+	public first(): void {
+		if (this.viewModel.page !== 1) {
+			this.viewModel.newPage = 1;
+		}
+	}
+
+	public last(): void {
+		if (this.viewModel.page !== this.viewModel.totalPages) {
+			this.viewModel.newPage = this.viewModel.totalPages;
+		}
+	}
+
+	private _subscribe(): void {
 		const { viewModel } = this;
 
 		viewModel.on('page', this.page.bind(this));
 		viewModel.on('totalPages', this.totalPages.bind(this));
 	};
 
-	private _bind() {
+	private _bind(): void {
 		const { storage } = this;
 
 		storage.$paginationBox.on('click.xgrid', '.Xgrid-first', this._handlerFirst.bind(this));
@@ -43,45 +84,27 @@ export default class Pagination {
 		storage.$paginationBox.on('keypress.xgrid', '.Xgrid-current-page', this._handlerGoTo.bind(this));
 	};
 
-	private _handlerFirst(e) {
+	private _handlerFirst(e): void {
 		e.preventDefault();
-		if (this.viewModel.page !== 1) {
-			this.viewModel.newPage = 1;
-		}
+		this.first();
 	};
-	private _handlerLast(e) {
+	private _handlerLast(e): void {
 		e.preventDefault();
-		if (this.viewModel.page !== this.viewModel.totalPages) {
-			this.viewModel.newPage = this.viewModel.totalPages;
-		}
+		this.last();
 	};
-	private _handlerNext(e) {
+	private _handlerNext(e): void {
 		e.preventDefault();
-		const page = this.viewModel.page + 1;
-		if (page <= this.viewModel.totalPages) {
-			this.viewModel.newPage = page;
-		}
+		this.next();
 	};
-	private _handlerPrev(e) {
+	private _handlerPrev(e): void {
 		e.preventDefault();
-		const page = this.viewModel.page - 1;
-		if (page > 0) {
-			this.viewModel.newPage = page;
-		}
+		this.prev();
 	};
-	private _handlerGoTo(e) {
+	private _handlerGoTo(e): void {
 		if (e.which === 13) {
-			let page: number = +$(e.currentTarget).val();
-			if (!isNaN(page)) {
-				if (page < 1) {
-					page = 1;
-				} else if (page > this.viewModel.totalPages) {
-					page = this.viewModel.totalPages;
-				}
-				this.viewModel.newPage = page;
-			} else {
-				this.viewModel.page = this.viewModel.newPage;
-			}
+			const page: number = +$(e.currentTarget).val();
+
+			this.goTo(page)
 		}
 	}
 };

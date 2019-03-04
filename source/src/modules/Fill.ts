@@ -1,10 +1,12 @@
 export default class Fill {
 	viewModel: IViewModel;
 	storage: IStorage;
+	private _events: IEvents;
 
-	constructor(storage, viewModel) {
+	constructor({ storage, viewModel, events }) {
 		this.viewModel = viewModel;
 		this.storage = storage;
+		this._events = events;
 	};
 
 	thead(): void {
@@ -34,7 +36,9 @@ export default class Fill {
 				}
 			});
 		});
+
 		this.filterToolbar();
+		this._events.triggerAfterDisplayingGridHeader(storage.$headTable);
 	};
 
 	filterToolbar(): void {
@@ -50,7 +54,7 @@ export default class Fill {
 					if (typeof (data) !== 'undefined') {
 						$cell.html(data);
 					}
-					if (typeof(colModel.afterFilterToolbarFormatter) === 'function') {
+					if (typeof (colModel.afterFilterToolbarFormatter) === 'function') {
 						colModel.afterFilterToolbarFormatter($cell, colModel);
 					}
 				} else {

@@ -43,10 +43,30 @@ export default class Xgrid {
 		this.Storage.data = rows;
 		return this;
 	};
+
 	public refresh(): Xgrid {
 		this.Storage.notify('data', this.Storage);
 		return this;
 	};
+
+	public prev(): void {
+		this.Pagination.prev();
+	}
+
+	public next(): void {
+		this.Pagination.next();
+	}
+
+	public first(): void {
+		this.Pagination.first();
+	}
+
+	public last(): void {
+		this.Pagination.last();
+	}
+	public goToPage(page: number): void {
+		this.Pagination.goTo(page);
+	}
 
 	ajaxFunction(queryObject: IRequest, url: string): JQuery.jqXHR<IResponse> {
 		const options = this.options;
@@ -112,7 +132,12 @@ export default class Xgrid {
 		this.ProcessSettings = new ProcessSettings(options, this.Storage, this.ViewModel);
 		this.BuildInfrastructure = new BuildInfrastructure(options, this.Storage, this.ViewModel);
 		this.Sorting = new Sorting(this.Storage, this.ViewModel, options);
-		this.Fill = new Fill(this.Storage, this.ViewModel);
+
+		this.Fill = new Fill({
+			storage: this.Storage, 
+			viewModel: this.ViewModel,
+			events: this.Events,
+		});
 		this.FilterToolbar = new FilterToolbar(this.Storage, this.ViewModel, options);
 		this.Display = new Display({
 			storage: this.Storage,

@@ -5,6 +5,26 @@ function getRandomInt(min, max) {
 
 $(function () {
 	var $grid = $('.grid');
+	var types = {};
+
+	function increase(type) {
+		if (!types[type]) {
+			types[type] = 0;
+		}
+		types[type] += 1;
+		$('td[data-id="' + type + '.xg"]').html(types[type]);
+	}
+	var evets = ['after-displaying-grid-header.xg', 'after-displaying-grid-data.xg'];
+	var $evets = $('#evets');
+
+	evets.forEach(function (value, i) {
+		$evets.append('<tr><th>' + (i + 1) + '</th><td>' + value + '</td><td data-id="' + value + '"></td></tr>');
+	});
+
+	$grid.on(evets.join(' '), function (e, data) {
+		increase(e.type);
+		console.log(data);
+	});
 
 	$grid.Xgrid({
 		data: mydata,
@@ -94,15 +114,11 @@ $(function () {
 	var _Xgrid = $grid.data('Xgrid');
 
 	$grid.after($btn);
-	let afterDisplayingGridData = 0;
-
-	$grid.on('after-displaying-grid-data.xg', function (e, data) {
-		afterDisplayingGridData++;
-		$('td[data-id="after-displaying-grid-data.xg"]').html(afterDisplayingGridData);
-	})
 
 	$btn.on('click', function () {
 		mydata[0].key = getRandomInt(-100, 100);
 		_Xgrid.setGridData(mydata);
 	});
+
+	window.xgrid = _Xgrid;
 });

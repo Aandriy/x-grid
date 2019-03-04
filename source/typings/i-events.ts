@@ -1,3 +1,4 @@
 interface IEvents {
-	triggerAfterDisplayingGridData (data: IRawData[]): void;
+	triggerAfterDisplayingGridData(data: IRawData[]): void;
+	triggerAfterDisplayingGridHeader(data: JQuery<HTMLElement>): void;
 }
