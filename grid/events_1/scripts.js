@@ -6,6 +6,13 @@ function getRandomInt(min, max) {
 $(function () {
 	var $grid = $('.grid');
 	var types = {};
+	var date = moment().subtract(4, "days");
+	mydata.forEach(function (row, i) {
+		if (!(i % 3)) {
+			date = date.add(1, 'd');
+		}
+		row.invdate = date.format("YYYY-MM-DD");
+	});
 
 	function increase(type) {
 		if (!types[type]) {
